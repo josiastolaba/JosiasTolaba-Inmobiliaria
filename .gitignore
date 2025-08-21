@@ -1,0 +1,57 @@
+Archivos de compilación
+bin/
+obj/
+out/
+Debug/
+Release/
+
+Archivos de usuario
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.rsuser
+*.sln.docstates
+
+Archivos de IDE (Visual Studio / VS Code)
+.vscode/
+.vs/
+.idea/
+
+Paquetes NuGet
+*.nupkg
+*.snupkg
+*.nuspec
+packages/
+*.dll
+*.exe
+
+Logs y temporales
+*.log
+*.tlog
+*.tmp
+*.temp
+*.dbmdl
+*.bak
+
+Configuración de build
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+Archivos de publicación
+*.publishsettings
+*.pubxml
+*.pubxml.user
+publish/
+
+Secretos y configuración local
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+
+Archivos de sistema
+Thumbs.db
+ehthumbs.db
+desktop.ini
+.DS_Store
