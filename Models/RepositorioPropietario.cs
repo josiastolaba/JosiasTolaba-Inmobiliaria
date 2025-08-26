@@ -117,14 +117,14 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             return res;
         }
         public Propietario PropietarioId(int IdPropietario)
-		{
-			Propietario res = null;
-			using (MySqlConnection connection = new MySqlConnection(connectionString))
-			{
-				string query = $@"SELECT * FROM propietario WHERE IdPropietario = @IdPropietario;";
-                
-				using (MySqlCommand command = new MySqlCommand(query, connection))
-                
+        {
+            Propietario res = null;
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"SELECT * FROM propietario WHERE IdPropietario = @IdPropietario;";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+
                 {
                     command.Parameters.AddWithValue("@IdPropietario", IdPropietario);
                     connection.Open();
@@ -144,9 +144,27 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                     }
                     connection.Close();
                 }
-			}
-			return res;
-		}
+            }
+            return res;
+        }
+        public int DarDeBaja(int IdPropietario)
+        {
+            int res = -1;
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"UPDATE propietario 
+                    SET Estado = 0 
+                    WHERE {nameof(IdPropietario)}=@IdPropietario";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@IdPropietario", IdPropietario);
+                    connection.Open();
+                    res = command.ExecuteNonQuery();
+                }
+            }
+            return res;
+        }
 
     }
 }

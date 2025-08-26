@@ -72,5 +72,19 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
 				return View();
 			}
 		}
+		public IActionResult DarDeBaja(int IdPropietario)
+		{
+			Propietario p = repositorio.PropietarioId(IdPropietario);
+			int res = repositorio.DarDeBaja(IdPropietario);
+				if (res > 0)
+				{
+					return RedirectToAction(nameof(Index));
+				}
+				else
+				{
+					ViewBag.Error = "No se pudo eliminar el propietario";
+					return View();
+				}
+		}
     }
 }

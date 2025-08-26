@@ -112,14 +112,14 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             return res;
         }
         public Inquilino InquilinoId(int IdInquilino)
-		{
-			Inquilino res = null;
-			using (MySqlConnection connection = new MySqlConnection(connectionString))
-			{
-				string query = $@"SELECT * FROM inquilino WHERE IdInquilino = @IdInquilino;";
-                
-				using (MySqlCommand command = new MySqlCommand(query, connection))
-                
+        {
+            Inquilino res = null;
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"SELECT * FROM inquilino WHERE IdInquilino = @IdInquilino;";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+
                 {
                     command.Parameters.AddWithValue("@IdInquilino", IdInquilino);
                     connection.Open();
@@ -139,8 +139,26 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                     }
                     connection.Close();
                 }
-			}
-			return res;
-		}
+            }
+            return res;
+        }
+        public int DarDeBaja(int IdInquilino)
+        {
+            int res = -1;
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"UPDATE inquilino 
+                    SET Estado = 0 
+                    WHERE {nameof(IdInquilino)}=@IdInquilino";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@IdInquilino", IdInquilino);
+                    connection.Open();
+                    res = command.ExecuteNonQuery();
+                }
+            }
+            return res;
+        }
     }
 }
