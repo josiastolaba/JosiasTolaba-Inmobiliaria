@@ -1,0 +1,49 @@
+@model IEnumerable<INMOBILIARIA_JosiasTolaba.Models.Inquilino>
+
+@{
+	ViewData["Title"] = "Inquilino";
+}
+
+<h1>
+	Inquilino
+</h1>
+<hr />
+<p>
+    <a class="btn btn-primary" asp-action="Create" title="Crear"><i class="fa-solid fa-plus"></i>➕ Nuevo Inquilino</a>
+</p>
+<hr />
+<table class="table table-striped table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Id</th>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>DNI</th>
+            <th>Teléfono</th>
+            <th>Email</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var inquilino in Model)
+        {
+            <tr>
+                <td>@inquilino.IdInquilino</td>
+                <td>@inquilino.Nombre</td>
+                <td>@inquilino.Apellido</td>
+                <td>@inquilino.Dni</td>
+                <td>@inquilino.Telefono</td>
+                <td>@inquilino.Email</td>
+                <td>
+                    @(inquilino.Estado ? "Activo" : "Inactivo")
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-IdInquilino="@inquilino.IdInquilino" class="btn btn-info btn-sm">Detalles</a>
+                    <a asp-controller="Inquilino" asp-action="Update" asp-route-IdInquilino="@inquilino.IdInquilino" class="btn btn-warning btn-sm">Editar</a>
+                    <a asp-controller="Inquilino" asp-action="Delete" asp-route-IdInquilino="@inquilino.IdInquilino" class="btn btn-danger btn-sm">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
