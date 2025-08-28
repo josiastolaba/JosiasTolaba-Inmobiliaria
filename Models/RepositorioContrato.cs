@@ -39,10 +39,12 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                     command.Parameters.AddWithValue("@FechaInicio", p.FechaInicio);
 
                     connection.Open();
-                    IdGenerado = Convert.ToInt32(command.ExecuteScalar());   
+                    IdGenerado = Convert.ToInt32(command.ExecuteScalar());
                 }
             }
             return IdGenerado;
         }
+        
+        
     }
 }
