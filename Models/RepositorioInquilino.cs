@@ -104,7 +104,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                             Dni = reader.GetString(nameof(Inquilino.Dni)),
                             Email = reader.GetString(nameof(Inquilino.Email)),
                             Telefono = reader.GetString(nameof(Inquilino.Telefono)),
-                            Estado = false
+                            Estado = reader.GetBoolean(nameof(Inquilino.Estado))
                         });
                     }
                 }
