@@ -1,6 +1,6 @@
 using MySql.Data.MySqlClient;
 
-namespace INMOBILIARIA_JosiasTolaba.Models.DTOs
+namespace INMOBILIARIA_JosiasTolaba.Models
 {
     public class RepositorioContrato : RepositorioBase, IRepositorioContrato
     {
@@ -9,14 +9,10 @@ namespace INMOBILIARIA_JosiasTolaba.Models.DTOs
 
         }
 
-        public Contrato DarDeAlta()
-        {
-            return new Contrato();
-        }
 
-        public int Insertar(Contrato p)
+        public int Alta(Contrato p)
         {
-            int IdGenerado = 0;
+            int res = -1;
 
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
@@ -39,10 +35,29 @@ namespace INMOBILIARIA_JosiasTolaba.Models.DTOs
                     command.Parameters.AddWithValue("@FechaInicio", p.FechaInicio);
 
                     connection.Open();
-                    IdGenerado = Convert.ToInt32(command.ExecuteScalar());
+                    res = Convert.ToInt32(command.ExecuteScalar());
                 }
             }
-            return IdGenerado;
+            return res;
+        }
+
+        public int Baja(int id)
+        {
+            int res = -1;
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"DELETE FROM contrato
+                WHERE {nameof(Contrato.IdContrato)} = @IdContrato";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@IdContrato", id);
+
+                    connection.Open();
+                    res = command.ExecuteNonQuery();
+                }
+            }
+            return res;
         }
 
         public int DarDeBaja(int IdContrato)
@@ -63,10 +78,11 @@ namespace INMOBILIARIA_JosiasTolaba.Models.DTOs
             return res;
         }
 
-        public int Modificar(Contrato c)
+        public int Modificacion(Contrato c)
         {
             int res = -1;
-            using (MySqlConnection connection = new MySqlConnection(connectionString)) {
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
                 string query = $@"UPDATE contrato SET
                 {nameof(Contrato.FechaInicio)} =@FechaInicio,
                 {nameof(Contrato.FechaFin)}=@FechaFin,
@@ -134,5 +150,103 @@ namespace INMOBILIARIA_JosiasTolaba.Models.DTOs
             }
             return res;
         }
+        
+         public Contrato IdContrato(int IdContrato)
+        {
+            Contrato res = null;
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"SELECT * FROM contrato WHERE IdContrato = @IdContrato;";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+
+                {
+                    command.Parameters.AddWithValue("@IdContrato", IdContrato);
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        res = new Contrato
+                        {
+                            IdContrato = reader.GetInt32(nameof(Contrato.IdContrato)),
+                            FechaInicio = reader.GetDateTime(nameof(Contrato.FechaInicio)),
+                            FechaFin = reader.GetDateTime(nameof(Contrato.FechaFin)),
+                            MontoMensual = reader.GetInt32(nameof(Contrato.MontoMensual)),
+                            Estado = reader.GetBoolean(nameof(Propietario.Estado)),
+                            Habitante = new InquilinoDto
+                            {
+                                IdInquilino = reader.GetInt32(nameof(Inquilino.IdInquilino)),
+                                Nombre = reader.GetString(nameof(Inquilino.Nombre)),
+                                Apellido = reader.GetString(nameof(Inquilino.Apellido)),
+                                Dni = reader.GetString(nameof(Inquilino.Dni))
+
+                            },
+
+                            Propiedad = new InmuebleDto
+                            {
+                                IdInmueble = reader.GetInt32("IdInmueble"),
+                                Direccion = reader.GetString("InmuebleDireccion"),
+                                Tipo = reader.GetString("InmuebleTipo")
+                            }
+                        };
+                    }
+                    connection.Close();
+                }
+            }
+            return res;
+        }
+        
+        public IList<Contrato> ListarPorInquilino(int idInquilino)
+        {
+            IList<Contrato> res = new List<Contrato>();
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = @"
+            SELECT c.IdContrato, c.FechaInicio, c.FechaFin, c.MontoMensual, c.Estado,
+                   i.IdInquilino, i.Nombre AS InquilinoNombre, i.Apellido AS InquilinoApellido, i.Dni AS InquilinoDni,
+                   m.IdInmueble, m.Dirección AS InmuebleDireccion, m.Tipo AS InmuebleTipo
+            FROM contrato c
+            JOIN inquilino i ON c.IdInquilino = i.IdInquilino
+            JOIN inmueble m ON c.IdInmueble = m.IdInmueble
+            WHERE c.Estado = true AND c.IdInquilino = @idInquilino;";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@idInquilino", idInquilino);
+
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        Contrato c = new Contrato
+                        {
+                            IdContrato = reader.GetInt32("IdContrato"),
+                            FechaInicio = reader.GetDateTime("FechaInicio"),
+                            FechaFin = reader.GetDateTime("FechaFin"),
+                            MontoMensual = reader.GetInt32("MontoMensual"),
+                            Estado = reader.GetBoolean("Estado"),
+
+                            Habitante = new InquilinoDto
+                            {
+                                IdInquilino = reader.GetInt32("IdInquilino"),
+                                Nombre = reader.GetString("InquilinoNombre"),
+                                Apellido = reader.GetString("InquilinoApellido"),
+                                Dni = reader.GetString("InquilinoDni")
+                            },
+                            Propiedad = new InmuebleDto
+                            {
+                                IdInmueble = reader.GetInt32("IdInmueble"),
+                                Direccion = reader.GetString("InmuebleDireccion"),
+                                Tipo = reader.GetString("InmuebleTipo")
+                            }
+                        };
+                        res.Add(c);
+                    }
+                    connection.Close();
+                }
+            }
+            return res;
+        }
+
     }
 }

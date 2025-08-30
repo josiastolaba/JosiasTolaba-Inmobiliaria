@@ -1,4 +1,4 @@
-namespace INMOBILIARIA_JosiasTolaba.Models.DTOs
+namespace INMOBILIARIA_JosiasTolaba.Models
 {
     public class InquilinoDto
     {

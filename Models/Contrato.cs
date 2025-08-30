@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using INMOBILIARIA_JosiasTolaba.Models.DTOs;
 
 namespace INMOBILIARIA_JosiasTolaba.Models
 {
