@@ -6,8 +6,5 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         int DarDeBaja(int IdContrato);
         IList<Contrato> listarContratos();
 
-        IList<Contrato> buscarPorFechas(DateTime FechaInicio, DateTime FechaFin);
-
-        IList<Contrato> buscarPorInquilino(int IdInquilino);
     }
 }

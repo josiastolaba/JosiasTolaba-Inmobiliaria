@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using INMOBILIARIA_JosiasTolaba.Models.DTOs;
 
 namespace INMOBILIARIA_JosiasTolaba.Models
 {
@@ -13,8 +14,8 @@ namespace INMOBILIARIA_JosiasTolaba.Models
 
         public int MontoMensual { get; set; }
 
-        public Inmueble? Propiedad { get; set; }
-        public Inquilino? Habitante { get; set; }
+        public InmuebleDto? Propiedad { get; set; }
+        public InquilinoDto? Habitante { get; set; }
         
         public bool Estado { get; set; }
     }
