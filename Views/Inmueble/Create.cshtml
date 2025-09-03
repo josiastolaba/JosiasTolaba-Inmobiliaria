@@ -1,0 +1,71 @@
+@model INMOBILIARIA_JosiasTolaba.Models.Inmueble
+
+@{
+	ViewData["Title"] = "Inmueble-Crear";
+}
+<h1>
+	Inmueble
+</h1>
+<hr />
+<div class = "form-Create">
+    <form asp-action="Create" method="post">
+        <div class="form-group">
+            <label asp-for="Direccion"></label>
+            <input asp-for="Direccion" class="form-control" placeholder="Ej: Calle falsa 123"/>
+            <span asp-validation-for="Direccion" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Tipo"></label>
+            <input asp-for="Tipo" class="form-control" placeholder="Ej: Casa, Deposito, Local"/>
+            <span asp-validation-for="Tipo" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="IdPropietario">Propietario</label>
+            <select asp-for="IdPropietario" class="form-control"
+                    asp-items="@(new SelectList(ViewBag.Propietarios, "IdPropietario", "Nombre"))">
+            <option value="" disabled selected> Seleccione un propietario </option>
+            </select>
+            <span asp-validation-for="IdPropietario" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Uso"></label>
+            <select asp-for="Uso" class="form-control"
+                    asp-items="Html.GetEnumSelectList<INMOBILIARIA_JosiasTolaba.Models.Inmueble.TipoUso>()">
+                <option value="" disabled selected> Seleccione un uso </option>
+            </select>
+            <span asp-validation-for="Uso" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Latitud"></label>
+            <input asp-for="Latitud" class="form-control" placeholder="Ej: 41.40338, 2.17403"/>
+            <span asp-validation-for="Latitud" class="text-danger"></span>
+        </div>
+        
+        <div class="form-group">
+            <label asp-for="Longitud"></label>
+            <input asp-for="Longitud" class="form-control" placeholder="Ej: 41.40338, 2.17403"/>
+            <span asp-validation-for="Longitud" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Precio"></label>
+            <input asp-for="Precio" class="form-control" type="number" step="0.01" placeholder="Ej: 1234567,89"/>
+            <span asp-validation-for="Precio" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Ambiente"></label>
+            <input asp-for="Ambiente" class="form-control" placeholder="Ej: 1, 2, 3"/>
+            <span asp-validation-for="Ambiente" class="text-danger"></span>
+        </div>
+        <hr />
+        <div class="form-group">
+            <input type="submit" value="Create" class="btn btn-primary" />
+            <a asp-action="Index" class="btn btn-secondary">Volver</a>
+        </div>
+    </form>
+</div>

@@ -63,14 +63,14 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                 string query = $@"UPDATE inquilino SET
                 {nameof(Inquilino.Nombre)}=@Nombre,
                 {nameof(Inquilino.Apellido)}=@Apellido,
-                {nameof(Propietario.Dni)}=@Dni,
+                {nameof(Inquilino.Dni)}=@Dni,
                 {nameof(Inquilino.Telefono)}=@Telefono,
                 {nameof(Inquilino.Email)}=@Email
                 WHERE {nameof(Inquilino.IdInquilino)}=@IdInquilino";
 
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@Id", i.IdInquilino);
+                    command.Parameters.AddWithValue("@IdInquilino", i.IdInquilino);
                     command.Parameters.AddWithValue("@Nombre", i.Nombre);
                     command.Parameters.AddWithValue("@Apellido", i.Apellido);
                     command.Parameters.AddWithValue("@Dni", i.Dni);
