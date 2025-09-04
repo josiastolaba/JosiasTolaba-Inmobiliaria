@@ -7,8 +7,4 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         int DarDeBaja(int IdInmueble);
         Inmueble InmuebleId(int IdInmueble);
     }
-    public interface IRepositorio : IRepositorio<Inmueble>
-    {
-        IList<Propietario> ListarPropietarios();
-	}
 }

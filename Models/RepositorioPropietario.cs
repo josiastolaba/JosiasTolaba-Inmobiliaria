@@ -46,11 +46,9 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             {
                 string query = $@"DELETE FROM propietario 
                 WHERE {nameof(Propietario.IdPropietario)} = @IdPropietario";
-
                 using (var command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@IdPropietario", id);
-
                     connection.Open();
                     res = command.ExecuteNonQuery();
                 }
