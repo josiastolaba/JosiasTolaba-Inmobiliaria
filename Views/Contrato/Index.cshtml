@@ -1,0 +1,44 @@
+@model IEnumerable<INMOBILIARIA_JosiasTolaba.Models.Contrato>
+
+@{
+    ViewData["Title"] = "Contratos";
+}
+
+<h1>Lista de Contratos</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Nuevo Contrato</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.IdContrato)</th>
+            <th>Inquilino</th>
+            <th>Inmueble</th>
+            <th>@Html.DisplayNameFor(model => model.FechaInicio)</th>
+            <th>@Html.DisplayNameFor(model => model.FechaFin)</th>
+            <th>@Html.DisplayNameFor(model => model.MontoMensual)</th>
+            <th>@Html.DisplayNameFor(model => model.Estado)</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>@item.IdContrato</td>
+            <td>@item.Habitante?.Nombre @item.Habitante?.Apellido (@item.Habitante?.Dni)</td>
+            <td>@item.Propiedad?.Direccion (@item.Propiedad?.Tipo)</td>
+            <td>@item.FechaInicio.ToShortDateString()</td>
+            <td>@item.FechaFin.ToShortDateString()</td>
+            <td>@item.MontoMensual</td>
+            <td>@(item.Estado ? "Activo" : "Inactivo")</td>
+            <td>
+                <a asp-action="Ver" asp-route-id="@item.IdContrato" class="btn btn-info btn-sm">Detalles</a> |
+                <a asp-action="Edit" asp-route-id="@item.IdContrato" class="btn btn-warning btn-sm">Editar</a> |
+                <a asp-action="Eliminar" asp-route-id="@item.IdContrato" class="btn btn-danger btn-sm">Eliminar</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

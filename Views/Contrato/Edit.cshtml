@@ -1,0 +1,34 @@
+@model INMOBILIARIA_JosiasTolaba.Models.Contrato
+
+@{
+    ViewData["Title"] = "Editar Contrato";
+}
+
+<h1>Editar Contrato</h1>
+
+<form asp-action="Edit">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="IdContrato" />
+
+    <div class="form-group">
+        <label for="IdInquilino">Inquilino</label>
+        <select asp-for="Habitante.IdInquilino" class="form-control" asp-items="@(new SelectList(ViewBag.Inquilinos, "IdInquilino", "Nombre", Model.Habitante?.IdInquilino))"></select>
+    </div>
+
+    <div class="form-group">
+        <label for="IdInmueble">Inmueble</label>
+        <select asp-for="Propiedad.IdInmueble" class="form-control" asp-items="@(new SelectList(ViewBag.Inmuebles, "IdInmueble", "Direccion", Model.Propiedad?.IdInmueble))"></select>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="FechaInicio"></label>
+        <input asp-for="FechaInicio" class="form-control" type="date"/>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="FechaFin"></label>
+        <input asp-for="FechaFin" class="form-control" type="date"/>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Monto
