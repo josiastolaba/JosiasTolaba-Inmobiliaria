@@ -15,6 +15,9 @@ namespace INMOBILIARIA_JosiasTolaba.Models
 
         public InmuebleDto? Propiedad { get; set; }
         public InquilinoDto? Habitante { get; set; }
+
+        public int QuienCreo { get; set; } = 1;  
+        public int QuienElimino { get; set; } = 0; 
         
         public bool Estado { get; set; }
     }

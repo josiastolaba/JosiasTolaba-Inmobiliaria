@@ -14,20 +14,42 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
                 string query = @"
-                    INSERT INTO contrato (FechaInicio, FechaFin, MontoMensual, IdInquilino, IdInmueble)
-                    VALUES (@FechaInicio, @FechaFin, @MontoMensual, @IdInquilino, @IdInmueble);
+                    INSERT INTO contrato (FechaInicio, FechaFin, MontoMensual, IdInquilino, IdInmueble, QuienCreo, QuienElimino, Estado)
+                    VALUES (@FechaInicio, @FechaFin, @MontoMensual, @IdInquilino, @IdInmueble, @QuienCreo, @QuienElimino, @Estado);
                     SELECT LAST_INSERT_ID();";
 
                 using (var command = new MySqlCommand(query, connection))
                 {
+                    p.Estado = true;
                     command.Parameters.AddWithValue("@FechaInicio", p.FechaInicio);
                     command.Parameters.AddWithValue("@FechaFin", p.FechaFin);
                     command.Parameters.AddWithValue("@MontoMensual", p.MontoMensual);
                     command.Parameters.AddWithValue("@IdInquilino", p.Habitante.IdInquilino);
                     command.Parameters.AddWithValue("@IdInmueble", p.Propiedad.IdInmueble);
-
+                    command.Parameters.AddWithValue("@QuienCreo", p.QuienCreo);
+                    command.Parameters.AddWithValue("@QuienElimino", p.QuienElimino);
+                    command.Parameters.AddWithValue("@Estado", p.Estado);
                     connection.Open();
                     res = Convert.ToInt32(command.ExecuteScalar());
+                }
+            }
+            return res;
+        }
+
+         public int DarDeBaja(int IdContrato)
+        {
+            int res = -1;
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"UPDATE contrato 
+                    SET Estado = 0 
+                    WHERE {nameof(IdContrato)}=@IdContrato";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@IdContrato", IdContrato);
+                    connection.Open();
+                    res = command.ExecuteNonQuery();
                 }
             }
             return res;
@@ -62,6 +84,8 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                         MontoMensual = @MontoMensual,
                         IdInquilino = @IdInquilino,
                         IdInmueble = @IdInmueble
+                        QuienCreo = @QuienCreo,
+                        QuienElimino = @QuienElimino,
                     WHERE IdContrato = @IdContrato";
 
                 using (MySqlCommand command = new MySqlCommand(query, connection))
@@ -71,6 +95,8 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                     command.Parameters.AddWithValue("@MontoMensual", c.MontoMensual);
                     command.Parameters.AddWithValue("@IdInquilino", c.Habitante.IdInquilino);
                     command.Parameters.AddWithValue("@IdInmueble", c.Propiedad.IdInmueble);
+                    command.Parameters.AddWithValue("@QuienCreo", c.QuienCreo);
+                    command.Parameters.AddWithValue("@QuienElimino", c.QuienElimino);
                     command.Parameters.AddWithValue("@IdContrato", c.IdContrato);
 
                     connection.Open();
@@ -87,12 +113,13 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             {
                 string query = @"
                     SELECT 
-                        c.IdContrato, c.FechaInicio, c.FechaFin, c.MontoMensual,
+                        c.IdContrato, c.FechaInicio, c.FechaFin, c.MontoMensual, c.QuienCreo, c.QuienElimino, c.Estado,
                         i.IdInquilino, i.Nombre AS InquilinoNombre, i.Apellido AS InquilinoApellido, i.Dni AS InquilinoDni,
-                        m.IdInmueble, m.Dirección AS InmuebleDireccion, m.Tipo AS InmuebleTipo
+                        m.IdInmueble, m.Direccion AS InmuebleDireccion, m.Tipo AS InmuebleTipo
                     FROM contrato c
                     JOIN inquilino i ON c.IdInquilino = i.IdInquilino
-                    JOIN inmueble m ON c.IdInmueble = m.IdInmueble;";
+                    JOIN inmueble m ON c.IdInmueble = m.IdInmueble
+                    WHERE c.Estado = true;";
 
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
@@ -106,6 +133,9 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                             FechaInicio = reader.GetDateTime("FechaInicio"),
                             FechaFin = reader.GetDateTime("FechaFin"),
                             MontoMensual = reader.GetInt32("MontoMensual"),
+                            QuienCreo = reader.GetInt32("QuienCreo"),
+                            QuienElimino = reader.GetInt32("QuienElimino"),
+                            Estado = reader.GetBoolean("Estado"),
                             Habitante = new InquilinoDto
                             {
                                 IdInquilino = reader.GetInt32("IdInquilino"),
@@ -135,7 +165,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             {
                 string query = @"
                     SELECT 
-                        c.IdContrato, c.FechaInicio, c.FechaFin, c.MontoMensual,
+                        c.IdContrato, c.FechaInicio, c.FechaFin, c.MontoMensual, c.QuienCreo, c.QuienElimino,
                         i.IdInquilino, i.Nombre AS InquilinoNombre, i.Apellido AS InquilinoApellido, i.Dni AS InquilinoDni,
                         m.IdInmueble, m.Dirección AS InmuebleDireccion, m.Tipo AS InmuebleTipo
                     FROM contrato c
@@ -156,6 +186,9 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                             FechaInicio = reader.GetDateTime("FechaInicio"),
                             FechaFin = reader.GetDateTime("FechaFin"),
                             MontoMensual = reader.GetInt32("MontoMensual"),
+                            QuienCreo = reader.GetInt32("QuienCreo"),
+                            QuienElimino = reader.GetInt32("QuienElimino"),
+                            Estado = reader.GetBoolean(nameof(Contrato.Estado)),
                             Habitante = new InquilinoDto
                             {
                                 IdInquilino = reader.GetInt32("IdInquilino"),
