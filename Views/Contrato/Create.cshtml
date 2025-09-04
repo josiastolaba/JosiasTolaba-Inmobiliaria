@@ -1,0 +1,58 @@
+@model INMOBILIARIA_JosiasTolaba.Models.Contrato
+
+@{
+    ViewData["Title"] = "Nuevo Contrato";
+}
+
+<h1>Nuevo Contrato</h1>
+
+@if(ViewBag.Error != null)
+{
+    <div class="alert alert-danger">
+        <strong>Error:</strong> @ViewBag.Error
+    </div>
+}
+
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <!-- Inquilino -->
+    <div class="form-group">
+        <label for="IdInquilino">Inquilino</label>
+        <select asp-for="Habitante.IdInquilino" class="form-control" 
+                asp-items="@(new SelectList(ViewBag.Inquilinos ?? new List<INMOBILIARIA_JosiasTolaba.Models.Inquilino>(), "IdInquilino", "Nombre"))">
+            <option value="">-- Seleccione un inquilino --</option>
+        </select>
+    </div>
+
+    <!-- Inmueble -->
+    <div class="form-group">
+        <label for="IdInmueble">Inmueble</label>
+        <select asp-for="Propiedad.IdInmueble" class="form-control" 
+                asp-items="@(new SelectList(ViewBag.Inmuebles ?? new List<INMOBILIARIA_JosiasTolaba.Models.Inmueble>(), "IdInmueble", "Direccion"))">
+            <option value="">-- Seleccione un inmueble --</option>
+        </select>
+    </div>
+
+    <!-- Fecha Inicio -->
+    <div class="form-group">
+        <label asp-for="FechaInicio"></label>
+        <input asp-for="FechaInicio" class="form-control" type="date" />
+    </div>
+
+    <!-- Fecha Fin -->
+    <div class="form-group">
+        <label asp-for="FechaFin"></label>
+        <input asp-for="FechaFin" class="form-control" type="date" />
+    </div>
+
+    <!-- Monto Mensual -->
+    <div class="form-group">
+        <label asp-for="MontoMensual"></label>
+        <input asp-for="MontoMensual" class="form-control" />
+    </div>
+
+    <!-- Botones -->
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
