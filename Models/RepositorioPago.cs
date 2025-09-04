@@ -19,8 +19,10 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                     {nameof(Pago.NumeroPago)},
                     {nameof(Pago.Concepto)},
                     {nameof(Pago.IdContrato)},
+                    {nameof(Pago.QuienCreo)},
+                    {nameof(Pago.QuienElimino)},
                     {nameof(Pago.Estado)})
-                    VALUES (@FechaPago, @Monto, @MesCorrespondiente, @NumeroPago, @Concepto, @IdContrato, @Estado);
+                    VALUES (@FechaPago, @Monto, @MesCorrespondiente, @NumeroPago, @Concepto, @IdContrato, @QuienCreo, @QuienElimino, @Estado);
                     SELECT LAST_INSERT_ID();";
 
                 using (var command = new MySqlCommand(query, connection))
@@ -32,6 +34,8 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                     command.Parameters.AddWithValue("@NumeroPago", p.NumeroPago);
                     command.Parameters.AddWithValue("@Concepto", p.Concepto);
                     command.Parameters.AddWithValue("@IdContrato", p.IdContrato);
+                    command.Parameters.AddWithValue("@QuienCreo", p.QuienCreo);
+                    command.Parameters.AddWithValue("@QuienElimino", p.QuienElimino);
                     command.Parameters.AddWithValue("@Estado", p.Estado);
 
                     connection.Open();
@@ -68,6 +72,8 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                     {nameof(Pago.NumeroPago)}=@NumeroPago,
                     {nameof(Pago.Concepto)}=@Concepto,
                     {nameof(Pago.IdContrato)}=@IdContrato,
+                    {nameof(Pago.QuienCreo)}=@QuienCreo,
+                    {nameof(Pago.QuienElimino)}=@QuienElimino,
                     {nameof(Pago.Estado)}=@Estado
                     WHERE {nameof(Pago.IdPago)}=@IdPago";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
@@ -79,6 +85,8 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                     command.Parameters.AddWithValue("@NumeroPago", p.NumeroPago);
                     command.Parameters.AddWithValue("@Concepto", p.Concepto);
                     command.Parameters.AddWithValue("@IdContrato", p.IdContrato);
+                    command.Parameters.AddWithValue("@QuienCreo", p.QuienCreo);
+                    command.Parameters.AddWithValue("@QuienElimino", p.QuienElimino);
                     command.Parameters.AddWithValue("@Estado", p.Estado);
                     connection.Open();
                     res = command.ExecuteNonQuery();
@@ -110,6 +118,8 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                             NumeroPago = reader.GetString(nameof(Pago.NumeroPago)),
                             Concepto = reader.GetString(nameof(Pago.Concepto)),
                             IdContrato = reader.GetInt32(nameof(Pago.IdContrato)),
+                            QuienCreo = reader.GetInt32(nameof(Pago.QuienCreo)),
+                            QuienElimino = reader.GetInt32(nameof(Pago.QuienElimino)),
                             Estado = reader.GetBoolean(nameof(Pago.Estado))
                         };
                         res.Add(p);
@@ -143,6 +153,8 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                                 NumeroPago = reader.GetString(nameof(Pago.NumeroPago)),
                                 Concepto = reader.GetString(nameof(Pago.Concepto)),
                                 IdContrato = reader.GetInt32(nameof(Pago.IdContrato)),
+                                QuienCreo = reader.GetInt32(nameof(Pago.QuienCreo)),
+                                QuienElimino = reader.GetInt32(nameof(Pago.QuienElimino)),
                                 Estado = reader.GetBoolean(nameof(Pago.Estado))
                             };
                         }
