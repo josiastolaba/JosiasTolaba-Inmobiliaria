@@ -1,0 +1,40 @@
+@model IEnumerable<INMOBILIARIA_JosiasTolaba.Models.Pago>
+
+@{
+	ViewData["Title"] = "Pago";
+}
+
+<h1>
+	Pago
+</h1>
+<hr />
+<p>
+    <a class="btn btn-primary" asp-action="Create" title="Crear"><i class="fa-solid fa-plus"></i>➕ Nuevo Pago</a>
+</p>
+<hr />
+<table class="table table-striped table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Id</th>
+            <th>Fecha de Pago</th>
+            <th>Contrato</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var pago in Model)
+        {
+            <tr>
+                <td>@pago.IdPago</td>
+                <td>@pago.IdContrato</td>
+                <td>
+                    @(pago.Estado ? "Activo" : "Inactivo")
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-IdPago="@pago.IdPago" class="btn btn-info btn-sm">Detalles</a>
+                    <a asp-controller="Inquilino" asp-action="Update" asp-route-IdPago="@pago.IdPago" class="btn btn-warning btn-sm">Editar</a>
+                    <a asp-controller="Inquilino" asp-action="DarDeBaja" asp-route-IdPago="@pago.IdPago" class="btn btn-danger btn-sm">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
