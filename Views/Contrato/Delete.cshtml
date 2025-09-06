@@ -1,0 +1,44 @@
+@model INMOBILIARIA_JosiasTolaba.Models.Contrato
+
+@{
+    ViewData["Title"] = "Dar de baja contrato";
+}
+
+<h2>Dar de baja contrato</h2>
+
+<div class="alert alert-warning">
+    <strong>Atención:</strong> Está a punto de dar de baja el siguiente contrato.
+    <br />
+    Este cambio no eliminará el contrato de la base de datos, solo lo marcará como inactivo.
+</div>
+
+<div>
+    <h4>Contrato</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">ID</dt>
+        <dd class="col-sm-10">@Model.IdContrato</dd>
+
+        <dt class="col-sm-2">Fecha Inicio</dt>
+        <dd class="col-sm-10">@Model.FechaInicio.ToShortDateString()</dd>
+
+        <dt class="col-sm-2">Fecha Fin</dt>
+        <dd class="col-sm-10">@Model.FechaFin.ToShortDateString()</dd>
+
+        <dt class="col-sm-2">Monto Mensual</dt>
+        <dd class="col-sm-10">@Model.MontoMensual</dd>
+
+        <dt class="col-sm-2">Estado</dt>
+        <dd class="col-sm-10">
+            @(Model.Estado ? "Activo" : "Inactivo")
+        </dd>
+    </dl>
+</div>
+
+<form asp-action="Delete" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="IdContrato" />
+
+    <button type="submit" class="btn btn-danger">Dar de baja</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>

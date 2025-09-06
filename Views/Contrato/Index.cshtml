@@ -34,9 +34,9 @@
             <td>@item.MontoMensual</td>
             <td>@(item.Estado ? "Activo" : "Inactivo")</td>
             <td>
-                <a asp-action="Ver" asp-route-id="@item.IdContrato" class="btn btn-info btn-sm">Detalles</a> |
+                <a asp-action="Details" asp-route-id="@item.IdContrato" class="btn btn-info btn-sm">Detalles</a> |
                 <a asp-action="Edit" asp-route-id="@item.IdContrato" class="btn btn-warning btn-sm">Editar</a> |
-                <a asp-action="Eliminar" asp-route-id="@item.IdContrato" class="btn btn-danger btn-sm">Eliminar</a>
+                <a asp-action="Delete" asp-route-id="@item.IdContrato" class="btn btn-danger btn-sm">Eliminar</a>
             </td>
         </tr>
 }

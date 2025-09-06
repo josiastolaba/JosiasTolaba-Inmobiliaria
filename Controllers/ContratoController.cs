@@ -19,16 +19,19 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			this.config = config;
 		}
 
-		// GET: Contratos
 		public ActionResult Index()
-		{
-			var lista = repositorio.ListarContratos();
-			if (TempData.ContainsKey("Id"))
-				ViewBag.Id = TempData["Id"];
-			if (TempData.ContainsKey("Mensaje"))
-				ViewBag.Mensaje = TempData["Mensaje"];
-			return View(lista);
-		}
+{
+    var lista = repositorio.ListarContratos()
+                           .Where(c => c.Estado)
+                           .ToList();
+
+    if (TempData.ContainsKey("Id"))
+        ViewBag.Id = TempData["Id"];
+    if (TempData.ContainsKey("Mensaje"))
+        ViewBag.Mensaje = TempData["Mensaje"];
+
+    return View(lista);
+}
 
 		// GET: Contratos/Details/5
 		public ActionResult Details(int id)
@@ -116,7 +119,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		}
 
 		// GET: Contratos/Eliminar/5
-		public ActionResult Eliminar(int id)
+		public ActionResult Delete(int id)
 		{
 			var entidad = repositorio.IdContrato(id);
 			if (TempData.ContainsKey("Mensaje"))
@@ -129,11 +132,11 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		// POST: Contratos/Eliminar/5
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public ActionResult Eliminar(int id, Contrato entidad)
+		public ActionResult Delete(int id, Contrato entidad)
 		{
 			try
 			{
-				repositorio.Baja(id); 
+				repositorio.DarDeBaja(id); 
 				TempData["Mensaje"] = "Contrato dado de baja correctamente";
 				return RedirectToAction(nameof(Index));
 			}
