@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 04-09-2025 a las 21:57:32
+-- Tiempo de generación: 11-09-2025 a las 01:42:06
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -34,10 +34,17 @@ CREATE TABLE `contrato` (
   `MontoMensual` decimal(10,0) NOT NULL,
   `IdInmueble` int(11) NOT NULL,
   `IdInquilino` int(11) NOT NULL,
-  `QuienCreo` int(11) NOT NULL,
-  `QuienElimino` int(11) NOT NULL,
+  `QuienCreo` int(11) DEFAULT NULL,
+  `QuienElimino` int(11) DEFAULT NULL,
   `Estado` tinyint(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `contrato`
+--
+
+INSERT INTO `contrato` (`IdContrato`, `FechaInicio`, `FechaFin`, `MontoMensual`, `IdInmueble`, `IdInquilino`, `QuienCreo`, `QuienElimino`, `Estado`) VALUES
+(1, '2025-09-10', '2025-09-15', 1000, 2, 1, NULL, NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -63,7 +70,7 @@ CREATE TABLE `inmueble` (
 --
 
 INSERT INTO `inmueble` (`IdInmueble`, `Direccion`, `Tipo`, `IdPropietario`, `Uso`, `Latitud`, `Longitud`, `Precio`, `Ambiente`, `Estado`) VALUES
-(2, 'Calle falsa 123', 'Casa ', 2, 'Residencial', 4140338, 217403, 1234567.89, 1, 1);
+(2, 'Calle falsa 123', 'Casa ', 1, 'Comercial', 4140338, 217403, 1234567.89, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -86,7 +93,7 @@ CREATE TABLE `inquilino` (
 --
 
 INSERT INTO `inquilino` (`IdInquilino`, `Nombre`, `Apellido`, `Dni`, `Telefono`, `Email`, `Estado`) VALUES
-(1, 'Josias', 'Tolaba', '11111111', '2664000000', 'josiastolaba@gmail.com', 1),
+(1, 'Josias Abel', 'Tolaba', '11111111', '2664000000', 'josiastolaba@gmail.com', 1),
 (2, 'Marcos', 'Sosa', '22222222', '2664000001', 'marcossosa@gmail.com', 1);
 
 -- --------------------------------------------------------
@@ -103,10 +110,19 @@ CREATE TABLE `pago` (
   `NumeroPago` varchar(50) NOT NULL,
   `Concepto` varchar(100) NOT NULL,
   `IdContrato` int(11) NOT NULL,
-  `QuienCreo` int(11) NOT NULL,
-  `QuienElimino` int(11) NOT NULL,
+  `QuienCreo` int(11) DEFAULT NULL,
+  `QuienElimino` int(11) DEFAULT NULL,
   `Estado` tinyint(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `pago`
+--
+
+INSERT INTO `pago` (`IdPago`, `FechaPago`, `Monto`, `MesCorrespondiente`, `NumeroPago`, `Concepto`, `IdContrato`, `QuienCreo`, `QuienElimino`, `Estado`) VALUES
+(14, '2025-09-10', 10001, '1', '1', 'Alquiler mes septiembre', 1, NULL, NULL, 1),
+(15, '2025-09-08', 1, '1', '1', '1', 1, NULL, NULL, 1),
+(16, '2025-09-08', 1, '1', '1', '1', 1, NULL, NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -143,12 +159,19 @@ CREATE TABLE `usuario` (
   `IdUsuario` int(11) NOT NULL,
   `Email` varchar(100) NOT NULL,
   `Contrasena` varchar(255) NOT NULL,
-  `Rol` enum('admin','empleado') NOT NULL,
+  `Rol` enum('Administrador','Empleado') NOT NULL,
   `Nombre` varchar(100) NOT NULL,
   `Apellido` varchar(100) NOT NULL,
   `Dni` char(8) NOT NULL,
   `Estado` tinyint(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `usuario`
+--
+
+INSERT INTO `usuario` (`IdUsuario`, `Email`, `Contrasena`, `Rol`, `Nombre`, `Apellido`, `Dni`, `Estado`) VALUES
+(1, 'josiastolaba@gmail.com', 'joasiast74', 'Administrador', 'Josias', 'Tolaba', '11111111', 1);
 
 --
 -- Índices para tablas volcadas
@@ -206,7 +229,7 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT de la tabla `contrato`
 --
 ALTER TABLE `contrato`
-  MODIFY `IdContrato` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `IdContrato` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `inmueble`
@@ -224,7 +247,7 @@ ALTER TABLE `inquilino`
 -- AUTO_INCREMENT de la tabla `pago`
 --
 ALTER TABLE `pago`
-  MODIFY `IdPago` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `IdPago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT de la tabla `propietario`
@@ -236,7 +259,7 @@ ALTER TABLE `propietario`
 -- AUTO_INCREMENT de la tabla `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `IdUsuario` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `IdUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Restricciones para tablas volcadas
