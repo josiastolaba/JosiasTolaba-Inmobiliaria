@@ -1,0 +1,35 @@
+@model INMOBILIARIA_JosiasTolaba.Models.Usuario;
+
+@{
+	ViewData["Title"] = "Usuario-Detalle";
+}
+<h1>
+	Usuario
+</h1>
+<hr />
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">Nombre</dt>
+        <dd class="col-sm-10">@Model.Nombre</dd>
+
+        <dt class="col-sm-2">Apellido</dt>
+        <dd class="col-sm-10">@Model.Apellido</dd>
+
+        <dt class="col-sm-2">Dni</dt>
+        <dd class="col-sm-10">@Model.Dni</dd>
+
+        <dt class="col-sm-2">Rol</dt>
+        <dd class="col-sm-10">@Model.Rol</dd>
+
+        <dt class="col-sm-2">Email</dt>
+        <dd class="col-sm-10">@Model.Email</dd>
+
+        <dt class="col-sm-2">Estado</dt>
+        <dd class="col-sm-10">@(Model.Estado ? "Activo" : "Inactivo")</dd>
+    </dl>
+</div>
+
+<p>
+    <a asp-action="Update" asp-route-IdUsuario="@Model.IdUsuario" class="btn btn-warning">Editar</a> |
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+</p>
