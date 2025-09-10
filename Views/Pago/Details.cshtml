@@ -1,0 +1,35 @@
+@model INMOBILIARIA_JosiasTolaba.Models.Pago
+
+@{
+	ViewData["Title"] = "Pago-Detalle";
+}
+<h1>
+	Pago
+</h1>
+<hr />
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">Numero de pago</dt>
+        <dd class="col-sm-10">@Model.NumeroPago</dd>
+
+        <dt class="col-sm-2">Fecha del Pago</dt>
+        <dd class="col-sm-10">@Model.FechaPago</dd>
+
+        <dt class="col-sm-2">Monto</dt>
+        <dd class="col-sm-10">@Model.Monto</dd>
+
+        <dt class="col-sm-2">Mes</dt>
+        <dd class="col-sm-10">@Model.MesCorrespondiente</dd>
+
+        <dt class="col-sm-2">Concepto</dt>
+        <dd class="col-sm-10">@Model.Concepto</dd>
+
+        <dt class="col-sm-2">Estado</dt>
+        <dd class="col-sm-10">@(Model.Estado ? "Activo" : "Inactivo")</dd>
+    </dl>
+</div>
+
+<p>
+    <a asp-action="Update" asp-route-IdPago="@Model.IdPago" class="btn btn-warning">Editar</a> |
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+</p>

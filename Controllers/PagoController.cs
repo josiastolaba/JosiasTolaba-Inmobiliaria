@@ -18,11 +18,89 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
         {
             var pagos = repositorio.ListarPagos();
             return View(pagos);
-        } 
+        }
         public IActionResult Create()
-		{
+        {
             ViewBag.Contrato = repoContrato.ListarContratos();
-			return View();
-		}
+            return View();
+        }
+        [HttpPost]
+        public IActionResult Create(Pago p)
+        {
+            if (ModelState.IsValid)
+            {
+                int res = repositorio.Alta(p);
+                if (res > 0)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    ViewBag.Contrato = repoContrato.ListarContratos();
+                    ViewBag.Error = "No se pudo crear el pago";
+                    return View();
+                }
+            }
+            else
+            {
+                return View();
+            }
+        }
+
+        public IActionResult Update(int IdPago)
+        {
+            Pago p = repositorio.PagoId(IdPago);
+            if (p == null)
+            {
+                return NotFound();
+            }
+            return View(p);
+        }
+
+        [HttpPost]
+        public IActionResult Update(Pago p)
+        {
+            if (ModelState.IsValid)
+            {
+                int res = repositorio.Modificacion(p);
+                if (res > 0)
+                {
+                    var pagos = repositorio.ListarPagos();
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    ViewBag.Error = "No se pudo modificar el Pago";
+                    return View();
+                }
+            }
+            else
+            {
+                return View();
+            }
+        }
+        public IActionResult Details(int IdPago)
+        {
+            Pago p = repositorio.PagoId(IdPago);
+            if (p == null)
+            {
+                return NotFound();
+            }
+            return View(p);
+        }
+        public IActionResult DarDeBaja(int IdPago)
+        {
+            Pago p = repositorio.PagoId(IdPago);
+            int res = repositorio.DarDeBaja(IdPago);
+            if (res > 0)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                ViewBag.Error = "No se pudo eliminar el Pago";
+                return View();
+            }
+        }
     }
 }

@@ -48,8 +48,8 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
         }
         public IActionResult Update(int IdInmueble)
         {
-            ViewBag.Propietarios = repoPropietario.ListarPropietarios();
             Inmueble i = repositorio.InmuebleId(IdInmueble);
+            ViewBag.Propietarios = repoPropietario.ListarPropietarios();
             if (i == null)
             {
                 return NotFound();
@@ -77,19 +77,32 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
                 return View(i);
             }
         }
+        
+        public IActionResult Details(int IdInmueble)
+        {
+            Inmueble i = repositorio.InmuebleId(IdInmueble);
+            Propietario p = repoPropietario.PropietarioId(i.IdPropietario);
+            ViewBag.Propietario = p;
+            if (i == null)
+            {
+                return NotFound();
+            }
+            return View(i);
+        }
+
         public IActionResult DarDeBaja(int IdInmueble)
-		{
-			Inmueble p = repositorio.InmuebleId(IdInmueble);
-			int res = repositorio.DarDeBaja(IdInmueble);
-				if (res > 0)
-				{
-					return RedirectToAction(nameof(Index));
-				}
-				else
-				{
-					ViewBag.Error = "No se pudo eliminar el Inmueble";
-					return View();
-				}
-		}
+        {
+            Inmueble p = repositorio.InmuebleId(IdInmueble);
+            int res = repositorio.DarDeBaja(IdInmueble);
+            if (res > 0)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                ViewBag.Error = "No se pudo eliminar el Inmueble";
+                return View();
+            }
+        }
     }
 }

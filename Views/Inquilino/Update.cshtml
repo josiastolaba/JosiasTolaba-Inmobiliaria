@@ -11,7 +11,7 @@
     <div class = "form-Update">
         <form asp-action="Update">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" name="IdPropietario" value="@Model.IdInquilino" />
+            <input type="hidden" name="IdInquilino" value="@Model.IdInquilino" />
             <div class="form-group">
                 <label asp-for="Nombre" class="control-label"></label>
                 <input asp-for="Nombre" class="form-control" />

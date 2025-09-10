@@ -39,7 +39,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         public int Ambiente { get; set; }
 
         public bool Estado { get; set; }
-
+        
         public Inmueble() { }
     }
 }

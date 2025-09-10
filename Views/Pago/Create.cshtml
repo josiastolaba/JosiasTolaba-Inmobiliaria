@@ -47,27 +47,9 @@
             <span asp-validation-for="IdContrato" class="text-danger"></span>
         </div>
 
-        <div class="form-group">
-            <label asp-for="QuienCreo" class="control-label"></label>
-            <input asp-for="QuienCreo" class="form-control" type="number"/>
-            <span asp-validation-for="QuienCreo" class="text-danger"></span>
-        </div>
-
-        <div class="form-group">
-            <label asp-for="QuienElimino" class="control-label"></label>
-            <input asp-for="QuienElimino" class="form-control" type="number"/>
-            <span asp-validation-for="QuienElimino" class="text-danger"></span>
-        </div>
-
-        <div class="form-group form-check">
-            <input asp-for="Estado" class="form-check-input" type="checkbox"/>
-            <label asp-for="Estado" class="form-check-label"></label>
-            <span asp-validation-for="Estado" class="text-danger"></span>
-        </div>
-
         <div class="form-group mt-3">
-            <input type="submit" value="Guardar" class="btn btn-primary" />
-            <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+            <input type="submit" value="Create" class="btn btn-primary" />
+            <a asp-action="Index" class="btn btn-secondary">Volver</a>
         </div>
     </form>
 </div>

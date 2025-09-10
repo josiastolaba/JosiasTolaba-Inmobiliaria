@@ -1,0 +1,44 @@
+@model INMOBILIARIA_JosiasTolaba.Models.Inmueble
+
+@{
+	ViewData["Title"] = "Inmueble-Detalle";
+}
+<h1>
+	Inmueble
+</h1>
+<hr />
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">Direccion</dt>
+        <dd class="col-sm-10">@Model.Direccion</dd>
+
+        <dt class="col-sm-2">Tipo</dt>
+        <dd class="col-sm-10">@Model.Tipo</dd>
+
+        <dt class="col-sm-2">Propietario</dt>
+        <dd class="col-sm-10">@ViewBag.Propietario.Nombre @ViewBag.Propietario.Apellido</dd>
+
+        <dt class="col-sm-2">Uso</dt>
+        <dd class="col-sm-10">@Model.Uso</dd>
+
+        <dt class="col-sm-2">Latitud</dt>
+        <dd class="col-sm-10">@Model.Latitud</dd>
+
+		<dt class="col-sm-2">Longitud</dt>
+        <dd class="col-sm-10">@Model.Longitud</dd>
+
+		<dt class="col-sm-2">Precio</dt>
+        <dd class="col-sm-10">@Model.Precio</dd>
+
+		<dt class="col-sm-2">Ambiente</dt>
+        <dd class="col-sm-10">@Model.Ambiente</dd>
+
+        <dt class="col-sm-2">Estado</dt>
+        <dd class="col-sm-10">@(Model.Estado ? "Activo" : "Inactivo")</dd>
+    </dl>
+</div>
+
+<p>
+    <a asp-action="Update" asp-route-IdInmueble="@Model.IdInmueble" class="btn btn-warning">Editar</a> |
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+</p>

@@ -132,7 +132,9 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             Inmueble res = null;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = $@"SELECT * FROM inmueble WHERE IdInmueble = @IdInmueble;";
+                string query = $@"SELECT i.*,p.* FROM inmueble i
+                                JOIN propietario p ON i.IdPropietario = p.IdPropietario
+                                WHERE IdInmueble = @IdInmueble;";
 
                 using (MySqlCommand command = new MySqlCommand(query, connection))
 

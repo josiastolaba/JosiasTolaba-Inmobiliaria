@@ -72,19 +72,29 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
 				return View();
 			}
 		}
+		
+		public IActionResult Details(int IdInquilino)
+        {
+            Inquilino i = repositorio.InquilinoId(IdInquilino);
+            if (i == null)
+            {
+                return NotFound();
+            }
+            return View(i);
+        }
 		public IActionResult DarDeBaja(int IdInquilino)
 		{
 			Inquilino p = repositorio.InquilinoId(IdInquilino);
 			int res = repositorio.DarDeBaja(IdInquilino);
-				if (res > 0)
-				{
-					return RedirectToAction(nameof(Index));
-				}
-				else
-				{
-					ViewBag.Error = "No se pudo eliminar el Inquilino";
-					return View();
-				}
+			if (res > 0)
+			{
+				return RedirectToAction(nameof(Index));
+			}
+			else
+			{
+				ViewBag.Error = "No se pudo eliminar el Inquilino";
+				return View();
+			}
 		}
     }
 }
