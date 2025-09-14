@@ -1,16 +1,26 @@
 ﻿@model IEnumerable<INMOBILIARIA_JosiasTolaba.Models.Propietario>
 
 @{
-	ViewData["Title"] = "Propietario";
+    ViewData["Title"] = "Propietario";
 }
 
-<h1>
-	Propietario
-</h1>
+<h1>Propietario</h1>
 <hr />
 <p>
-    <a class="btn btn-primary" asp-action="Create" title="Crear"><i class="fa-solid fa-plus"></i>➕ Nuevo Propietario</a>
+    <a class="btn btn-primary" asp-action="Create" title="Crear">
+        <i class="fa-solid fa-plus"></i>➕ Nuevo Propietario
+    </a>
 </p>
+
+<div class="mb-3">
+    <label for="buscadorInput" class="form-label">Buscar propietario por nombre o DNI</label>
+    <input type="text" id="buscadorInput" class="form-control mb-2" placeholder="Escribe al menos 3 letras..." />
+
+    <select id="buscadorSelect" class="form-select">
+        <option value="">--Selecciona un propietario--</option>
+    </select>
+</div>
+
 <hr />
 <table class="table table-striped table-bordered">
     <thead class="table-dark">
@@ -35,9 +45,7 @@
                 <td>@propietario.Dni</td>
                 <td>@propietario.Telefono</td>
                 <td>@propietario.Email</td>
-                <td>
-                    @(propietario.Estado ? "Activo" : "Inactivo")
-                </td>
+                <td>@(propietario.Estado ? "Activo" : "Inactivo")</td>
                 <td>
                     <a asp-controller="Propietario" asp-action="Details" asp-route-IdPropietario="@propietario.IdPropietario" class="btn btn-info btn-sm">Detalles</a>
                     <a asp-controller="Propietario" asp-action="Update" asp-route-IdPropietario="@propietario.IdPropietario" class="btn btn-warning btn-sm">Editar</a>
@@ -47,3 +55,46 @@
         }
     </tbody>
 </table>
+
+<!-- JQuery desde CDN -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $("#buscadorInput").on("keyup", function () {
+            let texto = $(this).val();
+
+            if (texto.length >= 3) {
+                $.ajax({
+                    url: '/Propietario/Buscar', // Acción en el controlador
+                    type: 'GET',
+                    data: { dato: texto }, // debe coincidir con el parámetro del controlador
+                    success: function (data) {
+                        let select = $("#buscadorSelect");
+                        select.empty();
+
+                        if (data.length === 0) {
+                            select.append('<option value="">No se encontraron resultados</option>');
+                        } else {
+                            select.append('<option value="">--Selecciona un propietario--</option>');
+                            data.forEach(function (item) {
+                                select.append(`<option value="${item.idPropietario}">${item.nombre} ${item.apellido} - DNI: ${item.dni}</option>`);
+                            });
+                        }
+                    }
+                });
+            } else {
+                let select = $("#buscadorSelect");
+                select.empty();
+                select.append('<option value="">--Selecciona un propietario--</option>');
+            }
+        });
+
+        $("#buscadorSelect").on("change", function () {
+            let id = $(this).val();
+            if(id){
+                window.location.href = '/Propietario/Details?IdPropietario=' + id;
+            }
+        })
+    });
+</script>

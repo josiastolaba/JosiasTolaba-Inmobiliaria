@@ -7,6 +7,49 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         public RepositorioPropietario(IConfiguration configuration) : base(configuration)
         {
         }
+
+        /*METODOS PARA BUSCAR*/
+
+       public List<Propietario> buscar(string dato)
+{
+    var lista = new List<Propietario>();
+
+    using (MySqlConnection connection = new MySqlConnection(connectionString))
+    {
+        string query = @"SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email, Estado
+                         FROM propietario 
+                         WHERE Nombre LIKE @dato OR Dni LIKE @dato
+                         LIMIT 10";
+
+        using (var command = new MySqlCommand(query, connection))
+        {
+            command.Parameters.AddWithValue("@dato", "%" + dato + "%");
+            connection.Open();
+
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var p = new Propietario
+                    {
+                        IdPropietario = reader.GetInt32("IdPropietario"),
+                        Nombre = reader.GetString("Nombre"),
+                        Apellido = reader.GetString("Apellido"),
+                        Dni = reader.GetString("Dni"),
+                        Telefono = reader.GetString("Telefono"),
+                        Email = reader.GetString("Email"),
+                        Estado = reader.GetBoolean("Estado")
+                    };
+                    lista.Add(p);
+                }
+            }
+        }
+    }
+    return lista;
+}
+  
+        
+
         public int Alta(Propietario p)
         {
             int res = -1;
