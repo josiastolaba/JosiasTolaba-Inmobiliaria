@@ -18,6 +18,7 @@
             <th>Id</th>
             <th>Fecha de Pago</th>
             <th>Contrato</th>
+            <th>Estado</th>
             <th>Acciones</th>
         </tr>
     </thead>
@@ -26,6 +27,7 @@
         {
             <tr>
                 <td>@pago.IdPago</td>
+                <td>@pago.FechaPago</td>
                 <td>@pago.IdContrato</td>
                 <td>
                     @(pago.Estado ? "Activo" : "Inactivo")

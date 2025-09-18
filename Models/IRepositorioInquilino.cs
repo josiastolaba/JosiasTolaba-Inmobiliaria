@@ -6,5 +6,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
 		int DarDeBaja(int IdInquilino);
 		IList<Inquilino> ListarInquilinos();
 		Inquilino InquilinoId(int IdInquilino);
+
+		List<Inquilino> buscar(String datos);
 	}
 }

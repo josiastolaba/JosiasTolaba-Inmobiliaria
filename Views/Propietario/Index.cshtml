@@ -14,11 +14,11 @@
 
 <div class="mb-3">
     <label for="buscadorInput" class="form-label">Buscar propietario por nombre o DNI</label>
-    <input type="text" id="buscadorInput" class="form-control mb-2" placeholder="Escribe al menos 3 letras..." />
-
-    <select id="buscadorSelect" class="form-select">
-        <option value="">--Selecciona un propietario--</option>
-    </select>
+    <input type="text" id="buscadorInput" class="form-control mb-2" placeholder="Escribe al menos 3 letras..." 
+    list="opcionesPropietario"/>
+   
+   <datalist id="opcionesPropietario">
+   </datalist>
 </div>
 
 <hr />
@@ -66,35 +66,37 @@
 
             if (texto.length >= 3) {
                 $.ajax({
-                    url: '/Propietario/Buscar', // Acción en el controlador
+                    url: '/Propietario/Buscar',
                     type: 'GET',
-                    data: { dato: texto }, // debe coincidir con el parámetro del controlador
+                    data: { dato: texto },
                     success: function (data) {
-                        let select = $("#buscadorSelect");
-                        select.empty();
+                        let lista = $("#opcionesPropietario");
+                        lista.empty();
 
                         if (data.length === 0) {
-                            select.append('<option value="">No se encontraron resultados</option>');
+                            lista.append('<option value="No se encontraron resultados">');
                         } else {
-                            select.append('<option value="">--Selecciona un propietario--</option>');
                             data.forEach(function (item) {
-                                select.append(`<option value="${item.idPropietario}">${item.nombre} ${item.apellido} - DNI: ${item.dni}</option>`);
+                                lista.append(
+                                    `<option data-id="${item.idPropietario}" value="${item.nombre} ${item.apellido} - DNI: ${item.dni}"></option>`
+                                );
                             });
                         }
                     }
                 });
-            } else {
-                let select = $("#buscadorSelect");
-                select.empty();
-                select.append('<option value="">--Selecciona un propietario--</option>');
             }
         });
 
-        $("#buscadorSelect").on("change", function () {
-            let id = $(this).val();
-            if(id){
+        // Detectar cuando se selecciona un valor del datalist
+        $("#buscadorInput").on("change", function () {
+            let texto = $(this).val();
+            let opcion = $(`#opcionesPropietario option[value='${texto}']`);
+            let id = opcion.data("id");
+
+            if (id) {
                 window.location.href = '/Propietario/Details?IdPropietario=' + id;
             }
-        })
+        });
     });
 </script>
+

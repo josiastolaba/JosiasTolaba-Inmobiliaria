@@ -17,6 +17,10 @@
         <tr>
             <th>Id</th>
             <th>Tipo</th>
+            <th>Dirección</th>
+            <th>Uso</th>
+            <th>Longitud</th>
+            <th>Ambiente</th>
             <th>Estado</th>
             <th>Acciones</th>
         </tr>
@@ -27,6 +31,10 @@
             <tr>
                 <td>@inmueble.IdPropietario</td>
                 <td>@inmueble.Tipo</td>
+                <td>@inmueble.Direccion</td>
+                <td>@inmueble.Uso</td>
+                <td>@inmueble.Longitud</td>
+                <td>@inmueble.Ambiente</td>
                 <td>
                     @(inmueble.Estado ? "Activo" : "Inactivo")
                 </td>

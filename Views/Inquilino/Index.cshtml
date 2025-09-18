@@ -11,6 +11,13 @@
 <p>
     <a class="btn btn-primary" asp-action="Create" title="Crear"><i class="fa-solid fa-plus"></i>➕ Nuevo Inquilino</a>
 </p>
+
+  <label for="buscadorInput" class="form-label">Buscar propietario por nombre o DNI</label>
+    <input type="text" id="buscadorInput" class="form-control mb-2" placeholder="Escribe al menos 3 letras..." 
+    list="opcionesInquilino"/>
+   
+   <datalist id="opcionesInquilino">
+   </datalist>
 <hr />
 <table class="table table-striped table-bordered">
     <thead class="table-dark">
@@ -47,3 +54,47 @@
         }
     </tbody>
 </table>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $("#buscadorInput").on("keyup", function () {
+            let texto = $(this).val();
+
+            if (texto.length >= 3) {
+                $.ajax({
+                    url: '/Inquilino/Buscar',
+                    type: 'GET',
+                    data: { dato: texto },
+                    success: function (data) {
+                        let lista = $("#opcionesInquilino");
+                        lista.empty();
+
+                        if (data.length === 0) {
+                            lista.append('<option value="No se encontraron resultados">');
+                        } else {
+                            data.forEach(function (item) {
+                                lista.append(
+                                    `<option data-id="${item.idInquilino}" value="${item.nombre} ${item.apellido} - DNI: ${item.dni}"></option>`
+                                );
+                            });
+                        }
+                    }
+                });
+            }
+        });
+
+        // Detectar cuando se selecciona un valor del datalist
+        $("#buscadorInput").on("change", function () {
+            let texto = $(this).val();
+            let opcion = $(`#opcionesInquilino option[value='${texto}']`);
+            let id = opcion.data("id");
+
+            if (id) {
+                window.location.href = '/Inquilino/Details?IdInquilino=' + id;
+            }
+        });
+    });
+</script>

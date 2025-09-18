@@ -7,6 +7,44 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         public RepositorioInquilino(IConfiguration configuration) : base(configuration)
         {
         }
+
+        public List<Inquilino> buscar(string dato)
+{
+    var lista = new List<Inquilino>();
+
+    using (MySqlConnection connection = new MySqlConnection(connectionString))
+    {
+        string query = @"SELECT IdInquilino, Nombre, Apellido, Dni, Telefono, Email, Estado
+                         FROM inquilino 
+                         WHERE Nombre LIKE @dato OR Dni LIKE @dato
+                         LIMIT 10";
+
+        using (var command = new MySqlCommand(query, connection))
+        {
+            command.Parameters.AddWithValue("@dato", "%" + dato + "%");
+            connection.Open();
+
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var p = new Inquilino
+                    {
+                        IdInquilino = reader.GetInt32("IdInquilino"),
+                        Nombre = reader.GetString("Nombre"),
+                        Apellido = reader.GetString("Apellido"),
+                        Dni = reader.GetString("Dni"),
+                        Telefono = reader.GetString("Telefono"),
+                        Email = reader.GetString("Email"),
+                        Estado = reader.GetBoolean("Estado")
+                    };
+                    lista.Add(p);
+                }
+            }
+        }
+    }
+    return lista;
+}
         public int Alta(Inquilino i)
         {
             int res = -1;
