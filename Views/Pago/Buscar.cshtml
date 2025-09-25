@@ -1,0 +1,66 @@
+@{
+    ViewData["Title"] = "Buscar Pagos";
+}
+
+<h2>Buscar Pagos</h2>
+
+<div class="mb-3">
+    <label>
+        <input type="radio" name="filtroTipo" value="fecha" checked> Por Fecha
+    </label>
+    <label class="ms-3">
+        <input type="radio" name="filtroTipo" value="inquilino"> Por Inquilino
+    </label>
+</div>
+
+<!-- Filtros -->
+<div id="filtro-fecha">
+    <input type="date" id="fechaInicio" class="form-control mb-2" />
+    <input type="date" id="fechaFin" class="form-control mb-2" />
+</div>
+
+<div id="filtro-inquilino" style="display:none;">
+    <input type="text" id="inquilinoFiltro" class="form-control mb-2" placeholder="Nombre, Apellido o DNI" />
+</div>
+
+<button class="btn btn-success" onclick="buscarPagos()">Buscar</button>
+
+<hr />
+
+<!-- Acá se cargará la tabla -->
+<div id="tablaResultados">
+    <p class="text-muted">No se ha realizado ninguna búsqueda.</p>
+</div>
+
+@section Scripts {
+<script>
+    document.querySelectorAll("input[name='filtroTipo']").forEach(radio => {
+        radio.addEventListener("change", function () {
+            if (this.value === "fecha") {
+                document.getElementById("filtro-fecha").style.display = "block";
+                document.getElementById("filtro-inquilino").style.display = "none";
+            } else {
+                document.getElementById("filtro-fecha").style.display = "none";
+                document.getElementById("filtro-inquilino").style.display = "block";
+            }
+        });
+    });
+
+    function buscarPagos() {
+        let tipo = document.querySelector("input[name='filtroTipo']:checked").value;
+        let url = '@Url.Action("BuscarPagos", "Pago")';
+
+        let params = {};
+        if (tipo === "fecha") {
+            params.fechaInicio = document.getElementById("fechaInicio").value;
+            params.fechaFin = document.getElementById("fechaFin").value;
+        } else {
+            params.filtro = document.getElementById("inquilinoFiltro").value;
+        }
+
+        $.get(url, params, function (data) {
+            $("#tablaResultados").html(data);
+        });
+    }
+</script>
+}

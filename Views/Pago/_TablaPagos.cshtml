@@ -1,0 +1,30 @@
+@model IEnumerable<INMOBILIARIA_JosiasTolaba.Models.Pago>
+
+@if (Model == null || !Model.Any())
+{
+    <p class="text-danger">No se encontraron resultados.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Fecha de Pago</th>
+                <th>Monto</th>
+                <th>Inquilino</th>
+                <th>Contrato</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var pago in Model)
+        {
+            <tr>
+                <td>@pago.FechaPago.ToShortDateString()</td>
+                <td>@pago.Monto</td>
+                <td>@pago.Contrato?.Habitante?.Nombre @pago.Contrato?.Habitante?.Apellido</td>
+                <td>@pago.IdContrato</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

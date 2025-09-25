@@ -30,6 +30,11 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         public int QuienElimino { get; set; }
         public required bool Estado { get; set; }
 
-        public Pago() {}
+        //ELEMENTO IMPORTANTE PARA LA FUNCION DEL BUSCADOR
+        //NO AFECTA A LA TABLA DE LA BD
+
+        public ContratoDTO? Contrato { get; set; }
+
+        public Pago() { }
     }
 }

@@ -7,6 +7,66 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         public RepositorioPago(IConfiguration configuration) : base(configuration)
         {
         }
+
+        public IList<Pago> buscarAvanzado(DateTime? fechaDesde, DateTime? fechaHasta, int? idInquilino)
+        {
+            int res = -1;
+            var lista = new List<Pago>();
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query =  @"
+            SELECT p.IdPago, p.FechaPago, p.Monto, p.MesCorrespondiente,
+                   p.NumeroPago, p.Concepto, p.Estado, p.IdContrato,
+                   c.IdContrato, i.IdInquilino, i.Nombre, i.Apellido
+            FROM Pago p
+            JOIN Contrato c ON p.IdContrato = c.IdContrato
+            JOIN Inquilino i ON c.IdInquilino = i.IdInquilino
+            WHERE (@fechaDesde IS NULL OR p.FechaPago >= @fechaDesde)
+              AND (@fechaHasta IS NULL OR p.FechaPago <= @fechaHasta)
+              AND (@idInquilino IS NULL OR i.IdInquilino = @idInquilino)
+            ORDER BY p.FechaPago DESC";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@fechaDesde", (object)fechaDesde ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@fechaHasta", (object)fechaHasta ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@idInquilino", (object)idInquilino ?? DBNull.Value);
+
+                    connection.Open();
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var pago = new Pago
+                            {
+                                IdPago = reader.GetInt32("IdPago"),
+                                FechaPago = reader.GetDateTime("FechaPago"),
+                                Monto = reader.GetDecimal("Monto"),
+                                MesCorrespondiente = reader.GetChar("MesCorrespondiente"),
+                                NumeroPago = reader.GetString("NumeroPago"),
+                                Concepto = reader.GetString("Concepto"),
+                                Estado = reader.GetBoolean("Estado"),
+                                IdContrato = reader.GetInt32("IdContrato"),
+
+                                Contrato = new ContratoDTO
+                                {
+                                    IdContrato = reader.GetInt32("IdContrato"),
+                                    Habitante = new InquilinoDto
+                                    {
+                                        IdInquilino = reader.GetInt32("IdInquilino"),
+                                        Nombre = reader.GetString("Nombre"),
+                                        Apellido = reader.GetString("Apellido")
+                                    }
+                                }
+                            };
+                            lista.Add(pago);
+                        }
+                    }
+
+                }
+            }
+          return lista;
+        }
         public int Alta(Pago p)
         {
             int res = -1;

@@ -19,6 +19,18 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
             var pagos = repositorio.ListarPagos();
             return View(pagos);
         }
+
+        public IActionResult Buscar()
+        {
+        return View();
+        }
+
+        [HttpGet]
+        public IActionResult BuscarPagos(DateTime? fechaDesde, DateTime? fechaHasta, int? idInquilino)
+        {
+            var lista = repositorio.buscarAvanzado(fechaDesde, fechaHasta, idInquilino);
+            return PartialView("_TablaPagos", lista);
+        }
         public IActionResult Create()
         {
             ViewBag.Contrato = repoContrato.ListarContratos();

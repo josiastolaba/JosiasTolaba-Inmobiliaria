@@ -10,6 +10,7 @@
 <hr />
 <p>
     <a class="btn btn-primary" asp-action="Create" title="Crear"><i class="fa-solid fa-plus"></i>➕ Nuevo Pago</a>
+    <a asp-controller="Pago" asp-action="Buscar" class="btn btn-primary">Buscar Pagos</a>
 </p>
 <hr />
 <table class="table table-striped table-bordered">
@@ -29,8 +30,7 @@
                 <td>@pago.IdPago</td>
                 <td>@pago.FechaPago</td>
                 <td>@pago.IdContrato</td>
-                <td>
-                    @(pago.Estado ? "Activo" : "Inactivo")
+                <td>@(pago.Estado ? "Activo" : "Inactivo")
                 </td>
                 <td>
                     <a asp-controller="Pago" asp-action="Details" asp-route-IdPago="@pago.IdPago" class="btn btn-info btn-sm">Detalles</a>
