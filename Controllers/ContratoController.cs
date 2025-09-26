@@ -19,20 +19,41 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			this.config = config;
 		}
 
+		[HttpGet]
+		public JsonResult Buscar(string dato)
+		{
+			var lista = repositorio.buscar(dato);
+			return Json(lista);
+		}
+
 		public ActionResult Index()
-{
-    var lista = repositorio.ListarContratos()
-                           .Where(c => c.Estado)
-                           .ToList();
+		{
+			var lista = repositorio.ListarContratos()
+								   .Where(c => c.Estado)
+								   .ToList();
+			if (TempData.ContainsKey("Id"))
+				ViewBag.Id = TempData["Id"];
+			if (TempData.ContainsKey("Mensaje"))
+				ViewBag.Mensaje = TempData["Mensaje"];
 
-    if (TempData.ContainsKey("Id"))
-        ViewBag.Id = TempData["Id"];
-    if (TempData.ContainsKey("Mensaje"))
-        ViewBag.Mensaje = TempData["Mensaje"];
+			return View(lista);
+		}
+		[HttpGet]
+		public JsonResult BuscarContratos(string term)
+		{
+			var contratos = repositorio.ListarContratos()
+				.Where(c => c.Estado)
+				.Where(c => string.IsNullOrEmpty(term) 
+						|| c.Propiedad.Direccion.Contains(term) 
+						|| c.Habitante.Nombre.Contains(term))
+				.Select(c => new {
+					id = c.IdContrato,
+					text = $"{c.Propiedad.Direccion} - {c.Habitante.Nombre} {c.Habitante.Apellido}"
+				})
+				.ToList();
 
-    return View(lista);
-}
-
+			return Json(contratos);
+		}
 		// GET: Contratos/Details/5
 		public ActionResult Details(int id)
 		{
@@ -41,12 +62,16 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		}
 
 		// GET: Contratos/Create
-		public ActionResult Create()
+		public ActionResult Create(int? idInmueble)		
 		{
 			try
 			{
 				ViewBag.Inquilinos = repoInquilino.ListarInquilinos();
 				ViewBag.Inmuebles = repoInmueble.ListarInmuebles();
+				if (idInmueble != null)
+				{
+					ViewBag.IdInmueble = idInmueble;
+				}
 				return View();
 			}
 			catch (Exception ex)
@@ -64,7 +89,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			{
 				if (ModelState.IsValid)
 				{
-					repositorio.Alta(entidad); 
+					repositorio.Alta(entidad);
 					TempData["Id"] = entidad.IdContrato;
 					return RedirectToAction(nameof(Index));
 				}
@@ -88,7 +113,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		{
 			var entidad = repositorio.IdContrato(id);
 			ViewBag.Inquilinos = repoInquilino.ListarInquilinos();
-			ViewBag.Inmuebles = repoInmueble.ListarInmuebles();;
+			ViewBag.Inmuebles = repoInmueble.ListarInmuebles(); ;
 			if (TempData.ContainsKey("Mensaje"))
 				ViewBag.Mensaje = TempData["Mensaje"];
 			if (TempData.ContainsKey("Error"))
@@ -136,7 +161,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		{
 			try
 			{
-				repositorio.DarDeBaja(id); 
+				repositorio.DarDeBaja(id);
 				TempData["Mensaje"] = "Contrato dado de baja correctamente";
 				return RedirectToAction(nameof(Index));
 			}

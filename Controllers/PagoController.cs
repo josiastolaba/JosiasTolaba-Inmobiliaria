@@ -19,10 +19,14 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
             var pagos = repositorio.ListarPagos();
             return View(pagos);
         }
-        public IActionResult Create()
+        public IActionResult Create(int? id)
         {
             ViewBag.Contrato = repoContrato.ListarContratos();
-            return View();
+            if (id != null)
+			{
+				ViewBag.Id = id;
+			}
+			return View();
         }
         [HttpPost]
         public IActionResult Create(Pago p)

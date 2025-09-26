@@ -14,6 +14,12 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
             this.repoPropietario = repoPropietario;
             this.config = config;
         }
+        [HttpGet]
+		public JsonResult Buscar(string dato)
+		{
+			var lista = repositorio.buscar(dato);
+			return Json(lista);
+		}
         public IActionResult Index()
         {
             var inmuebles = repositorio.ListarInmuebles();

@@ -24,9 +24,9 @@
         </div>
 
         <div class="form-group">
-            <label asp-for="MesCorrespondiente" class="control-label"></label>
-            <input asp-for="MesCorrespondiente" class="form-control" maxlength="1" />
-            <span asp-validation-for="MesCorrespondiente" class="text-danger"></span>
+            <label asp-for="Mes" class="control-label"></label>
+            <input asp-for="Mes" class="form-control" maxlength="1" />
+            <span asp-validation-for="Mes" class="text-danger"></span>
         </div>
 
         <div class="form-group">
@@ -40,12 +40,20 @@
             <input asp-for="Concepto" class="form-control" />
             <span asp-validation-for="Concepto" class="text-danger"></span>
         </div>
-
-        <div class="form-group">
-            <label asp-for="IdContrato" class="control-label"></label>
-            <input asp-for="IdContrato" class="form-control" type="number"/>
-            <span asp-validation-for="IdContrato" class="text-danger"></span>
-        </div>
+<br>
+        @if (ViewBag.Id != null)
+        {
+            <input type="hidden" asp-for="IdContrato" value="@ViewBag.Id" />
+            <p><strong>Contrato ID @ViewBag.Id</strong></p>
+        }
+        else
+        {
+            <div class="form-group">
+                <label asp-for="IdContrato" class="control-label"></label>
+                <input asp-for="IdContrato" class="form-control" type="number" />
+                <span asp-validation-for="IdContrato" class="text-danger"></span>
+            </div>
+        }
 
         <div class="form-group mt-3">
             <input type="submit" value="Create" class="btn btn-primary" />

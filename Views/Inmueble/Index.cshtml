@@ -12,6 +12,13 @@
     <a class="btn btn-primary" asp-action="Create" title="Crear"><i class="fa-solid fa-plus"></i>➕ Nuevo Inmueble</a>
 </p>
 <hr />
+<div class="mb-3">
+    <label for="buscadorInput" class="form-label">Buscar Contrato por Direccion, Tipo, Uso o Precio </label>
+    <input type="text" id="buscadorInput" class="form-control mb-2" placeholder="Escribe al menos 3 letras..." 
+    list="opcionesInmueble"/>
+    <datalist id="opcionesInmueble">
+    </datalist>
+</div>
 <table class="table table-striped table-bordered">
     <thead class="table-dark">
         <tr>
@@ -42,8 +49,55 @@
                     <a asp-controller="Inmueble" asp-action="Details" asp-route-IdInmueble="@inmueble.IdInmueble" class="btn btn-info btn-sm">Detalles</a>
                     <a asp-controller="Inmueble" asp-action="Update" asp-route-IdInmueble="@inmueble.IdInmueble" class="btn btn-warning btn-sm">Editar</a>
                     <a asp-controller="Inmueble" asp-action="DarDeBaja" asp-route-IdInmueble="@inmueble.IdInmueble" class="btn btn-danger btn-sm">Eliminar</a>
+                    <a asp-controller="Contrato" asp-action="Create" asp-route-IdInmueble="@inmueble.IdInmueble" class="btn btn-danger btn-sm">Hacer Contrato</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
+
+<!-- JQuery desde CDN -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $("#buscadorInput").on("keyup", function () {
+            let texto = $(this).val();
+
+            if (texto.length >= 3) {
+                $.ajax({
+                    url: '/Inmueble/Buscar',
+                    type: 'GET',
+                    data: { dato: texto },
+                    success: function (data) {
+                        let lista = $("#opcionesInmueble"); 
+                        lista.empty();
+
+                        if (data.length === 0) {
+                            lista.append('<option value="No se encontraron resultados">');
+                        } else {
+                            data.forEach(function (item) {
+                                lista.append(
+                                    `<option data-id="${item.idInmueble}" 
+                                        value="${item.direccion} (${item.tipo})">
+                                    </option>`
+                                );
+                            });
+                        }
+                    }
+                });
+            }
+        });
+
+        // Detectar cuando se selecciona un valor del datalist
+        $("#buscadorInput").on("change", function () {
+            let texto = $(this).val();
+            let opcion = $(`#opcionesInmueble option[value='${texto}']`);
+            let id = opcion.data("id");
+
+            if (id) {
+                window.location.href = '/Inmueble/Details?IdInmueble=' + id;
+            }
+        });
+    });
+</script>

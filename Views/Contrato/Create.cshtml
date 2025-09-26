@@ -29,7 +29,7 @@
     <div class="form-group">
         <label for="IdInmueble">Inmueble</label>
         <select asp-for="Propiedad.IdInmueble" class="form-control" 
-                asp-items="@(new SelectList(ViewBag.Inmuebles ?? new List<INMOBILIARIA_JosiasTolaba.Models.Inmueble>(), "IdInmueble", "Direccion"))">
+                asp-items="@(new SelectList(ViewBag.Inmuebles ?? new List<INMOBILIARIA_JosiasTolaba.Models.Inmueble>(), "IdInmueble", "Direccion", ViewBag.IdInmueble))">
             <option value="">-- Seleccione un inmueble --</option>
         </select>
     </div>

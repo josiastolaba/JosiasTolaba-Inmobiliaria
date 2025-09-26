@@ -9,7 +9,15 @@
 <p>
     <a asp-action="Create" class="btn btn-primary">➕ Nuevo Contrato</a>
 </p>
-
+<hr />
+<div class="mb-3">
+    <label for="buscadorInput" class="form-label">Buscar Contrato por Nombre, Apellido, DNI o Tipo de inmueble</label>
+    <input type="text" id="buscadorInput" class="form-control mb-2" placeholder="Escribe al menos 3 letras..." 
+    list="opcionesContrato"/>
+    <datalist id="opcionesContrato">
+    </datalist>
+</div>
+<hr />
 <table class="table table-striped">
     <thead>
         <tr>
@@ -37,8 +45,56 @@
                 <a asp-action="Details" asp-route-id="@item.IdContrato" class="btn btn-info btn-sm">Detalles</a> |
                 <a asp-action="Edit" asp-route-id="@item.IdContrato" class="btn btn-warning btn-sm">Editar</a> |
                 <a asp-action="Delete" asp-route-id="@item.IdContrato" class="btn btn-danger btn-sm">Eliminar</a>
+                <a asp-controller="Pago" asp-action="Create" asp-route-id="@item.IdContrato" class="btn btn-danger btn-sm">Pago</a>
+
             </td>
         </tr>
 }
     </tbody>
 </table>
+
+<!-- JQuery desde CDN -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $("#buscadorInput").on("keyup", function () {
+            let texto = $(this).val();
+
+            if (texto.length >= 3) {
+                $.ajax({
+                    url: '/Contrato/Buscar',
+                    type: 'GET',
+                    data: { dato: texto },
+                    success: function (data) {
+                        let lista = $("#opcionesContrato"); 
+                        lista.empty();
+
+                        if (data.length === 0) {
+                            lista.append('<option value="No se encontraron resultados">');
+                        } else {
+                            data.forEach(function (item) {
+                                lista.append(
+                                    `<option data-id="${item.idContrato}" 
+                                        value="${item.habitante.nombre} ${item.habitante.apellido} - DNI: ${item.habitante.dni} - ${item.propiedad.direccion} (${item.propiedad.tipo})">
+                                    </option>`
+                                );
+                            });
+                        }
+                    }
+                });
+            }
+        });
+
+        // Detectar cuando se selecciona un valor del datalist
+        $("#buscadorInput").on("change", function () {
+            let texto = $(this).val();
+            let opcion = $(`#opcionesContrato option[value='${texto}']`);
+            let id = opcion.data("id");
+
+            if (id) {
+                window.location.href = '/Contrato/Details/' + id;
+            }
+        });
+    });
+</script>

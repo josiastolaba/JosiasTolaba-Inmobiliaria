@@ -5,7 +5,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
     public class Usuario
     {
         [Key]
-        public int IdUsuario { get; set; }
+        public int IdUsuario { get; set; } 
         
         [Required(ErrorMessage = "El nombre es obligatorio")]
         [StringLength(100, ErrorMessage = "El nombre no puede exceder los 100 caracteres")]
@@ -26,11 +26,12 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         }
 
         [Required(ErrorMessage = "El Rol es obligatorio")]
-        public TipoRol Rol { get; set; } 
+        public TipoRol Rol { get; set; }
 
         [Required(ErrorMessage = "El email es obligatorio")]
         [EmailAddress(ErrorMessage = "Formato de email inválido")]
         public required string Email { get; set; }
+        
         public required string Contrasena { get; set; }
 
         public required bool Estado { get; set; }

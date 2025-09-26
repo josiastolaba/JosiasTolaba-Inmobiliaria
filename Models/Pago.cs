@@ -13,8 +13,8 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         [Required(ErrorMessage = "El Monto es obligatorio")]
         public required decimal Monto { get; set; }
 
-        [Required(ErrorMessage = "El MesCorrespondiente es obligatorio")]
-        public required char MesCorrespondiente { get; set; }
+        [Required(ErrorMessage = "El Mes es obligatorio")]
+        public required DateTime Mes { get; set; }
         
         [Required(ErrorMessage = "El NumeroPago es obligatorio")]
         public required string NumeroPago { get; set; }

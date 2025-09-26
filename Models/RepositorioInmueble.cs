@@ -7,6 +7,46 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         public RepositorioInmueble(IConfiguration configuration) : base(configuration)
         {
         }
+        public List<Inmueble> buscar(string dato)
+        {
+            var lista = new List<Inmueble>();
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = @"SELECT * 
+                                FROM inmueble
+                                WHERE Direccion LIKE @dato
+                                OR Tipo LIKE @dato
+                                OR Uso LIKE @dato
+                                OR Precio LIKE @dato
+                                LIMIT 10";
+            using (var command = new MySqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@dato", "%" + dato + "%");
+                connection.Open();
+            using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var i = new Inmueble
+                        {
+                            IdInmueble = reader.GetInt32(nameof(Inmueble.IdInmueble)),
+                            Direccion = reader.GetString(nameof(Inmueble.Direccion)),
+                            Tipo = reader.GetString(nameof(Inmueble.Tipo)),
+                            IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
+                            Uso = Enum.Parse<Inmueble.TipoUso>(reader.GetString(nameof(Inmueble.Uso))),
+                            Latitud = reader.GetDecimal(nameof(Inmueble.Latitud)),
+                            Longitud = reader.GetDecimal(nameof(Inmueble.Longitud)),
+                            Ambiente = reader.GetInt32(nameof(Inmueble.Ambiente)),
+                            Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
+                            Estado = reader.GetBoolean(nameof(Inmueble.Estado))
+                        };
+                        lista.Add(i);
+                    }
+                }
+            }
+            }
+            return lista;
+        }
         public int Alta(Inmueble i)
         {
             int res = -1;

@@ -10,16 +10,16 @@ namespace INMOBILIARIA_JosiasTolaba.Models
 
         /*METODOS PARA BUSCAR*/
 
-       public List<Propietario> buscar(string dato)
-{
-    var lista = new List<Propietario>();
+        public List<Propietario> buscar(string dato)
+        {
+            var lista = new List<Propietario>();
 
-    using (MySqlConnection connection = new MySqlConnection(connectionString))
-    {
-        string query = @"SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email, Estado
-                         FROM propietario 
-                         WHERE Nombre LIKE @dato OR Dni LIKE @dato
-                         LIMIT 10";
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = @"SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email, Estado
+                                FROM propietario 
+                                WHERE Nombre LIKE @dato OR Dni LIKE @dato
+                                LIMIT 10";
 
         using (var command = new MySqlCommand(query, connection))
         {

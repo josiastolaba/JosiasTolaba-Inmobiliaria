@@ -106,7 +106,7 @@ CREATE TABLE `pago` (
   `IdPago` int(11) NOT NULL,
   `FechaPago` date NOT NULL,
   `Monto` decimal(10,0) NOT NULL,
-  `MesCorrespondiente` char(7) NOT NULL,
+  `Mes` char(7) NOT NULL,
   `NumeroPago` varchar(50) NOT NULL,
   `Concepto` varchar(100) NOT NULL,
   `IdContrato` int(11) NOT NULL,
@@ -119,7 +119,7 @@ CREATE TABLE `pago` (
 -- Volcado de datos para la tabla `pago`
 --
 
-INSERT INTO `pago` (`IdPago`, `FechaPago`, `Monto`, `MesCorrespondiente`, `NumeroPago`, `Concepto`, `IdContrato`, `QuienCreo`, `QuienElimino`, `Estado`) VALUES
+INSERT INTO `pago` (`IdPago`, `FechaPago`, `Monto`, `Mes`, `NumeroPago`, `Concepto`, `IdContrato`, `QuienCreo`, `QuienElimino`, `Estado`) VALUES
 (14, '2025-09-10', 10001, '1', '1', 'Alquiler mes septiembre', 1, NULL, NULL, 1),
 (15, '2025-09-08', 1, '1', '1', '1', 1, NULL, NULL, 1),
 (16, '2025-09-08', 1, '1', '1', '1', 1, NULL, NULL, 1);
