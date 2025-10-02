@@ -1,5 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using INMOBILIARIA_JosiasTolaba.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 
 namespace INMOBILIARIA_JosiasTolaba.Controllers
 {
@@ -7,7 +12,7 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
     {
         private readonly IRepositorioUsuario repositorio;
         private readonly IConfiguration config;
-        public UsuarioController(IRepositorioUsuario repositorio, IConfiguration config)
+        public UsuarioController(IRepositorioUsuario repositorio, IConfiguration config, IWebHostEnvironment environment)
         {
             this.repositorio = repositorio;
             this.config = config;
@@ -82,16 +87,66 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
             return View(u);
         }
         public IActionResult DarDeBaja(int IdUsuario)
+        {
+            Usuario p = repositorio.UsuarioId(IdUsuario);
+            int res = repositorio.DarDeBaja(IdUsuario);
+            if (res > 0)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                ViewBag.Error = "No se pudo eliminar el Usuario";
+                return View();
+            }
+        }
+        public IActionResult Login()
+        {
+            return View();
+        }
+        [HttpPost]
+		[AllowAnonymous]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> Login(UsuarioLogin login)
 		{
-			Usuario p = repositorio.UsuarioId(IdUsuario);
-			int res = repositorio.DarDeBaja(IdUsuario);
-			if (res > 0)
+			try
 			{
-				return RedirectToAction(nameof(Index));
+				if (ModelState.IsValid)
+				{
+					string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+						password: login.Contrasena,
+						salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
+						prf: KeyDerivationPrf.HMACSHA1,
+						iterationCount: 1000,
+						numBytesRequested: 256 / 8));
+
+					var e = repositorio.ObtenerPorEmail(login.Email);
+					if (e == null || e.Contrasena != hashed)
+					{
+						ModelState.AddModelError("", "El email o la clave no son correctos");
+						return View();
+					}
+
+					var claims = new List<Claim>
+					{
+						new Claim(ClaimTypes.Name, e.Email),
+						new Claim("FullName", e.Nombre + " " + e.Apellido),
+						new Claim(ClaimTypes.Role, e.Rol.ToString()),
+					};
+
+					var claimsIdentity = new ClaimsIdentity(
+							claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+					await HttpContext.SignInAsync(
+							CookieAuthenticationDefaults.AuthenticationScheme,
+							new ClaimsPrincipal(claimsIdentity));
+					return Redirect("/Home");
+				}
+				return View();
 			}
-			else
+			catch (Exception ex)
 			{
-				ViewBag.Error = "No se pudo eliminar el Usuario";
+				ModelState.AddModelError("", ex.Message);
 				return View();
 			}
 		}

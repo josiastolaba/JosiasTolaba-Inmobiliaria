@@ -1,4 +1,6 @@
 using INMOBILIARIA_JosiasTolaba.Models;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,8 +13,20 @@ builder.Services.AddScoped<IRepositorioContrato, RepositorioContrato>();
 builder.Services.AddScoped<IRepositorioPago, RepositorioPago>();
 builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
 
-var app = builder.Build();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Usuarios/Login";
+        options.LogoutPath = "/Usuarios/Logout";
+        options.AccessDeniedPath = "/Home";
 
+    });
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Administrador", policy => policy.RequireClaim(ClaimTypes.Role, "Administrador"));
+});
+
+var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -25,7 +39,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

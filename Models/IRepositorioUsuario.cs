@@ -6,5 +6,6 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                 int DarDeBaja(int idUsuario);
                 IList<Usuario> ListarUsuarios();
                 Usuario UsuarioId(int IdUsuario);
+                Usuario ObtenerPorEmail(string email);
 	}
 }

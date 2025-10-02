@@ -167,5 +167,37 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             }
             return res;
         }
+        public Usuario? ObtenerPorEmail(string email)
+        {
+            Usuario? res = null;
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = $@"SELECT * FROM usuario WHERE Email = @Email AND Estado = true;";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+
+                {
+                    command.Parameters.AddWithValue("@Email", email);
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        res = new Usuario
+                        {
+                            IdUsuario = reader.GetInt32(nameof(Usuario.IdUsuario)),
+                            Nombre = reader.GetString(nameof(Usuario.Nombre)),
+                            Apellido = reader.GetString(nameof(Usuario.Apellido)),
+                            Dni = reader.GetString(nameof(Usuario.Dni)),
+                            Email = reader.GetString(nameof(Usuario.Email)),
+                            Contrasena = reader.GetString(nameof(Usuario.Contrasena)),
+                            Rol = Enum.Parse<Usuario.TipoRol>(reader.GetString(nameof(Usuario.Rol))),
+                            Estado = reader.GetBoolean(nameof(Usuario.Estado))
+                        };
+                    }
+                    connection.Close();
+                }
+            }
+            return res;
+        }
     }
 }

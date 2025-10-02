@@ -7,6 +7,46 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         public RepositorioPago(IConfiguration configuration) : base(configuration)
         {
         }
+        public List<Pago> buscar(string dato)
+        {
+            var lista = new List<Pago>();
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = @"SELECT * 
+                                FROM pago
+                                WHERE Monto LIKE @dato
+                                OR FechaPago LIKE @dato
+                                OR Mes LIKE @dato
+                                OR NumeroPago LIKE @dato
+                                LIMIT 10";
+            using (var command = new MySqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@dato", "%" + dato + "%");
+                connection.Open();
+            using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var i = new Pago
+                        {
+                            IdPago = reader.GetInt32(nameof(Pago.IdPago)),
+                            FechaPago = reader.GetDateTime(nameof(Pago.FechaPago)),
+                            Monto = reader.GetDecimal(nameof(Pago.Monto)),
+                            Mes = reader.GetDateTime(nameof(Pago.Mes)),
+                            NumeroPago = reader.GetString(nameof(Pago.NumeroPago)),
+                            Concepto = reader.GetString(nameof(Pago.Concepto)),
+                            IdContrato = reader.GetInt32(nameof(Pago.IdContrato)),
+                            //QuienCreo = reader.GetInt32(nameof(Pago.QuienCreo)),
+                            //QuienElimino = reader.GetInt32(nameof(Pago.QuienElimino)),
+                            Estado = reader.GetBoolean(nameof(Pago.Estado))
+                        };
+                        lista.Add(i);
+                    }
+                }
+            }
+            }
+            return lista;
+        }
         public int Alta(Pago p)
         {
             int res = -1;
