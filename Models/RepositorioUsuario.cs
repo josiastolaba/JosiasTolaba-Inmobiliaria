@@ -50,6 +50,57 @@ namespace INMOBILIARIA_JosiasTolaba.Models
     }
     return lista;
         }
+
+        public IList<Usuario> obtenerPaginados(int offset, int limit)
+        {
+            IList<Usuario> res = new List<Usuario>();
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = @"SELECT * FROM usuario 
+                WHERE Estado = true
+                ORDER BY IdUsuario
+                LIMIT @limit OFFSET @offset;";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@limit", limit);
+                    command.Parameters.AddWithValue("@offset", offset);
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        Usuario p = new Usuario
+                        {
+                            IdUsuario = reader.GetInt32(nameof(Usuario.IdUsuario)),
+                            Nombre = reader.GetString(nameof(Usuario.Nombre)),
+                            Apellido = reader.GetString(nameof(Usuario.Apellido)),
+                            Dni = reader.GetString(nameof(Usuario.Dni)),
+                            Email = reader.GetString(nameof(Usuario.Email)),
+                            Contrasena = reader.GetString(nameof(Usuario.Contrasena)),
+                            Rol = Enum.Parse<Usuario.TipoRol>(reader.GetString(nameof(Usuario.Rol))),
+                            Estado = reader.GetBoolean(nameof(Usuario.Estado))
+                        };
+                        res.Add(p);
+                    }
+                }
+            }
+            return res;
+        }
+
+        public int contar()
+        {
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = "SELECT COUNT(*) FROM usuario WHERE Estado = true;";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    connection.Open();
+                    return Convert.ToInt32(command.ExecuteScalar());
+                }
+            }
+        }
         public int Alta(Usuario u)
         {
             int res = -1;
