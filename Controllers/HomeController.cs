@@ -1,9 +1,10 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using INMOBILIARIA_JosiasTolaba.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace INMOBILIARIA_JosiasTolaba.Controllers;
-
+[Authorize]
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
@@ -19,6 +20,16 @@ public class HomeController : Controller
     }
 
     public IActionResult Privacy()
+    {
+        return View();
+    }
+
+    public IActionResult AccesoDenegado()
+    {
+        return View();
+    }
+
+    public IActionResult CambiarClaim()
     {
         return View();
     }

@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using INMOBILIARIA_JosiasTolaba.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace INMOBILIARIA_JosiasTolaba.Controllers
 {
+    [Authorize]
     public class InmuebleController : Controller
     {
         private readonly IRepositorioInmueble repositorio;
@@ -15,11 +17,11 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
             this.config = config;
         }
         [HttpGet]
-		public JsonResult Buscar(string dato)
-		{
-			var lista = repositorio.buscar(dato);
-			return Json(lista);
-		}
+        public JsonResult Buscar(string dato)
+        {
+            var lista = repositorio.buscar(dato);
+            return Json(lista);
+        }
         public IActionResult Index()
         {
             var inmuebles = repositorio.ListarInmuebles();
@@ -83,7 +85,7 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
                 return View(i);
             }
         }
-        
+
         public IActionResult Details(int IdInmueble)
         {
             Inmueble i = repositorio.InmuebleId(IdInmueble);
@@ -95,7 +97,7 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
             }
             return View(i);
         }
-
+        [Authorize(Policy = "Administrador")]
         public IActionResult DarDeBaja(int IdInmueble)
         {
             Inmueble p = repositorio.InmuebleId(IdInmueble);

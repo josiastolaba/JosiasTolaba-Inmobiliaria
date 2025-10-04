@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using INMOBILIARIA_JosiasTolaba.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace INMOBILIARIA_JosiasTolaba.Controllers
 {
+	[Authorize]
 	public class PropietarioController : Controller
 	{
 		private readonly IRepositorioPropietario repositorio;
@@ -80,14 +82,15 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
 			}
 		}
 		public IActionResult Details(int IdPropietario)
-        {
-            Propietario p = repositorio.PropietarioId(IdPropietario);
-            if (p == null)
-            {
-                return NotFound();
-            }
-            return View(p);
-        }
+		{
+			Propietario p = repositorio.PropietarioId(IdPropietario);
+			if (p == null)
+			{
+				return NotFound();
+			}
+			return View(p);
+		}
+		[Authorize(Policy = "Administrador")]
 		public IActionResult DarDeBaja(int IdPropietario)
 		{
 			Propietario p = repositorio.PropietarioId(IdPropietario);
@@ -102,5 +105,5 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
 				return View();
 			}
 		}
-    }
+	}
 }

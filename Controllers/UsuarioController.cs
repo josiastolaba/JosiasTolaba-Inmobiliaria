@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication;
 
 namespace INMOBILIARIA_JosiasTolaba.Controllers
 {
+    [Authorize]
     public class UsuarioController : Controller
     {
         private readonly IRepositorioUsuario repositorio;
@@ -17,20 +18,30 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
             this.repositorio = repositorio;
             this.config = config;
         }
+        [Authorize(Policy = "Administrador")]
         public IActionResult Index()
         {
             var usuarios = repositorio.ListarUsuarios();
             return View(usuarios);
         }
+        [Authorize(Policy = "Administrador")]
         public IActionResult Create()
         {
             return View();
         }
         [HttpPost]
+        [Authorize(Policy = "Administrador")]
         public IActionResult Create(Usuario u)
         {
             if (ModelState.IsValid)
             {
+                string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                        password: u.Contrasena,
+                        salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
+                        prf: KeyDerivationPrf.HMACSHA1,
+                        iterationCount: 1000,
+                        numBytesRequested: 256 / 8));
+                u.Contrasena = hashed;
                 int res = repositorio.Alta(u);
                 if (res > 0)
                 {
@@ -86,6 +97,7 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
             }
             return View(u);
         }
+        [Authorize(Policy = "Administrador")]
         public IActionResult DarDeBaja(int IdUsuario)
         {
             Usuario p = repositorio.UsuarioId(IdUsuario);
@@ -100,55 +112,57 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
                 return View();
             }
         }
+        [AllowAnonymous]
         public IActionResult Login()
         {
             return View();
         }
         [HttpPost]
-		[AllowAnonymous]
-		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Login(UsuarioLogin login)
-		{
-			try
-			{
-				if (ModelState.IsValid)
-				{
-					string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-						password: login.Contrasena,
-						salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
-						prf: KeyDerivationPrf.HMACSHA1,
-						iterationCount: 1000,
-						numBytesRequested: 256 / 8));
-
-					var e = repositorio.ObtenerPorEmail(login.Email);
-					if (e == null || e.Contrasena != hashed)
-					{
-						ModelState.AddModelError("", "El email o la clave no son correctos");
-						return View();
-					}
-
-					var claims = new List<Claim>
-					{
-						new Claim(ClaimTypes.Name, e.Email),
-						new Claim("FullName", e.Nombre + " " + e.Apellido),
-						new Claim(ClaimTypes.Role, e.Rol.ToString()),
-					};
-
-					var claimsIdentity = new ClaimsIdentity(
-							claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-					await HttpContext.SignInAsync(
-							CookieAuthenticationDefaults.AuthenticationScheme,
-							new ClaimsPrincipal(claimsIdentity));
-					return Redirect("/Home");
-				}
-				return View();
-			}
-			catch (Exception ex)
-			{
-				ModelState.AddModelError("", ex.Message);
-				return View();
-			}
-		}
+        [AllowAnonymous]
+        public async Task<IActionResult> Login(UsuarioLogin login)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                        password: login.Contrasena,
+                        salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
+                        prf: KeyDerivationPrf.HMACSHA1,
+                        iterationCount: 1000,
+                        numBytesRequested: 256 / 8));
+                    var usuario = repositorio.ObtenerPorEmail(login.Email);
+                    if (usuario == null || usuario.Contrasena != hashed)
+                    {
+                        ModelState.AddModelError("", "El email o la clave no son correctos");
+                        return View();
+                    }
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, usuario.Email),
+                        new Claim("FullName", usuario.Nombre + " " + usuario.Apellido),
+                        new Claim(ClaimTypes.Role, usuario.Rol.ToString()),
+                    };
+                    var claimsIdentity = new ClaimsIdentity(
+                            claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    await HttpContext.SignInAsync(
+                            CookieAuthenticationDefaults.AuthenticationScheme,
+                            new ClaimsPrincipal(claimsIdentity));
+                    return Redirect("/Home");
+                }
+                return View();
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View();
+            }
+        }
+        public async Task<ActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Index", "Home");
+        }
     }
 }

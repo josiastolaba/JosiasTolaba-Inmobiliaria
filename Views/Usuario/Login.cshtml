@@ -1,3 +1,4 @@
+@model INMOBILIARIA_JosiasTolaba.Models.UsuarioLogin;
 @{
 	ViewData["Title"] = "Login";
 }
@@ -6,12 +7,12 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="form-group">
             <label asp-for="Email" class="control-label"></label>
-            <input asp-for="Email" class="form-control" placeholder="Ej: Josias"/>
+            <input asp-for="Email" class="form-control" placeholder="Ej: nombreapellido@gmail.com"/>
             <span asp-validation-for="Email" class="text-danger"></span>
         </div>
         <div class="form-group">
             <label asp-for="Contrasena" class="control-label"></label>
-            <input asp-for="Contrasena" class="form-control" placeholder="Ej: Tolaba"/>
+            <input asp-for="Contrasena" class="form-control" placeholder="Ej: *****"/>
             <span asp-validation-for="Contrasena" class="text-danger"></span>
         </div>
 

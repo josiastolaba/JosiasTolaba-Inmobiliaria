@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using INMOBILIARIA_JosiasTolaba.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace INMOBILIARIA_JosiasTolaba.Controllers
 {
+    [Authorize]
     public class PagoController : Controller
     {
         private readonly IRepositorioPago repositorio;
@@ -15,10 +17,10 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
             this.config = config;
         }
         public JsonResult Buscar(string dato)
-		{
-			var lista = repositorio.buscar(dato);
-			return Json(lista);
-		}
+        {
+            var lista = repositorio.buscar(dato);
+            return Json(lista);
+        }
         public IActionResult Index()
         {
             var pagos = repositorio.ListarPagos();
@@ -28,10 +30,10 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
         {
             ViewBag.Contrato = repoContrato.ListarContratos();
             if (id != null)
-			{
-				ViewBag.Id = id;
-			}
-			return View();
+            {
+                ViewBag.Id = id;
+            }
+            return View();
         }
         [HttpPost]
         public IActionResult Create(Pago p)
@@ -97,6 +99,7 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
             }
             return View(p);
         }
+        [Authorize(Policy = "Administrador")]
         public IActionResult DarDeBaja(int IdPago)
         {
             Pago p = repositorio.PagoId(IdPago);

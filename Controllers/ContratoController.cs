@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Inmobiliaria_.Net_Core.Controllers
 {
+	[Authorize]
 	public class ContratoController : Controller
 	{
 		private readonly IRepositorioContrato repositorio;
@@ -43,10 +44,11 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		{
 			var contratos = repositorio.ListarContratos()
 				.Where(c => c.Estado)
-				.Where(c => string.IsNullOrEmpty(term) 
-						|| c.Propiedad.Direccion.Contains(term) 
+				.Where(c => string.IsNullOrEmpty(term)
+						|| c.Propiedad.Direccion.Contains(term)
 						|| c.Habitante.Nombre.Contains(term))
-				.Select(c => new {
+				.Select(c => new
+				{
 					id = c.IdContrato,
 					text = $"{c.Propiedad.Direccion} - {c.Habitante.Nombre} {c.Habitante.Apellido}"
 				})
@@ -62,7 +64,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		}
 
 		// GET: Contratos/Create
-		public ActionResult Create(int? idInmueble)		
+		public ActionResult Create(int? idInmueble)
 		{
 			try
 			{
@@ -142,8 +144,8 @@ namespace Inmobiliaria_.Net_Core.Controllers
 				return View(entidad);
 			}
 		}
-
 		// GET: Contratos/Eliminar/5
+		[Authorize(Policy = "Administrador")]
 		public ActionResult Delete(int id)
 		{
 			var entidad = repositorio.IdContrato(id);
