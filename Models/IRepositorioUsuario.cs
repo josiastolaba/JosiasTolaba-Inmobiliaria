@@ -5,6 +5,8 @@ namespace INMOBILIARIA_JosiasTolaba.Models
 	{
         int DarDeBaja(int idUsuario);
         IList<Usuario> ListarUsuarios();
+
+        List<Usuario> buscar(string dato);
         Usuario UsuarioId(int IdUsuario);
 		
 	}

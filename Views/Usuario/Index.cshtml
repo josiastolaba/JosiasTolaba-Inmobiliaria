@@ -9,6 +9,15 @@
 <p>
     <a class="btn btn-primary" asp-action="Create" title="Crear"><i class="fa-solid fa-plus"></i>➕ Nuevo Usuario</a>
 </p>
+
+<div class="mb-3">
+    <label for="buscadorInput" class="form-label">Buscar usuario por nombre o DNI</label>
+    <input type="text" id="buscadorInput" class="form-control mb-2" placeholder="Escribe al menos 3 letras..." 
+    list="opcionesUsuario"/>
+   
+   <datalist id="opcionesUsuario">
+   </datalist>
+</div>
 <hr />
 <table class="table table-striped table-bordered">
     <thead class="table-dark">
@@ -45,3 +54,46 @@
         }
     </tbody>
 </table>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $("#buscadorInput").on("keyup", function () {
+            let texto = $(this).val();
+
+            if (texto.length >= 3) {
+                $.ajax({
+                    url: '/Usuario/Buscar',
+                    type: 'GET',
+                    data: { dato: texto },
+                    success: function (data) {
+                        let lista = $("#opcionesUsuario");
+                        lista.empty();
+
+                        if (data.length === 0) {
+                            lista.append('<option value="No se encontraron resultados">');
+                        } else {
+                            data.forEach(function (item) {
+                                lista.append(
+                                    `<option data-id="${item.idUsuario}" value="${item.nombre} ${item.apellido} - DNI: ${item.dni} - ROL: ${item.rol}""></option>`
+                                );
+                            });
+                        }
+                    }
+                });
+            }
+        });
+
+        // Detectar cuando se selecciona un valor del datalist
+        $("#buscadorInput").on("change", function () {
+            let texto = $(this).val();
+            let opcion = $(`#opcionesUsuario option[value='${texto}']`);
+            let id = opcion.data("id");
+
+            if (id) {
+                window.location.href = '/Usuario/Details?IdUsuario=' + id;
+            }
+        });
+    });
+</script>

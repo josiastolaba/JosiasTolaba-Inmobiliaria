@@ -8,6 +8,48 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         {
 
         }
+
+        public List<Usuario> buscar(String dato)
+        {
+            var lista = new List<Usuario>();
+
+    using (MySqlConnection connection = new MySqlConnection(connectionString))
+    {
+        string query = @"SELECT IdUsuario, Nombre, Apellido, Dni, Contrasena, Rol, Email, Estado
+                         FROM usuario
+                         WHERE Nombre LIKE @dato OR Dni LIKE @dato
+                         LIMIT 10";
+
+        using (var command = new MySqlCommand(query, connection))
+        {
+            command.Parameters.AddWithValue("@dato", "%" + dato + "%");
+            connection.Open();
+
+            using (var reader = command.ExecuteReader())
+            {
+                        while (reader.Read())
+                        {
+                            var p = new Usuario
+                            {
+                                IdUsuario = reader.GetInt32("IdUsuario"),
+                                Nombre = reader.GetString("Nombre"),
+                                Apellido = reader.GetString("Apellido"),
+                                Contrasena = reader.GetString("Contrasena"),
+                                Dni = reader.GetString("Dni"),
+                                Email = reader.GetString("Email"),
+                                Estado = reader.GetBoolean("Estado"),
+                                Rol = Enum.Parse<Usuario.TipoRol>(
+                            reader.GetString("Rol"), // trae "adminstrador" o "empleado"
+                            true                     // true = ignoreCase
+                        )
+                            };
+                            lista.Add(p);
+                         }
+                }
+         }
+    }
+    return lista;
+        }
         public int Alta(Usuario u)
         {
             int res = -1;

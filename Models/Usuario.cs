@@ -36,5 +36,6 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         public required bool Estado { get; set; }
 
         public Usuario() {}
+
     }
 }
