@@ -8,6 +8,99 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         {
 
         }
+
+        public List<Usuario> buscar(String dato)
+        {
+            var lista = new List<Usuario>();
+
+    using (MySqlConnection connection = new MySqlConnection(connectionString))
+    {
+        string query = @"SELECT IdUsuario, Nombre, Apellido, Dni, Contrasena, Rol, Email, Estado
+                         FROM usuario
+                         WHERE Nombre LIKE @dato OR Dni LIKE @dato
+                         LIMIT 10";
+
+        using (var command = new MySqlCommand(query, connection))
+        {
+            command.Parameters.AddWithValue("@dato", "%" + dato + "%");
+            connection.Open();
+
+            using (var reader = command.ExecuteReader())
+            {
+                        while (reader.Read())
+                        {
+                            var p = new Usuario
+                            {
+                                IdUsuario = reader.GetInt32("IdUsuario"),
+                                Nombre = reader.GetString("Nombre"),
+                                Apellido = reader.GetString("Apellido"),
+                                Contrasena = reader.GetString("Contrasena"),
+                                Dni = reader.GetString("Dni"),
+                                Email = reader.GetString("Email"),
+                                Estado = reader.GetBoolean("Estado"),
+                                Rol = Enum.Parse<Usuario.TipoRol>(
+                            reader.GetString("Rol"), // trae "adminstrador" o "empleado"
+                            true                     // true = ignoreCase
+                        )
+                            };
+                            lista.Add(p);
+                         }
+                }
+         }
+    }
+    return lista;
+        }
+
+        public IList<Usuario> obtenerPaginados(int offset, int limit)
+        {
+            IList<Usuario> res = new List<Usuario>();
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = @"SELECT * FROM usuario 
+                WHERE Estado = true
+                ORDER BY IdUsuario
+                LIMIT @limit OFFSET @offset;";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@limit", limit);
+                    command.Parameters.AddWithValue("@offset", offset);
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        Usuario p = new Usuario
+                        {
+                            IdUsuario = reader.GetInt32(nameof(Usuario.IdUsuario)),
+                            Nombre = reader.GetString(nameof(Usuario.Nombre)),
+                            Apellido = reader.GetString(nameof(Usuario.Apellido)),
+                            Dni = reader.GetString(nameof(Usuario.Dni)),
+                            Email = reader.GetString(nameof(Usuario.Email)),
+                            Contrasena = reader.GetString(nameof(Usuario.Contrasena)),
+                            Rol = Enum.Parse<Usuario.TipoRol>(reader.GetString(nameof(Usuario.Rol))),
+                            Estado = reader.GetBoolean(nameof(Usuario.Estado))
+                        };
+                        res.Add(p);
+                    }
+                }
+            }
+            return res;
+        }
+
+        public int contar()
+        {
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = "SELECT COUNT(*) FROM usuario WHERE Estado = true;";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    connection.Open();
+                    return Convert.ToInt32(command.ExecuteScalar());
+                }
+            }
+        }
         public int Alta(Usuario u)
         {
             int res = -1;
@@ -148,6 +241,39 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                 }
             }
             return res;
+        }
+
+        public bool existeDni(string dni)
+        {
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = "SELECT COUNT(*) FROM usuario WHERE Dni = @Dni";
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@dni", dni);
+                    connection.Open();
+                    int count = Convert.ToInt32(command.ExecuteScalar());
+                    return count > 0;
+                }
+            }
+        }
+
+        public bool existeOtroDni(string dni, int idUsuario)
+        {
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = @"SELECT COUNT(*) FROM usuario
+                WHERE Dni = @dni AND IdUsuario <> @id";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@dni", dni);
+                    command.Parameters.AddWithValue("@id", idUsuario);
+                    connection.Open();
+                    int count = Convert.ToInt32(command.ExecuteScalar());
+                    return count > 0;
+                }
+            }
         }
         public int DarDeBaja(int IdUsuario)
         {

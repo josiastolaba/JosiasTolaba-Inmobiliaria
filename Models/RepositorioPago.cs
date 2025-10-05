@@ -7,45 +7,65 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         public RepositorioPago(IConfiguration configuration) : base(configuration)
         {
         }
-        public List<Pago> buscar(string dato)
+
+        public IList<Pago> buscarAvanzado(DateTime? fechaDesde, DateTime? fechaHasta, int? idInquilino)
         {
+            int res = -1;
             var lista = new List<Pago>();
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = @"SELECT * 
-                                FROM pago
-                                WHERE Monto LIKE @dato
-                                OR FechaPago LIKE @dato
-                                OR Mes LIKE @dato
-                                OR NumeroPago LIKE @dato
-                                LIMIT 10";
-            using (var command = new MySqlCommand(query, connection))
-            {
-                command.Parameters.AddWithValue("@dato", "%" + dato + "%");
-                connection.Open();
-            using (var reader = command.ExecuteReader())
+                string query =  @"
+            SELECT p.IdPago, p.FechaPago, p.Monto, p.MesCorrespondiente,
+                   p.NumeroPago, p.Concepto, p.Estado, p.IdContrato,
+                   c.IdContrato, i.IdInquilino, i.Nombre, i.Apellido
+            FROM Pago p
+            JOIN Contrato c ON p.IdContrato = c.IdContrato
+            JOIN Inquilino i ON c.IdInquilino = i.IdInquilino
+            WHERE (@fechaDesde IS NULL OR p.FechaPago >= @fechaDesde)
+              AND (@fechaHasta IS NULL OR p.FechaPago <= @fechaHasta)
+              AND (@idInquilino IS NULL OR i.IdInquilino = @idInquilino)
+            ORDER BY p.FechaPago DESC";
+
+                using (var command = new MySqlCommand(query, connection))
                 {
-                    while (reader.Read())
+                    command.Parameters.AddWithValue("@fechaDesde", (object)fechaDesde ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@fechaHasta", (object)fechaHasta ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@idInquilino", (object)idInquilino ?? DBNull.Value);
+
+                    connection.Open();
+                    using (var reader = command.ExecuteReader())
                     {
-                        var i = new Pago
+                        while (reader.Read())
                         {
-                            IdPago = reader.GetInt32(nameof(Pago.IdPago)),
-                            FechaPago = reader.GetDateTime(nameof(Pago.FechaPago)),
-                            Monto = reader.GetDecimal(nameof(Pago.Monto)),
-                            Mes = reader.GetDateTime(nameof(Pago.Mes)),
-                            NumeroPago = reader.GetString(nameof(Pago.NumeroPago)),
-                            Concepto = reader.GetString(nameof(Pago.Concepto)),
-                            IdContrato = reader.GetInt32(nameof(Pago.IdContrato)),
-                            //QuienCreo = reader.GetInt32(nameof(Pago.QuienCreo)),
-                            //QuienElimino = reader.GetInt32(nameof(Pago.QuienElimino)),
-                            Estado = reader.GetBoolean(nameof(Pago.Estado))
-                        };
-                        lista.Add(i);
+                            var pago = new Pago
+                            {
+                                IdPago = reader.GetInt32("IdPago"),
+                                FechaPago = reader.GetDateTime("FechaPago"),
+                                Monto = reader.GetDecimal("Monto"),
+                                MesCorrespondiente = reader.GetChar("MesCorrespondiente"),
+                                NumeroPago = reader.GetString("NumeroPago"),
+                                Concepto = reader.GetString("Concepto"),
+                                Estado = reader.GetBoolean("Estado"),
+                                IdContrato = reader.GetInt32("IdContrato"),
+
+                                Contrato = new ContratoDTO
+                                {
+                                    IdContrato = reader.GetInt32("IdContrato"),
+                                    Habitante = new InquilinoDto
+                                    {
+                                        IdInquilino = reader.GetInt32("IdInquilino"),
+                                        Nombre = reader.GetString("Nombre"),
+                                        Apellido = reader.GetString("Apellido")
+                                    }
+                                }
+                            };
+                            lista.Add(pago);
+                        }
                     }
+
                 }
             }
-            }
-            return lista;
+          return lista;
         }
         public int Alta(Pago p)
         {
@@ -55,14 +75,14 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                 string query = $@"INSERT INTO pago (
                     {nameof(Pago.FechaPago)},
                     {nameof(Pago.Monto)},
-                    {nameof(Pago.Mes)},
+                    {nameof(Pago.MesCorrespondiente)},
                     {nameof(Pago.NumeroPago)},
                     {nameof(Pago.Concepto)},
                     {nameof(Pago.IdContrato)},
                     {nameof(Pago.QuienCreo)},
                     {nameof(Pago.QuienElimino)},
                     {nameof(Pago.Estado)})
-                    VALUES (@FechaPago, @Monto, @Mes, @NumeroPago, @Concepto, @IdContrato, @QuienCreo, @QuienElimino, @Estado);
+                    VALUES (@FechaPago, @Monto, @MesCorrespondiente, @NumeroPago, @Concepto, @IdContrato, @QuienCreo, @QuienElimino, @Estado);
                     SELECT LAST_INSERT_ID();";
 
                 using (var command = new MySqlCommand(query, connection))
@@ -70,7 +90,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                     p.Estado = true;
                     command.Parameters.AddWithValue("@FechaPago", p.FechaPago);
                     command.Parameters.AddWithValue("@Monto", p.Monto);
-                    command.Parameters.AddWithValue("@Mes", p.Mes);
+                    command.Parameters.AddWithValue("@MesCorrespondiente", p.MesCorrespondiente);
                     command.Parameters.AddWithValue("@NumeroPago", p.NumeroPago);
                     command.Parameters.AddWithValue("@Concepto", p.Concepto);
                     command.Parameters.AddWithValue("@IdContrato", p.IdContrato);
@@ -107,7 +127,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                 string query = $@"UPDATE pago SET
                     {nameof(Pago.FechaPago)}=@FechaPago,
                     {nameof(Pago.Monto)}=@Monto,
-                    {nameof(Pago.Mes)}=@Mes,
+                    {nameof(Pago.MesCorrespondiente)}=@MesCorrespondiente,
                     {nameof(Pago.NumeroPago)}=@NumeroPago,
                     {nameof(Pago.Concepto)}=@Concepto,
                     {nameof(Pago.IdContrato)}=@IdContrato
@@ -117,7 +137,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                     command.Parameters.AddWithValue("@IdPago", p.IdPago);
                     command.Parameters.AddWithValue("@FechaPago", p.FechaPago);
                     command.Parameters.AddWithValue("@Monto", p.Monto);
-                    command.Parameters.AddWithValue("@Mes", p.Mes);
+                    command.Parameters.AddWithValue("@MesCorrespondiente", p.MesCorrespondiente);
                     command.Parameters.AddWithValue("@NumeroPago", p.NumeroPago);
                     command.Parameters.AddWithValue("@Concepto", p.Concepto);
                     command.Parameters.AddWithValue("@IdContrato", p.IdContrato);
@@ -151,7 +171,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                             IdPago = reader.GetInt32(nameof(Pago.IdPago)),
                             FechaPago = reader.GetDateTime(nameof(Pago.FechaPago)),
                             Monto = reader.GetDecimal(nameof(Pago.Monto)),
-                            Mes = reader.GetDateTime(nameof(Pago.Mes)),
+                            MesCorrespondiente = reader.GetChar(nameof(Pago.MesCorrespondiente)),
                             NumeroPago = reader.GetString(nameof(Pago.NumeroPago)),
                             Concepto = reader.GetString(nameof(Pago.Concepto)),
                             IdContrato = reader.GetInt32(nameof(Pago.IdContrato)),
@@ -186,7 +206,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                                 IdPago = reader.GetInt32(nameof(Pago.IdPago)),
                                 FechaPago = reader.GetDateTime(nameof(Pago.FechaPago)),
                                 Monto = reader.GetDecimal(nameof(Pago.Monto)),
-                                Mes = reader.GetDateTime(nameof(Pago.Mes)),
+                                MesCorrespondiente = reader.GetChar(nameof(Pago.MesCorrespondiente)),
                                 NumeroPago = reader.GetString(nameof(Pago.NumeroPago)),
                                 Concepto = reader.GetString(nameof(Pago.Concepto)),
                                 IdContrato = reader.GetInt32(nameof(Pago.IdContrato)),

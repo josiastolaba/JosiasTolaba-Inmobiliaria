@@ -17,38 +17,88 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
                 string query = @"SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email, Estado
-                                FROM propietario 
-                                WHERE Nombre LIKE @dato OR Dni LIKE @dato
-                                LIMIT 10";
+                         FROM propietario 
+                         WHERE Nombre LIKE @dato OR Dni LIKE @dato
+                         LIMIT 10";
 
-        using (var command = new MySqlCommand(query, connection))
-        {
-            command.Parameters.AddWithValue("@dato", "%" + dato + "%");
-            connection.Open();
-
-            using (var reader = command.ExecuteReader())
-            {
-                while (reader.Read())
+                using (var command = new MySqlCommand(query, connection))
                 {
-                    var p = new Propietario
+                    command.Parameters.AddWithValue("@dato", "%" + dato + "%");
+                    connection.Open();
+
+                    using (var reader = command.ExecuteReader())
                     {
-                        IdPropietario = reader.GetInt32("IdPropietario"),
-                        Nombre = reader.GetString("Nombre"),
-                        Apellido = reader.GetString("Apellido"),
-                        Dni = reader.GetString("Dni"),
-                        Telefono = reader.GetString("Telefono"),
-                        Email = reader.GetString("Email"),
-                        Estado = reader.GetBoolean("Estado")
-                    };
-                    lista.Add(p);
+                        while (reader.Read())
+                        {
+                            var p = new Propietario
+                            {
+                                IdPropietario = reader.GetInt32("IdPropietario"),
+                                Nombre = reader.GetString("Nombre"),
+                                Apellido = reader.GetString("Apellido"),
+                                Dni = reader.GetString("Dni"),
+                                Telefono = reader.GetString("Telefono"),
+                                Email = reader.GetString("Email"),
+                                Estado = reader.GetBoolean("Estado")
+                            };
+                            lista.Add(p);
+                        }
+                    }
+                }
+            }
+            return lista;
+        }
+
+    public IList<Propietario> obtenerPaginados(int offset, int limit)
+        {
+            IList<Propietario> res = new List<Propietario>();
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = @"SELECT * FROM propietario
+                WHERE Estado = true
+                ORDER BY IdPropietario
+                LIMIT @limit OFFSET @offset;";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@limit", limit);
+                    command.Parameters.AddWithValue("@offset", offset);
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        Propietario p = new Propietario
+                        {
+                            IdPropietario = reader.GetInt32(nameof(Propietario.IdPropietario)),
+                            Nombre = reader.GetString(nameof(Propietario.Nombre)),
+                            Apellido = reader.GetString(nameof(Propietario.Apellido)),
+                            Dni = reader.GetString(nameof(Propietario.Dni)),
+                            Email = reader.GetString(nameof(Propietario.Email)),
+                            Telefono = reader.GetString(nameof(Propietario.Telefono)),
+                            Estado = reader.GetBoolean(nameof(Propietario.Estado))
+                        };
+                        res.Add(p);
+                    }
+                }
+            }
+            return res;
+        }
+
+        public int contar()
+        {
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = "SELECT COUNT(*) FROM propietario WHERE Estado = true;";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    connection.Open();
+                    return Convert.ToInt32(command.ExecuteScalar());
                 }
             }
         }
-    }
-    return lista;
-}
-  
-        
+
+
 
         public int Alta(Propietario p)
         {
@@ -187,6 +237,39 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                 }
             }
             return res;
+        }
+
+        public bool existeDni(string dni)
+        {
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = "SELECT COUNT(*) FROM propietario WHERE Dni = @Dni";
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@dni", dni);
+                    connection.Open();
+                    int count = Convert.ToInt32(command.ExecuteScalar());
+                    return count > 0;
+                }
+            }
+        }
+
+        public bool existeOtroDni(string dni, int idPropietario)
+        {
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = @"SELECT COUNT(*) FROM propietario
+                WHERE Dni = @dni AND IdPropietario <> @id";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@dni", dni);
+                    command.Parameters.AddWithValue("@id", idPropietario);
+                    connection.Open();
+                    int count = Convert.ToInt32(command.ExecuteScalar());
+                    return count > 0;
+                }
+            }
         }
         public int DarDeBaja(int IdPropietario)
         {

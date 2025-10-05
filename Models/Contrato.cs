@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace INMOBILIARIA_JosiasTolaba.Models
 {
-    public class Contrato
+    public class Contrato : IValidatableObject
     {
         [Key]
         public int IdContrato { get; set; }
@@ -16,9 +16,20 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         public InmuebleDto? Propiedad { get; set; }
         public InquilinoDto? Habitante { get; set; }
 
-        public int QuienCreo { get; set; } = 1;  
-        public int QuienElimino { get; set; } = 0; 
-        
+        public int QuienCreo { get; set; } = 1;
+        public int QuienElimino { get; set; } = 0;
+
         public bool Estado { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (FechaInicio > FechaFin)
+            {
+                yield return new ValidationResult(
+                    "La fecha de inicio no puede ser mayor que la fecha de fin",
+                    new[] { nameof(FechaInicio), nameof(FechaFin) }
+                );
+            }
+        }
     }
 }

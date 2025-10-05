@@ -5,7 +5,16 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         {
                 int DarDeBaja(int idUsuario);
                 IList<Usuario> ListarUsuarios();
+
+                List<Usuario> buscar(string dato);
                 Usuario UsuarioId(int IdUsuario);
-                Usuario ObtenerPorEmail(string email);
+
+                bool existeDni(string dni);
+		bool existeOtroDni(string dni, int idUsuario);
+
+                IList<Usuario> obtenerPaginados(int offset, int limit);
+
+                int contar();
+		
 	}
 }

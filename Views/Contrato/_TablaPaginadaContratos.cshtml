@@ -1,0 +1,55 @@
+@model IEnumerable<INMOBILIARIA_JosiasTolaba.Models.Contrato>
+
+@{
+    var totalPaginas = ViewBag.TotalPaginas;
+    var paginaActual = ViewBag.PaginaActual;
+}
+
+<table class="table table-striped table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Id</th>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>DNI</th>
+            <th>Rol</th>
+            <th>Email</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var contrato in Model)
+    {
+        <tr>
+            <td>@contrato.IdContrato</td>
+            <td>@contrato.FechaInicio</td>
+            <td>@contrato.FechaFin</td>
+            <td>@contrato.MontoMensual</td>
+            <td>@contrato.Habitante</td>
+            <td>@contrato.Propiedad</td>
+            <td>@(contrato.Estado ? "Activo" : "Inactivo")</td>
+            <td>
+                <a asp-controller="contrato" asp-action="Details" asp-route-IdUsuario="@contrato.IdContrato" class="btn btn-info btn-sm">Detalles</a>
+                <a asp-controller="contrato" asp-action="Update" asp-route-IdUsuario="@contrato.IdContrato" class="btn btn-warning btn-sm">Editar</a>
+                <a asp-controller="contrato" asp-action="DarDeBaja" asp-route-IdUsuario="@contrato.IdContrato" class="btn btn-danger btn-sm">Eliminar</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<!-- Paginación -->
+<div class="text-center mt-3">
+    <nav>
+        <ul class="pagination justify-content-center">
+            @for (int i = 1; i <= totalPaginas; i++)
+            {
+                <li class="page-item @(i == paginaActual ? "active" : "")">
+                    <a class="page-link" href="#" onclick="cargarPagina(@i); return false;">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>
+

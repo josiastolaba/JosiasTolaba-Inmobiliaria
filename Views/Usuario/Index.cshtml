@@ -1,47 +1,79 @@
 @model IEnumerable<INMOBILIARIA_JosiasTolaba.Models.Usuario>
 @{
-	ViewData["Title"] = "Usuario";
+    ViewData["Title"] = "Usuario";
 }
-<h1>
-	Usuario
-</h1>
+<h1>Usuario</h1>
 <hr />
 <p>
-    <a class="btn btn-primary" asp-action="Create" title="Crear"><i class="fa-solid fa-plus"></i>➕ Nuevo Usuario</a>
+    <a class="btn btn-primary" asp-action="Create"><i class="fa-solid fa-plus"></i>➕ Nuevo Usuario</a>
 </p>
+
+<div class="mb-3">
+    <label for="buscadorInput" class="form-label">Buscar usuario por nombre o DNI</label>
+    <input type="text" id="buscadorInput" class="form-control mb-2" placeholder="Escribe al menos 3 letras..." list="opcionesUsuario"/>
+    <datalist id="opcionesUsuario"></datalist>
+</div>
+
 <hr />
-<table class="table table-striped table-bordered">
-    <thead class="table-dark">
-        <tr>
-            <th>Id</th>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>DNI</th>
-            <th>Rol</th>
-            <th>Email</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var usuario in Model)
-        {
-            <tr>
-                <td>@usuario.IdUsuario</td>
-                <td>@usuario.Nombre</td>
-                <td>@usuario.Apellido</td>
-                <td>@usuario.Dni</td>
-                <td>@usuario.Rol</td>
-                <td>@usuario.Email</td>
-                <td>
-                    @(usuario.Estado ? "Activo" : "Inactivo")
-                </td>
-                <td>
-                    <a asp-controller="Usuario" asp-action="Details" asp-route-IdUsuario="@usuario.IdUsuario" class="btn btn-info btn-sm">Detalles</a>
-                    <a asp-controller="Usuario" asp-action="Update" asp-route-IdUsuario="@usuario.IdUsuario" class="btn btn-warning btn-sm">Editar</a>
-                    <a asp-controller="Usuario" asp-action="DarDeBaja" asp-route-IdUsuario="@usuario.IdUsuario" class="btn btn-danger btn-sm">Eliminar</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+
+<!-- Contenedor que ahora incluye tabla + paginación -->
+<div id="tablaUsuarios">
+    @await Html.PartialAsync("_TablaPaginadaUsuarios", Model)
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    // 🔹 Buscador (igual que el tuyo)
+    $(document).ready(function () {
+        $("#buscadorInput").on("keyup", function () {
+            let texto = $(this).val();
+
+            if (texto.length >= 3) {
+                $.ajax({
+                    url: '/Usuario/Buscar',
+                    type: 'GET',
+                    data: { dato: texto },
+                    success: function (data) {
+                        let lista = $("#opcionesUsuario");
+                        lista.empty();
+
+                        if (data.length === 0) {
+                            lista.append('<option value="No se encontraron resultados">');
+                        } else {
+                            data.forEach(function (item) {
+                                lista.append(
+                                    `<option data-id="${item.idUsuario}" value="${item.nombre} ${item.apellido} - DNI: ${item.dni} - ROL: ${item.rol}"></option>`
+                                );
+                            });
+                        }
+                    }
+                });
+            }
+        });
+
+        $("#buscadorInput").on("change", function () {
+            let texto = $(this).val();
+            let opcion = $(`#opcionesUsuario option[value='${texto}']`);
+            let id = opcion.data("id");
+
+            if (id) {
+                window.location.href = '/Usuario/Details?IdUsuario=' + id;
+            }
+        });
+    });
+
+    // 🔹 Nueva función AJAX para paginación
+    function cargarPagina(numPagina) {
+        $.ajax({
+            url: '/Usuario/Index',
+            type: 'GET',
+            data: { pagina: numPagina },
+            success: function (data) {
+                $("#tablaUsuarios").html(data); // reemplaza la tabla + paginacion
+                $("html, body").animate({ scrollTop: 0 }, "fast"); // vuelve arriba
+            }
+        });
+    }
+</script>

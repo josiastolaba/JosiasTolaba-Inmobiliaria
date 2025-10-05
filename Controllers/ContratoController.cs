@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Inmobiliaria_.Net_Core.Controllers
 {
-	[Authorize]
 	public class ContratoController : Controller
 	{
 		private readonly IRepositorioContrato repositorio;
@@ -20,60 +19,36 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			this.config = config;
 		}
 
-		[HttpGet]
-		public JsonResult Buscar(string dato)
-		{
-			var lista = repositorio.buscar(dato);
-			return Json(lista);
-		}
+		public IActionResult Index(int pagina = 1) //MODIFICADO, SE LE AGREGO EL PAGINADO
+        {
+            int paginaTam = 5;
+            int totalContratos = repositorio.contar();
 
-		public ActionResult Index()
-		{
-			var lista = repositorio.ListarContratos()
-								   .Where(c => c.Estado)
-								   .ToList();
-			if (TempData.ContainsKey("Id"))
-				ViewBag.Id = TempData["Id"];
-			if (TempData.ContainsKey("Mensaje"))
-				ViewBag.Mensaje = TempData["Mensaje"];
+            int offset = (pagina - 1) * paginaTam;
+            var contratos = repositorio.obtenerPaginados(offset, paginaTam);
 
-			return View(lista);
-		}
-		[HttpGet]
-		public JsonResult BuscarContratos(string term)
-		{
-			var contratos = repositorio.ListarContratos()
-				.Where(c => c.Estado)
-				.Where(c => string.IsNullOrEmpty(term)
-						|| c.Propiedad.Direccion.Contains(term)
-						|| c.Habitante.Nombre.Contains(term))
-				.Select(c => new
-				{
-					id = c.IdContrato,
-					text = $"{c.Propiedad.Direccion} - {c.Habitante.Nombre} {c.Habitante.Apellido}"
-				})
-				.ToList();
+            ViewBag.TotalPaginas = (int)Math.Ceiling((double)totalContratos / paginaTam);
+            ViewBag.PaginaActual = pagina;
 
-			return Json(contratos);
-		}
-		// GET: Contratos/Details/5
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_TablaPaginadaContratos", contratos);
+            }
+            return View(contratos);
+        }
+
 		public ActionResult Details(int id)
 		{
 			var entidad = repositorio.IdContrato(id);
 			return View(entidad);
 		}
 
-		// GET: Contratos/Create
-		public ActionResult Create(int? idInmueble)
+		public ActionResult Create()
 		{
 			try
 			{
 				ViewBag.Inquilinos = repoInquilino.ListarInquilinos();
 				ViewBag.Inmuebles = repoInmueble.ListarInmuebles();
-				if (idInmueble != null)
-				{
-					ViewBag.IdInmueble = idInmueble;
-				}
 				return View();
 			}
 			catch (Exception ex)
@@ -82,40 +57,44 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 		}
 
-		// POST: Contratos/Create
 		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public ActionResult Create(Contrato entidad)
+[ValidateAntiForgeryToken]
+public ActionResult Create(Contrato entidad)
+{
+	try
+	{
+		if (ModelState.IsValid)
 		{
-			try
-			{
-				if (ModelState.IsValid)
-				{
-					repositorio.Alta(entidad);
-					TempData["Id"] = entidad.IdContrato;
-					return RedirectToAction(nameof(Index));
-				}
-				else
-				{
-					ViewBag.Inquilinos = repoInquilino.ListarInquilinos();
-					ViewBag.Inmuebles = repoInmueble.ListarInmuebles();
-					return View(entidad);
-				}
-			}
-			catch (Exception ex)
-			{
-				ViewBag.Error = ex.Message;
-				ViewBag.StackTrace = ex.StackTrace;
-				return View(entidad);
-			}
+			repositorio.Alta(entidad);
+			TempData["Id"] = entidad.IdContrato;
+			TempData["Mensaje"] = "Contrato creado correctamente";
+			return RedirectToAction(nameof(Index));
 		}
+		else
+		{
+			// Si hay errores de validación, recargo los combos
+			ViewBag.Inquilinos = repoInquilino.ListarInquilinos();
+			ViewBag.Inmuebles = repoInmueble.ListarInmuebles();
+			return View(entidad);
+		}
+	}
+	catch (Exception ex)
+	{
+		ViewBag.Error = ex.Message;
+		ViewBag.StackTrace = ex.StackTrace;
+		ViewBag.Inquilinos = repoInquilino.ListarInquilinos();
+		ViewBag.Inmuebles = repoInmueble.ListarInmuebles();
+		return View(entidad);
+	}
+}
+
 
 		// GET: Contratos/Edit/5
 		public ActionResult Edit(int id)
 		{
 			var entidad = repositorio.IdContrato(id);
 			ViewBag.Inquilinos = repoInquilino.ListarInquilinos();
-			ViewBag.Inmuebles = repoInmueble.ListarInmuebles(); ;
+			ViewBag.Inmuebles = repoInmueble.ListarInmuebles();;
 			if (TempData.ContainsKey("Mensaje"))
 				ViewBag.Mensaje = TempData["Mensaje"];
 			if (TempData.ContainsKey("Error"))
@@ -125,27 +104,39 @@ namespace Inmobiliaria_.Net_Core.Controllers
 
 		// POST: Contratos/Edit/5
 		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public ActionResult Edit(int id, Contrato entidad)
+[ValidateAntiForgeryToken]
+public ActionResult Edit(int id, Contrato entidad)
+{
+	try
+	{
+		entidad.IdContrato = id;
+
+		if (ModelState.IsValid)
 		{
-			try
-			{
-				entidad.IdContrato = id;
-				repositorio.Modificacion(entidad);
-				TempData["Mensaje"] = "Contrato modificado correctamente";
-				return RedirectToAction(nameof(Index));
-			}
-			catch (Exception ex)
-			{
-				ViewBag.Inquilinos = repoInquilino.ListarInquilinos();
-				ViewBag.Inmuebles = repoInmueble.ListarInmuebles();
-				ViewBag.Error = ex.Message;
-				ViewBag.StackTrace = ex.StackTrace;
-				return View(entidad);
-			}
+			repositorio.Modificacion(entidad);
+			TempData["Mensaje"] = "Contrato modificado correctamente";
+			return RedirectToAction(nameof(Index));
 		}
+		else
+		{
+			// Si la validación falla, se recargan las listas y se vuelve a mostrar la vista
+			ViewBag.Inquilinos = repoInquilino.ListarInquilinos();
+			ViewBag.Inmuebles = repoInmueble.ListarInmuebles();
+			return View(entidad);
+		}
+	}
+	catch (Exception ex)
+	{
+		ViewBag.Inquilinos = repoInquilino.ListarInquilinos();
+		ViewBag.Inmuebles = repoInmueble.ListarInmuebles();
+		ViewBag.Error = ex.Message;
+		ViewBag.StackTrace = ex.StackTrace;
+		return View(entidad);
+	}
+}
+
+
 		// GET: Contratos/Eliminar/5
-		[Authorize(Policy = "Administrador")]
 		public ActionResult Delete(int id)
 		{
 			var entidad = repositorio.IdContrato(id);
@@ -163,7 +154,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		{
 			try
 			{
-				repositorio.DarDeBaja(id);
+				repositorio.DarDeBaja(id); 
 				TempData["Mensaje"] = "Contrato dado de baja correctamente";
 				return RedirectToAction(nameof(Index));
 			}
