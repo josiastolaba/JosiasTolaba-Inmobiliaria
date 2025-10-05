@@ -242,6 +242,39 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             }
             return res;
         }
+
+        public bool existeDni(string dni)
+        {
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = "SELECT COUNT(*) FROM usuario WHERE Dni = @Dni";
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@dni", dni);
+                    connection.Open();
+                    int count = Convert.ToInt32(command.ExecuteScalar());
+                    return count > 0;
+                }
+            }
+        }
+
+        public bool existeOtroDni(string dni, int idUsuario)
+        {
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = @"SELECT COUNT(*) FROM usuario
+                WHERE Dni = @dni AND IdUsuario <> @id";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@dni", dni);
+                    command.Parameters.AddWithValue("@id", idUsuario);
+                    connection.Open();
+                    int count = Convert.ToInt32(command.ExecuteScalar());
+                    return count > 0;
+                }
+            }
+        }
         public int DarDeBaja(int IdUsuario)
         {
             int res = -1;

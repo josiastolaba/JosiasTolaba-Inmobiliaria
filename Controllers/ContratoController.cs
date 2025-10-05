@@ -19,28 +19,30 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			this.config = config;
 		}
 
-		public ActionResult Index()
-{
-    var lista = repositorio.ListarContratos()
-                           .Where(c => c.Estado)
-                           .ToList();
+		public IActionResult Index(int pagina = 1) //MODIFICADO, SE LE AGREGO EL PAGINADO
+        {
+            int paginaTam = 5;
+            int totalContratos = repositorio.contar();
 
-    if (TempData.ContainsKey("Id"))
-        ViewBag.Id = TempData["Id"];
-    if (TempData.ContainsKey("Mensaje"))
-        ViewBag.Mensaje = TempData["Mensaje"];
+            int offset = (pagina - 1) * paginaTam;
+            var contratos = repositorio.obtenerPaginados(offset, paginaTam);
 
-    return View(lista);
-}
+            ViewBag.TotalPaginas = (int)Math.Ceiling((double)totalContratos / paginaTam);
+            ViewBag.PaginaActual = pagina;
 
-		// GET: Contratos/Details/5
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_TablaPaginadaContratos", contratos);
+            }
+            return View(contratos);
+        }
+
 		public ActionResult Details(int id)
 		{
 			var entidad = repositorio.IdContrato(id);
 			return View(entidad);
 		}
 
-		// GET: Contratos/Create
 		public ActionResult Create()
 		{
 			try
@@ -55,33 +57,37 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			}
 		}
 
-		// POST: Contratos/Create
 		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public ActionResult Create(Contrato entidad)
+[ValidateAntiForgeryToken]
+public ActionResult Create(Contrato entidad)
+{
+	try
+	{
+		if (ModelState.IsValid)
 		{
-			try
-			{
-				if (ModelState.IsValid)
-				{
-					repositorio.Alta(entidad); 
-					TempData["Id"] = entidad.IdContrato;
-					return RedirectToAction(nameof(Index));
-				}
-				else
-				{
-					ViewBag.Inquilinos = repoInquilino.ListarInquilinos();
-					ViewBag.Inmuebles = repoInmueble.ListarInmuebles();
-					return View(entidad);
-				}
-			}
-			catch (Exception ex)
-			{
-				ViewBag.Error = ex.Message;
-				ViewBag.StackTrace = ex.StackTrace;
-				return View(entidad);
-			}
+			repositorio.Alta(entidad);
+			TempData["Id"] = entidad.IdContrato;
+			TempData["Mensaje"] = "Contrato creado correctamente";
+			return RedirectToAction(nameof(Index));
 		}
+		else
+		{
+			// Si hay errores de validación, recargo los combos
+			ViewBag.Inquilinos = repoInquilino.ListarInquilinos();
+			ViewBag.Inmuebles = repoInmueble.ListarInmuebles();
+			return View(entidad);
+		}
+	}
+	catch (Exception ex)
+	{
+		ViewBag.Error = ex.Message;
+		ViewBag.StackTrace = ex.StackTrace;
+		ViewBag.Inquilinos = repoInquilino.ListarInquilinos();
+		ViewBag.Inmuebles = repoInmueble.ListarInmuebles();
+		return View(entidad);
+	}
+}
+
 
 		// GET: Contratos/Edit/5
 		public ActionResult Edit(int id)
@@ -98,25 +104,37 @@ namespace Inmobiliaria_.Net_Core.Controllers
 
 		// POST: Contratos/Edit/5
 		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public ActionResult Edit(int id, Contrato entidad)
+[ValidateAntiForgeryToken]
+public ActionResult Edit(int id, Contrato entidad)
+{
+	try
+	{
+		entidad.IdContrato = id;
+
+		if (ModelState.IsValid)
 		{
-			try
-			{
-				entidad.IdContrato = id;
-				repositorio.Modificacion(entidad);
-				TempData["Mensaje"] = "Contrato modificado correctamente";
-				return RedirectToAction(nameof(Index));
-			}
-			catch (Exception ex)
-			{
-				ViewBag.Inquilinos = repoInquilino.ListarInquilinos();
-				ViewBag.Inmuebles = repoInmueble.ListarInmuebles();
-				ViewBag.Error = ex.Message;
-				ViewBag.StackTrace = ex.StackTrace;
-				return View(entidad);
-			}
+			repositorio.Modificacion(entidad);
+			TempData["Mensaje"] = "Contrato modificado correctamente";
+			return RedirectToAction(nameof(Index));
 		}
+		else
+		{
+			// Si la validación falla, se recargan las listas y se vuelve a mostrar la vista
+			ViewBag.Inquilinos = repoInquilino.ListarInquilinos();
+			ViewBag.Inmuebles = repoInmueble.ListarInmuebles();
+			return View(entidad);
+		}
+	}
+	catch (Exception ex)
+	{
+		ViewBag.Inquilinos = repoInquilino.ListarInquilinos();
+		ViewBag.Inmuebles = repoInmueble.ListarInmuebles();
+		ViewBag.Error = ex.Message;
+		ViewBag.StackTrace = ex.StackTrace;
+		return View(entidad);
+	}
+}
+
 
 		// GET: Contratos/Eliminar/5
 		public ActionResult Delete(int id)

@@ -8,5 +8,12 @@ namespace INMOBILIARIA_JosiasTolaba.Models
 		Inquilino InquilinoId(int IdInquilino);
 
 		List<Inquilino> buscar(String datos);
+
+		IList<Inquilino> obtenerPaginados(int offset, int limit);
+
+        int contar();
+
+		bool existeDni(string dni);
+		bool existeOtroDni(string dni, int idPropietario);
 	}
 }

@@ -22,39 +22,10 @@
 </div>
 
 <hr />
-<table class="table table-striped table-bordered">
-    <thead class="table-dark">
-        <tr>
-            <th>Id</th>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>DNI</th>
-            <th>Teléfono</th>
-            <th>Email</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var propietario in Model)
-        {
-            <tr>
-                <td>@propietario.IdPropietario</td>
-                <td>@propietario.Nombre</td>
-                <td>@propietario.Apellido</td>
-                <td>@propietario.Dni</td>
-                <td>@propietario.Telefono</td>
-                <td>@propietario.Email</td>
-                <td>@(propietario.Estado ? "Activo" : "Inactivo")</td>
-                <td>
-                    <a asp-controller="Propietario" asp-action="Details" asp-route-IdPropietario="@propietario.IdPropietario" class="btn btn-info btn-sm">Detalles</a>
-                    <a asp-controller="Propietario" asp-action="Update" asp-route-IdPropietario="@propietario.IdPropietario" class="btn btn-warning btn-sm">Editar</a>
-                    <a asp-controller="Propietario" asp-action="DarDeBaja" asp-route-IdPropietario="@propietario.IdPropietario" class="btn btn-danger btn-sm">Eliminar</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<!-- Contenedor que ahora incluye tabla + paginación -->
+<div id="tablaPropietarios">
+    @await Html.PartialAsync("_TablaPaginadaPropietarios", Model)
+</div>
 
 <!-- JQuery desde CDN -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -98,5 +69,19 @@
             }
         });
     });
+
+
+    // 🔹 Nueva función AJAX para paginación
+    function cargarPagina(numPagina) {
+        $.ajax({
+            url: '/Propietario/Index',
+            type: 'GET',
+            data: { pagina: numPagina },
+            success: function (data) {
+                $("#tablaPropietarios").html(data); // reemplaza la tabla + paginacion
+                $("html, body").animate({ scrollTop: 0 }, "fast"); // vuelve arriba
+            }
+        });
+    }
 </script>
 

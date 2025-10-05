@@ -1,0 +1,54 @@
+@model IEnumerable<INMOBILIARIA_JosiasTolaba.Models.Propietario>
+
+@{
+    var totalPaginas = ViewBag.TotalPaginas;
+    var paginaActual = ViewBag.PaginaActual;
+}
+
+<table class="table table-striped table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Id</th>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>DNI</th>
+            <th>Rol</th>
+            <th>Email</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var propietario in Model)
+    {
+        <tr>
+            <td>@propietario.IdPropietario</td>
+            <td>@propietario.Nombre</td>
+            <td>@propietario.Apellido</td>
+            <td>@propietario.Dni</td>
+            <td>@propietario.Telefono</td>
+            <td>@propietario.Email</td>
+            <td>@(propietario.Estado ? "Activo" : "Inactivo")</td>
+            <td>
+                <a asp-controller="Propietario" asp-action="Details" asp-route-IdUsuario="@propietario.IdPropietario" class="btn btn-info btn-sm">Detalles</a>
+                <a asp-controller="Propietario" asp-action="Update" asp-route-IdUsuario="@propietario.IdPropietario" class="btn btn-warning btn-sm">Editar</a>
+                <a asp-controller="Propietario" asp-action="DarDeBaja" asp-route-IdUsuario="@propietario.IdPropietario" class="btn btn-danger btn-sm">Eliminar</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<!-- Paginación -->
+<div class="text-center mt-3">
+    <nav>
+        <ul class="pagination justify-content-center">
+            @for (int i = 1; i <= totalPaginas; i++)
+            {
+                <li class="page-item @(i == paginaActual ? "active" : "")">
+                    <a class="page-link" href="#" onclick="cargarPagina(@i); return false;">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>

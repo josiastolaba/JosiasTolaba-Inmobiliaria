@@ -9,42 +9,125 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         }
 
         public List<Inquilino> buscar(string dato)
-{
-    var lista = new List<Inquilino>();
+        {
+            var lista = new List<Inquilino>();
 
-    using (MySqlConnection connection = new MySqlConnection(connectionString))
-    {
-        string query = @"SELECT IdInquilino, Nombre, Apellido, Dni, Telefono, Email, Estado
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = @"SELECT IdInquilino, Nombre, Apellido, Dni, Telefono, Email, Estado
                          FROM inquilino 
                          WHERE Nombre LIKE @dato OR Dni LIKE @dato
                          LIMIT 10";
 
-        using (var command = new MySqlCommand(query, connection))
-        {
-            command.Parameters.AddWithValue("@dato", "%" + dato + "%");
-            connection.Open();
-
-            using (var reader = command.ExecuteReader())
-            {
-                while (reader.Read())
+                using (var command = new MySqlCommand(query, connection))
                 {
-                    var p = new Inquilino
+                    command.Parameters.AddWithValue("@dato", "%" + dato + "%");
+                    connection.Open();
+
+                    using (var reader = command.ExecuteReader())
                     {
-                        IdInquilino = reader.GetInt32("IdInquilino"),
-                        Nombre = reader.GetString("Nombre"),
-                        Apellido = reader.GetString("Apellido"),
-                        Dni = reader.GetString("Dni"),
-                        Telefono = reader.GetString("Telefono"),
-                        Email = reader.GetString("Email"),
-                        Estado = reader.GetBoolean("Estado")
-                    };
-                    lista.Add(p);
+                        while (reader.Read())
+                        {
+                            var p = new Inquilino
+                            {
+                                IdInquilino = reader.GetInt32("IdInquilino"),
+                                Nombre = reader.GetString("Nombre"),
+                                Apellido = reader.GetString("Apellido"),
+                                Dni = reader.GetString("Dni"),
+                                Telefono = reader.GetString("Telefono"),
+                                Email = reader.GetString("Email"),
+                                Estado = reader.GetBoolean("Estado")
+                            };
+                            lista.Add(p);
+                        }
+                    }
+                }
+            }
+            return lista;
+        }
+
+public IList<Inquilino> obtenerPaginados(int offset, int limit)
+        {
+            IList<Inquilino> res = new List<Inquilino>();
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = @"SELECT * FROM inquilino
+                WHERE Estado = true
+                ORDER BY IdInquilino
+                LIMIT @limit OFFSET @offset;";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@limit", limit);
+                    command.Parameters.AddWithValue("@offset", offset);
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                       Inquilino p = new Inquilino
+                        {
+                            IdInquilino = reader.GetInt32(nameof(Inquilino.IdInquilino)),
+                            Nombre = reader.GetString(nameof(Inquilino.Nombre)),
+                            Apellido = reader.GetString(nameof(Inquilino.Apellido)),
+                            Dni = reader.GetString(nameof(Inquilino.Dni)),
+                            Email = reader.GetString(nameof(Inquilino.Email)),
+                            Telefono = reader.GetString(nameof(Inquilino.Telefono)),
+                            Estado = reader.GetBoolean(nameof(Inquilino.Estado))
+                        };
+                        res.Add(p);
+                    }
+                }
+            }
+            return res;
+        }
+
+        public int contar()
+        {
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = "SELECT COUNT(*) FROM inquilino WHERE Estado = true;";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    connection.Open();
+                    return Convert.ToInt32(command.ExecuteScalar());
                 }
             }
         }
-    }
-    return lista;
-}
+
+          public bool existeDni(string dni)
+        {
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = "SELECT COUNT(*) FROM inquilino WHERE Dni = @Dni";
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@dni", dni);
+                    connection.Open();
+                    int count = Convert.ToInt32(command.ExecuteScalar());
+                    return count > 0;
+                }
+            }
+        }
+
+        public bool existeOtroDni(string dni, int idInquilino)
+        {
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = @"SELECT COUNT(*) FROM inquilino
+                WHERE Dni = @dni AND IdInquilino <> @id";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@dni", dni);
+                    command.Parameters.AddWithValue("@id", idInquilino);
+                    connection.Open();
+                    int count = Convert.ToInt32(command.ExecuteScalar());
+                    return count > 0;
+                }
+            }
+        }
         public int Alta(Inquilino i)
         {
             int res = -1;

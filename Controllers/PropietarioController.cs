@@ -19,11 +19,23 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
 			var lista = repositorio.buscar(dato);
 			return Json(lista);
 		}
-		public IActionResult Index()
-		{
-			var propietarios = repositorio.ListarPropietarios();
-			return View(propietarios);
-		}
+		public IActionResult Index(int pagina = 1) //MODIFICADO, SE LE AGREGO EL PAGINADO
+        {
+            int paginaTam = 5;
+            int totalPropietarios = repositorio.contar();
+
+            int offset = (pagina - 1) * paginaTam;
+            var propietarios = repositorio.obtenerPaginados(offset, paginaTam);
+
+            ViewBag.TotalPaginas = (int)Math.Ceiling((double)totalPropietarios / paginaTam);
+            ViewBag.PaginaActual = pagina;
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_TablaPaginadaPropietarios", propietarios);
+            }
+            return View(propietarios);
+        }
 		public IActionResult Create()
 		{
 			return View();
@@ -31,6 +43,10 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
 		[HttpPost]
 		public IActionResult Create(Propietario p)
 		{
+			if (repositorio.existeDni(p.Dni))
+			{
+				ModelState.AddModelError("Dni", $"El DNI {p.Dni} ya está registrado");
+			}
 			if (ModelState.IsValid)
 			{
 				int res = repositorio.Alta(p);
@@ -61,6 +77,12 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
 		[HttpPost]
 		public IActionResult Update(Propietario p)
 		{
+			if (repositorio.existeOtroDni(p.Dni, p.IdPropietario))
+			{
+				ModelState.AddModelError("Dni", $"El DNI {p.Dni} ya pertence a otro propietario");
+			}
+
+
 			if (ModelState.IsValid)
 			{
 				int res = repositorio.Modificacion(p);
@@ -71,12 +93,12 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
 				else
 				{
 					ViewBag.Error = "No se pudo modificar el Propietario";
-					return View();
+					return View(p);
 				}
 			}
 			else
 			{
-				return View();
+				return View(p);
 			}
 		}
 		public IActionResult Details(int IdPropietario)

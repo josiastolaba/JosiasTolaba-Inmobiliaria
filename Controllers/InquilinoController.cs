@@ -19,11 +19,23 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
 			var lista = repositorio.buscar(dato);
 			return Json(lista);
 		}
-		public IActionResult Index()
-		{
-			var inquilinos = repositorio.ListarInquilinos();
-			return View(inquilinos);
-		}
+		public IActionResult Index(int pagina = 1) //MODIFICADO, SE LE AGREGO EL PAGINADO
+        {
+            int paginaTam = 5;
+            int totalInquilinos = repositorio.contar();
+
+            int offset = (pagina - 1) * paginaTam;
+            var inquilinos = repositorio.obtenerPaginados(offset, paginaTam);
+
+            ViewBag.TotalPaginas = (int)Math.Ceiling((double)totalInquilinos / paginaTam);
+            ViewBag.PaginaActual = pagina;
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_TablaPaginadaInquilinos", inquilinos);
+            }
+            return View(inquilinos);
+        }
 		public IActionResult Create()
 		{
 			return View();
@@ -31,6 +43,10 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
 		[HttpPost]
 		public IActionResult Create(Inquilino i)
 		{
+			if (repositorio.existeDni(i.Dni))
+			{
+				ModelState.AddModelError("Dni", $"El DNI {i.Dni} ya está registrado");
+			}
 			if (ModelState.IsValid)
 			{
 				int res = repositorio.Alta(i);
@@ -41,12 +57,12 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
 				else
 				{
 					ViewBag.Error = "No se pudo crear el Inquilino";
-					return View();
+					return View(i);
 				}
 			}
 			else
 			{
-				return View();
+				return View(i);
 			}
 		}
 		public IActionResult Update(int IdInquilino)
@@ -61,6 +77,10 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
 		[HttpPost]
 		public IActionResult Update(Inquilino i)
 		{
+			if (repositorio.existeOtroDni(i.Dni, i.IdInquilino))
+			{
+				ModelState.AddModelError("Dni", $"El DNI {i.Dni} ya pertence a otro propietario");
+			}
 			if (ModelState.IsValid)
 			{
 				int res = repositorio.Modificacion(i);
@@ -71,12 +91,12 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
 				else
 				{
 					ViewBag.Error = "No se pudo modificar el Inquilino";
-					return View();
+					return View(i);
 				}
 			}
 			else
 			{
-				return View();
+				return View(i);
 			}
 		}
 		

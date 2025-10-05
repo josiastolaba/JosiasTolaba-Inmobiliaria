@@ -36,6 +36,67 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             return res;
         }
 
+        public IList<Contrato> obtenerPaginados(int offset, int limit)
+        {
+            IList<Contrato> res = new List<Contrato>();
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = @"SELECT * FROM contrato
+                WHERE Estado = true
+                ORDER BY IdContrato
+                LIMIT @limit OFFSET @offset;";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@limit", limit);
+                    command.Parameters.AddWithValue("@offset", offset);
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                       Contrato c = new Contrato
+                        {
+                            IdContrato = reader.GetInt32(nameof(Contrato.IdContrato)),
+                            FechaInicio = reader.GetDateTime(nameof(Contrato.FechaInicio)),
+                            FechaFin = reader.GetDateTime(nameof(Contrato.FechaFin)),
+                            MontoMensual = reader.GetInt32(nameof(Contrato.MontoMensual)),
+                            Habitante = new InquilinoDto
+                            {
+                                IdInquilino = reader.GetInt32("IdInquilino"),
+                                Nombre = reader.GetString("InquilinoNombre"),
+                                Apellido = reader.GetString("InquilinoApellido"),
+                                Dni = reader.GetString("InquilinoDni")
+                            },
+                            Propiedad = new InmuebleDto
+                            {
+                                IdInmueble = reader.GetInt32("IdInmueble"),
+                                Direccion = reader.GetString("InmuebleDireccion"),
+                                Tipo = reader.GetString("InmuebleTipo")
+                            },
+                            Estado = reader.GetBoolean(nameof(Contrato.Estado))
+                        };
+                        res.Add(c);
+                    }
+                }
+            }
+            return res;
+        }
+
+        public int contar()
+        {
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = "SELECT COUNT(*) FROM contrato WHERE Estado = true;";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    connection.Open();
+                    return Convert.ToInt32(command.ExecuteScalar());
+                }
+            }
+        }
+
          public int DarDeBaja(int IdContrato)
         {
             int res = -1;

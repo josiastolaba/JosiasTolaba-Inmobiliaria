@@ -9,6 +9,8 @@
 <hr />
 <div class="row">
 	<div class = "form-Update">
+
+
 		<form asp-action="Update">
 			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 			<input type="hidden" name="IdPropietario" value="@Model.IdPropietario"/>
@@ -45,3 +47,10 @@
 		</form>
 	</div>
 </div>
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger mt-3">
+        @ViewBag.Error
+    </div>
+}
