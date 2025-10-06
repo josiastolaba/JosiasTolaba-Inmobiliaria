@@ -2,7 +2,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
 {
     public interface IRepositorioContrato : IRepositorio<Contrato>
     {
-        //List<Contrato> buscar(string dato);
+        List<Contrato> buscar(string dato);
         int DarDeBaja(int IdContrato);
         IList<Contrato> ListarContratos();
         Contrato IdContrato(int IdContrato);

@@ -10,11 +10,12 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                 Usuario UsuarioId(int IdUsuario);
 
                 bool existeDni(string dni);
-		bool existeOtroDni(string dni, int idUsuario);
+                bool existeOtroDni(string dni, int idUsuario);
 
                 IList<Usuario> obtenerPaginados(int offset, int limit);
 
                 int contar();
-		
-	}
+
+                Usuario? ObtenerPorEmail(string email);
+        }      
 }

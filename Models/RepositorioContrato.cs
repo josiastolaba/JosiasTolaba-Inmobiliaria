@@ -8,6 +8,61 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         {
         }
 
+          public List<Contrato> buscar(string dato)
+        {
+            var lista = new List<Contrato>();
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = @"SELECT c.IdContrato, c.FechaInicio, c.FechaFin, c.MontoMensual, c.Estado,
+                                i.IdInquilino, i.Nombre AS InquilinoNombre, i.Apellido AS InquilinoApellido, i.Dni AS InquilinoDni,
+                                m.IdInmueble, m.Direccion AS InmuebleDireccion, m.Tipo AS InmuebleTipo
+                                FROM contrato c
+                                JOIN inquilino i ON c.IdInquilino = i.IdInquilino
+                                JOIN inmueble m ON c.IdInmueble = m.IdInmueble 
+                                WHERE i.Nombre LIKE @dato
+                                OR i.Apellido LIKE @dato
+                                OR m.Tipo LIKE @dato
+                                OR i.Dni LIKE @dato
+                                LIMIT 10";
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@dato", "%" + dato + "%");
+                    connection.Open();
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var c = new Contrato
+                        {
+                            IdContrato = reader.GetInt32("IdContrato"),
+                            FechaInicio = reader.GetDateTime("FechaInicio"),
+                            FechaFin = reader.GetDateTime("FechaFin"),
+                            MontoMensual = reader.GetInt32("MontoMensual"),
+                            //QuienCreo = reader.GetInt32("QuienCreo"),
+                            //QuienElimino = reader.GetInt32("QuienElimino"),
+                            Estado = reader.GetBoolean("Estado"),
+                            Habitante = new InquilinoDto
+                            {
+                                IdInquilino = reader.GetInt32("IdInquilino"),
+                                Nombre = reader.GetString("InquilinoNombre"),
+                                Apellido = reader.GetString("InquilinoApellido"),
+                                Dni = reader.GetString("InquilinoDni")
+                            },
+                            Propiedad = new InmuebleDto
+                            {
+                                IdInmueble = reader.GetInt32("IdInmueble"),
+                                Direccion = reader.GetString("InmuebleDireccion"),
+                                Tipo = reader.GetString("InmuebleTipo")
+                            }
+                        };
+                            lista.Add(c);
+                        }
+                    }
+                }
+            }
+            return lista;
+        }
+
         public int Alta(Contrato p)
         {
             int res = -1;
