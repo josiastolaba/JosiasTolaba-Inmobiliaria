@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Authentication;
 namespace INMOBILIARIA_JosiasTolaba.Controllers
 {
     [Authorize]
+
+    
     public class UsuarioController : Controller
     {
         private readonly IRepositorioUsuario repositorio;
