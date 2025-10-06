@@ -13,54 +13,50 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         {
             var lista = new List<Usuario>();
 
-    using (MySqlConnection connection = new MySqlConnection(connectionString))
-    {
-        string query = @"SELECT IdUsuario, Nombre, Apellido, Dni, Contrasena, Rol, Email, Estado
-                         FROM usuario
-                         WHERE Nombre LIKE @dato OR Dni LIKE @dato
-                         LIMIT 10";
-
-        using (var command = new MySqlCommand(query, connection))
-        {
-            command.Parameters.AddWithValue("@dato", "%" + dato + "%");
-            connection.Open();
-
-            using (var reader = command.ExecuteReader())
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                        while (reader.Read())
-                        {
-                            var p = new Usuario
-                            {
-                                IdUsuario = reader.GetInt32("IdUsuario"),
-                                Nombre = reader.GetString("Nombre"),
-                                Apellido = reader.GetString("Apellido"),
-                                Contrasena = reader.GetString("Contrasena"),
-                                Dni = reader.GetString("Dni"),
-                                Email = reader.GetString("Email"),
-                                Estado = reader.GetBoolean("Estado"),
-                                Rol = Enum.Parse<Usuario.TipoRol>(
-                            reader.GetString("Rol"), // trae "adminstrador" o "empleado"
-                            true                     // true = ignoreCase
-                        )
-                            };
-                            lista.Add(p);
-                         }
+                string query = @"SELECT IdUsuario, Nombre, Apellido, Dni, Contrasena, Rol, Email, Estado
+                                FROM usuario
+                                WHERE Nombre LIKE @dato OR Dni LIKE @dato
+                                LIMIT 10";
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@dato", "%" + dato + "%");
+                    connection.Open();
+                    using (var reader = command.ExecuteReader())
+                    {
+                                while (reader.Read())
+                                {
+                                    var p = new Usuario
+                                    {
+                                        IdUsuario = reader.GetInt32("IdUsuario"),
+                                        Nombre = reader.GetString("Nombre"),
+                                        Apellido = reader.GetString("Apellido"),
+                                        Contrasena = reader.GetString("Contrasena"),
+                                        Dni = reader.GetString("Dni"),
+                                        Email = reader.GetString("Email"),
+                                        Estado = reader.GetBoolean("Estado"),
+                                        Rol = Enum.Parse<Usuario.TipoRol>(
+                                    reader.GetString("Rol"), // trae "adminstrador" o "empleado"
+                                    true                     // true = ignoreCase
+                                )
+                                    };
+                                    lista.Add(p);
+                                }
+                        }
                 }
-         }
-    }
-    return lista;
+            }
+            return lista;
         }
-
         public IList<Usuario> obtenerPaginados(int offset, int limit)
         {
             IList<Usuario> res = new List<Usuario>();
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
                 string query = @"SELECT * FROM usuario 
-                WHERE Estado = true
-                ORDER BY IdUsuario
-                LIMIT @limit OFFSET @offset;";
-
+                                WHERE Estado = true
+                                ORDER BY IdUsuario
+                                LIMIT @limit OFFSET @offset;";
                 using (var command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@limit", limit);
@@ -93,7 +89,6 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
                 string query = "SELECT COUNT(*) FROM usuario WHERE Estado = true;";
-
                 using (var command = new MySqlCommand(query, connection))
                 {
                     connection.Open();
@@ -116,7 +111,6 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                     {nameof(Usuario.Estado)})
                     VALUES (@Nombre, @Apellido, @Dni, @Rol, @Email, @Contrasena, @Estado);
                     SELECT LAST_INSERT_ID();";
-
                 using (var command = new MySqlCommand(query, connection))
                 {
                     u.Estado = true;
@@ -140,7 +134,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
                 string query = $@"DELETE FROM usuario 
-                WHERE {nameof(Propietario.IdPropietario)} = @IdUsuario";
+                WHERE {nameof(Usuario.IdUsuario)} = @IdUsuario";
                 using (var command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@IdUsuario", id);

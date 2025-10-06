@@ -7,6 +7,5 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         [Key]
         public int IdContrato { get; set; }
         public InquilinoDto? Habitante { get; set; }
-
     }
 }

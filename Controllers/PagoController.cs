@@ -40,6 +40,13 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
         {
             if (ModelState.IsValid)
             {
+                var userIdClaim = User.FindFirst("UserId")?.Value;
+					int? idUsuarioLogueado = null;
+					if (int.TryParse(userIdClaim, out int idParsed))
+					{
+						idUsuarioLogueado = idParsed;
+					}
+					p.QuienCreo = idUsuarioLogueado;
                 int res = repositorio.Alta(p);
                 if (res > 0)
                 {

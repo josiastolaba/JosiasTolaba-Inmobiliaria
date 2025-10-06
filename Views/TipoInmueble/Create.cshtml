@@ -1,0 +1,23 @@
+@model INMOBILIARIA_JosiasTolaba.Models.TipoInmueble;
+
+@{
+	ViewData["Title"] = "TipoInmueble-Crear";
+}
+<h1>
+	Tipo de Inmueble
+</h1>
+<hr />
+<div class = "form-Create">
+    <form asp-action="Create">
+        <div class="form-group">
+            <label asp-for="Nombre" class="control-label"></label>
+            <input asp-for="Nombre" class="form-control" placeholder="Ej: Casa"/>
+            <span asp-validation-for="Nombre" class="text-danger"></span>
+        </div>
+        <hr />
+        <div class="form-group">
+            <input type="submit" value="Create" class="btn btn-primary" />
+            <a asp-action="Index" class="btn btn-secondary">Volver</a>
+        </div>
+    </form>
+</div>

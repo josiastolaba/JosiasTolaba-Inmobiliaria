@@ -9,11 +9,13 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
     {
         private readonly IRepositorioInmueble repositorio;
         private readonly IRepositorioPropietario repoPropietario;
+        private readonly IRepositorioTipoInmueble repoTipoInmueble;
         private readonly IConfiguration config;
-        public InmuebleController(IRepositorioInmueble repositorio, IRepositorioPropietario repoPropietario, IConfiguration config)
+        public InmuebleController(IRepositorioInmueble repositorio, IRepositorioPropietario repoPropietario, IRepositorioTipoInmueble repoTipoInmueble, IConfiguration config)
         {
             this.repositorio = repositorio;
             this.repoPropietario = repoPropietario;
+            this.repoTipoInmueble = repoTipoInmueble;
             this.config = config;
         }
         [HttpGet]
@@ -30,6 +32,7 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
         public IActionResult Create()
         {
             ViewBag.Propietarios = repoPropietario.ListarPropietarios();
+            ViewBag.Tipos = repoTipoInmueble.ListarTipoInmueble();
             return View();
         }
         [HttpPost]

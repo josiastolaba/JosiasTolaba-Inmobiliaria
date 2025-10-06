@@ -4,12 +4,12 @@
     ViewData["Title"] = "Contratos";
 }
 
-<h1>Lista de Contratos</h1>
+<h1>Contrato</h1>
 
 <p>
     <a asp-action="Create" class="btn btn-primary">➕ Nuevo Contrato</a>
 </p>
 
 <div id="tablaInquilinos">
-    @await Html.PartialAsync("_TablaPaginadaInquilinos", Model)
+    @await Html.PartialAsync("_TablaPaginadaContratos", Model)
 </div>

@@ -15,7 +15,6 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                 string query = @"SELECT * 
                                 FROM inmueble
                                 WHERE Direccion LIKE @dato
-                                OR Tipo LIKE @dato
                                 OR Uso LIKE @dato
                                 OR Precio LIKE @dato
                                 LIMIT 10";
@@ -31,7 +30,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                         {
                             IdInmueble = reader.GetInt32(nameof(Inmueble.IdInmueble)),
                             Direccion = reader.GetString(nameof(Inmueble.Direccion)),
-                            Tipo = reader.GetString(nameof(Inmueble.Tipo)),
+                            IdTipo = reader.GetInt32(nameof(Inmueble.IdTipo)),
                             IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
                             Uso = Enum.Parse<Inmueble.TipoUso>(reader.GetString(nameof(Inmueble.Uso))),
                             Latitud = reader.GetDecimal(nameof(Inmueble.Latitud)),
@@ -54,7 +53,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             {
                 string query = $@"INSERT INTO inmueble (
                 {nameof(Inmueble.Direccion)},
-                {nameof(Inmueble.Tipo)},
+                {nameof(Inmueble.IdTipo)},
                 {nameof(Inmueble.IdPropietario)},
                 {nameof(Inmueble.Uso)},
                 {nameof(Inmueble.Latitud)},
@@ -62,13 +61,13 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                 {nameof(Inmueble.Precio)},
                 {nameof(Inmueble.Ambiente)},
                 {nameof(Inmueble.Estado)})
-                VALUES (@Direccion, @Tipo, @IdPropietario, @Uso, @Latitud, @Longitud, @Precio, @Ambiente, @Estado);
+                VALUES (@Direccion, @IdTipo, @IdPropietario, @Uso, @Latitud, @Longitud, @Precio, @Ambiente, @Estado);
                 SELECT LAST_INSERT_ID();";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
                     i.Estado = true;
                     command.Parameters.AddWithValue("@Direccion", i.Direccion);
-                    command.Parameters.AddWithValue("@Tipo", i.Tipo);
+                    command.Parameters.AddWithValue("@IdTipo", i.IdTipo);
                     command.Parameters.AddWithValue("@IdPropietario", i.IdPropietario);
                     command.Parameters.AddWithValue("@Uso", i.Uso.ToString());
                     command.Parameters.AddWithValue("@Latitud", i.Latitud);
@@ -107,7 +106,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             {
                 string query = $@"UPDATE inmueble SET
                 {nameof(Inmueble.Direccion)}=@Direccion,
-                {nameof(Inmueble.Tipo)}=@Tipo,
+                {nameof(Inmueble.IdTipo)}=@IdTipo,
                 {nameof(Inmueble.IdPropietario)}=@IdPropietario,
                 {nameof(Inmueble.Uso)}=@Uso,
                 {nameof(Inmueble.Latitud)}=@Latitud,
@@ -120,7 +119,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                 {
                     command.Parameters.AddWithValue("@IdInmueble", i.IdInmueble);
                     command.Parameters.AddWithValue("@Direccion", i.Direccion);
-                    command.Parameters.AddWithValue("@Tipo", i.Tipo);
+                    command.Parameters.AddWithValue("@IdTipo", i.IdTipo);
                     command.Parameters.AddWithValue("@IdPropietario", i.IdPropietario);
                     command.Parameters.AddWithValue("@Uso", i.Uso.ToString());
                     command.Parameters.AddWithValue("@Latitud", i.Latitud);
@@ -151,7 +150,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                         {
                             IdInmueble = reader.GetInt32(nameof(Inmueble.IdInmueble)),
                             Direccion = reader.GetString(nameof(Inmueble.Direccion)),
-                            Tipo = reader.GetString(nameof(Inmueble.Tipo)),
+                            IdTipo = reader.GetInt32(nameof(Inmueble.IdTipo)),
                             IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
                             Uso = Enum.Parse<Inmueble.TipoUso>(reader.GetString(nameof(Inmueble.Uso))),
                             Latitud = reader.GetDecimal(nameof(Inmueble.Latitud)),
@@ -188,7 +187,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                         {
                             IdInmueble = reader.GetInt32(nameof(Inmueble.IdInmueble)),
                             Direccion = reader.GetString(nameof(Inmueble.Direccion)),
-                            Tipo = reader.GetString(nameof(Inmueble.Tipo)),
+                            IdTipo = reader.GetInt32(nameof(Inmueble.IdTipo)),
                             IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
                             Uso = Enum.Parse<Inmueble.TipoUso>(reader.GetString(nameof(Inmueble.Uso))),
                             Latitud = reader.GetDecimal(nameof(Inmueble.Latitud)),

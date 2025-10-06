@@ -8,20 +8,20 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         {
         }
 
-          public List<Contrato> buscar(string dato)
+        public List<Contrato> buscar(string dato)
         {
             var lista = new List<Contrato>();
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
                 string query = @"SELECT c.IdContrato, c.FechaInicio, c.FechaFin, c.MontoMensual, c.Estado,
                                 i.IdInquilino, i.Nombre AS InquilinoNombre, i.Apellido AS InquilinoApellido, i.Dni AS InquilinoDni,
-                                m.IdInmueble, m.Direccion AS InmuebleDireccion, m.Tipo AS InmuebleTipo
+                                m.IdInmueble, m.Direccion AS InmuebleDireccion, m.IdTipo AS InmuebleTipo
                                 FROM contrato c
                                 JOIN inquilino i ON c.IdInquilino = i.IdInquilino
                                 JOIN inmueble m ON c.IdInmueble = m.IdInmueble 
                                 WHERE i.Nombre LIKE @dato
                                 OR i.Apellido LIKE @dato
-                                OR m.Tipo LIKE @dato
+                                OR m.IdTipo LIKE @dato
                                 OR i.Dni LIKE @dato
                                 LIMIT 10";
                 using (var command = new MySqlCommand(query, connection))
@@ -52,7 +52,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                             {
                                 IdInmueble = reader.GetInt32("IdInmueble"),
                                 Direccion = reader.GetString("InmuebleDireccion"),
-                                Tipo = reader.GetString("InmuebleTipo")
+                                IdTipo = reader.GetInt32("InmuebleTipo")
                             }
                         };
                             lista.Add(c);
@@ -110,7 +110,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
 
                     while (reader.Read())
                     {
-                       Contrato c = new Contrato
+                        Contrato c = new Contrato
                         {
                             IdContrato = reader.GetInt32(nameof(Contrato.IdContrato)),
                             FechaInicio = reader.GetDateTime(nameof(Contrato.FechaInicio)),
@@ -127,7 +127,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                             {
                                 IdInmueble = reader.GetInt32("IdInmueble"),
                                 Direccion = reader.GetString("InmuebleDireccion"),
-                                Tipo = reader.GetString("InmuebleTipo")
+                                IdTipo = reader.GetInt32("InmuebleTipo")
                             },
                             Estado = reader.GetBoolean(nameof(Contrato.Estado))
                         };
@@ -152,7 +152,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             }
         }
 
-         public int DarDeBaja(int IdContrato)
+        public int DarDeBaja(int IdContrato)
         {
             int res = -1;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -229,7 +229,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                     SELECT 
                         c.IdContrato, c.FechaInicio, c.FechaFin, c.MontoMensual, c.Estado,
                         i.IdInquilino, i.Nombre AS InquilinoNombre, i.Apellido AS InquilinoApellido, i.Dni AS InquilinoDni,
-                        m.IdInmueble, m.Direccion AS InmuebleDireccion, m.Tipo AS InmuebleTipo
+                        m.IdInmueble, m.Direccion AS InmuebleDireccion, m.IdTipo AS InmuebleTipo
                     FROM contrato c
                     JOIN inquilino i ON c.IdInquilino = i.IdInquilino
                     JOIN inmueble m ON c.IdInmueble = m.IdInmueble
@@ -261,7 +261,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                             {
                                 IdInmueble = reader.GetInt32("IdInmueble"),
                                 Direccion = reader.GetString("InmuebleDireccion"),
-                                Tipo = reader.GetString("InmuebleTipo")
+                                IdTipo = reader.GetInt32("InmuebleTipo")
                             }
                         };
                         res.Add(c);
@@ -314,7 +314,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                             {
                                 IdInmueble = reader.GetInt32("IdInmueble"),
                                 Direccion = reader.GetString("InmuebleDireccion"),
-                                Tipo = reader.GetString("InmuebleTipo")
+                                IdTipo = reader.GetInt32("InmuebleTipo")
                             }
                         };
                     }
@@ -363,7 +363,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                             {
                                 IdInmueble = reader.GetInt32("IdInmueble"),
                                 Direccion = reader.GetString("InmuebleDireccion"),
-                                Tipo = reader.GetString("InmuebleTipo")
+                                IdTipo = reader.GetInt32("InmuebleTipo")
                             }
                         };
                         res.Add(c);

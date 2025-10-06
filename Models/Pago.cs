@@ -25,9 +25,9 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         [Required(ErrorMessage = "El IdContrato es obligatorio")]
         public required int IdContrato { get; set; }
         
-        public int QuienCreo { get; set; }
+        public int? QuienCreo { get; set; }
         
-        public int QuienElimino { get; set; }
+        public int? QuienElimino { get; set; }
         public required bool Estado { get; set; }
 
         //ELEMENTO IMPORTANTE PARA LA FUNCION DEL BUSCADOR

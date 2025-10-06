@@ -91,6 +91,13 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			{
 				if (ModelState.IsValid)
 				{
+					var userIdClaim = User.FindFirst("UserId")?.Value;
+					int? idUsuarioLogueado = null;
+					if (int.TryParse(userIdClaim, out int idParsed))
+					{
+						idUsuarioLogueado = idParsed;
+					}
+					entidad.QuienCreo = idUsuarioLogueado;
 					repositorio.Alta(entidad);
 					TempData["Id"] = entidad.IdContrato;
 					return RedirectToAction(nameof(Index));
