@@ -15,7 +15,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
 
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = @"SELECT IdUsuario, Nombre, Apellido, Dni, Contrasena, Rol, Email, Estado
+                string query = @"SELECT IdUsuario, Nombre, Apellido, Dni, Contrasena, Rol, Email, Estado, Avatar
                                 FROM usuario
                                 WHERE Nombre LIKE @dato OR Dni LIKE @dato
                                 LIMIT 10";
@@ -36,6 +36,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                                         Dni = reader.GetString("Dni"),
                                         Email = reader.GetString("Email"),
                                         Estado = reader.GetBoolean("Estado"),
+                                       Avatar = reader.IsDBNull(reader.GetOrdinal("Avatar")) ? null : reader.GetString("Avatar"),
                                         Rol = Enum.Parse<Usuario.TipoRol>(
                                     reader.GetString("Rol"), // trae "adminstrador" o "empleado"
                                     true                     // true = ignoreCase
@@ -75,7 +76,8 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                             Email = reader.GetString(nameof(Usuario.Email)),
                             Contrasena = reader.GetString(nameof(Usuario.Contrasena)),
                             Rol = Enum.Parse<Usuario.TipoRol>(reader.GetString(nameof(Usuario.Rol))),
-                            Estado = reader.GetBoolean(nameof(Usuario.Estado))
+                            Estado = reader.GetBoolean(nameof(Usuario.Estado)),
+                            Avatar = reader.IsDBNull(reader.GetOrdinal("Avatar")) ? null : reader.GetString("Avatar")
                         };
                         res.Add(p);
                     }
@@ -101,16 +103,19 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             int res = -1;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = $@"INSERT INTO usuario (
-                    {nameof(Usuario.Nombre)},
-                    {nameof(Usuario.Apellido)},
-                    {nameof(Usuario.Dni)},
-                    {nameof(Usuario.Rol)},
-                    {nameof(Usuario.Email)},
-                    {nameof(Usuario.Contrasena)},
-                    {nameof(Usuario.Estado)})
-                    VALUES (@Nombre, @Apellido, @Dni, @Rol, @Email, @Contrasena, @Estado);
-                    SELECT LAST_INSERT_ID();";
+                string query = $@"
+                            INSERT INTO usuario (
+                            {nameof(Usuario.Nombre)},
+                            {nameof(Usuario.Apellido)},
+                            {nameof(Usuario.Dni)},
+                            {nameof(Usuario.Rol)},
+                            {nameof(Usuario.Email)},
+                            {nameof(Usuario.Contrasena)},
+                            {nameof(Usuario.Estado)},
+                            {nameof(Usuario.Avatar)}
+                             )
+                            VALUES (@Nombre, @Apellido, @Dni, @Rol, @Email, @Contrasena, @Estado, @Avatar);
+                            SELECT LAST_INSERT_ID();";
                 using (var command = new MySqlCommand(query, connection))
                 {
                     u.Estado = true;
@@ -121,7 +126,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                     command.Parameters.AddWithValue("@Email", u.Email);
                     command.Parameters.AddWithValue("@Contrasena", u.Contrasena);
                     command.Parameters.AddWithValue("@Estado", u.Estado);
-
+                    command.Parameters.AddWithValue("@Avatar", (object?)u.Avatar ?? DBNull.Value);
                     connection.Open();
                     res = Convert.ToInt32(command.ExecuteScalar()); // devuelve el último ID insertado
                 }
@@ -156,6 +161,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                     {nameof(Usuario.Rol)}=@Rol,
                     {nameof(Usuario.Email)}=@Email,
                     {nameof(Usuario.Contrasena)}=@Contrasena
+                    {nameof(Usuario.Avatar)}=@Avatar
                     WHERE {nameof(Usuario.IdUsuario)}=@IdUsuario";
 
                 using (MySqlCommand command = new MySqlCommand(query, connection))
@@ -167,6 +173,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                     command.Parameters.AddWithValue("@Rol", u.Rol.ToString());
                     command.Parameters.AddWithValue("@Email", u.Email);
                     command.Parameters.AddWithValue("@Contrasena", u.Contrasena);
+                    command.Parameters.AddWithValue("@Avatar", (object?)u.Avatar ?? DBNull.Value);
                     connection.Open();
                     res = command.ExecuteNonQuery();
                 }
@@ -195,7 +202,8 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                             Email = reader.GetString(nameof(Usuario.Email)),
                             Contrasena = reader.GetString(nameof(Usuario.Contrasena)),
                             Rol = Enum.Parse<Usuario.TipoRol>(reader.GetString(nameof(Usuario.Rol))),
-                            Estado = reader.GetBoolean(nameof(Usuario.Estado))
+                            Estado = reader.GetBoolean(nameof(Usuario.Estado)),
+                            Avatar = reader.IsDBNull(reader.GetOrdinal("Avatar")) ? null : reader.GetString("Avatar")
                         };
                         res.Add(p);
                     }
@@ -228,7 +236,8 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                             Email = reader.GetString(nameof(Usuario.Email)),
                             Contrasena = reader.GetString(nameof(Usuario.Contrasena)),
                             Rol = Enum.Parse<Usuario.TipoRol>(reader.GetString(nameof(Usuario.Rol))),
-                            Estado = reader.GetBoolean(nameof(Usuario.Estado))
+                            Estado = reader.GetBoolean(nameof(Usuario.Estado)),
+                            Avatar = reader.IsDBNull(reader.GetOrdinal("Avatar")) ? null : reader.GetString("Avatar")
                         };
                     }
                     connection.Close();
@@ -311,7 +320,8 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                             Email = reader.GetString(nameof(Usuario.Email)),
                             Contrasena = reader.GetString(nameof(Usuario.Contrasena)),
                             Rol = Enum.Parse<Usuario.TipoRol>(reader.GetString(nameof(Usuario.Rol))),
-                            Estado = reader.GetBoolean(nameof(Usuario.Estado))
+                            Estado = reader.GetBoolean(nameof(Usuario.Estado)),
+                            Avatar = reader.IsDBNull(reader.GetOrdinal("Avatar")) ? null : reader.GetString("Avatar")
                         };
                     }
                     connection.Close();

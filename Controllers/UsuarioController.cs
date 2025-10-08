@@ -13,10 +13,13 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
     {
         private readonly IRepositorioUsuario repositorio;
         private readonly IConfiguration config;
-        public UsuarioController(IRepositorioUsuario repositorio, IConfiguration config, IWebHostEnvironment environment)
+
+        private readonly IWebHostEnvironment env;
+        public UsuarioController(IRepositorioUsuario repositorio, IConfiguration config, IWebHostEnvironment env)
         {
             this.repositorio = repositorio;
             this.config = config;
+             this.env = env;
         }
         [Authorize(Policy = "Administrador")]
         public IActionResult Index()
@@ -24,6 +27,45 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
             var usuarios = repositorio.ListarUsuarios();
             return View(usuarios);
         }
+
+        [HttpPost]
+public IActionResult SubirAvatar(int idUsuario, IFormFile avatar)
+{
+    try
+    {
+        if (avatar != null && avatar.Length > 0)
+        {
+            string wwwPath = env.WebRootPath;
+            string path = Path.Combine(wwwPath, "imagenes/usuarios");
+
+            if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
+
+            string fileName = $"usuario_{idUsuario}_{Path.GetFileName(avatar.FileName)}";
+            string filePath = Path.Combine(path, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                avatar.CopyTo(stream);
+            }
+
+            string relativePath = $"/imagenes/usuarios/{fileName}";
+
+            // Guardamos la ruta en la BD
+            var usuario = repositorio.UsuarioId(idUsuario);
+            usuario.Avatar = relativePath;
+            repositorio.Modificacion(usuario);
+
+            return Json(new { ok = true, nuevaRuta = relativePath });
+        }
+        return Json(new { ok = false, mensaje = "No se recibió archivo" });
+    }
+    catch (Exception ex)
+    {
+        return Json(new { ok = false, mensaje = ex.Message });
+    }
+}
+
         [Authorize(Policy = "Administrador")]
         public IActionResult Create()
         {
@@ -31,10 +73,32 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
         }
         [HttpPost]
         [Authorize(Policy = "Administrador")]
-        public IActionResult Create(Usuario u)
+        public IActionResult Create(Usuario u, IFormFile? AvatarFile)
         {
             if (ModelState.IsValid)
             {
+                if (AvatarFile != null && AvatarFile.Length > 0)
+                {
+                    string uploadsFolder = Path.Combine(env.WebRootPath, "imagenes/usuarios");
+                    if (!Directory.Exists(uploadsFolder))
+                        Directory.CreateDirectory(uploadsFolder);
+
+                    string safeEmail = u.Email.Replace("@", "_at_").Replace(".", "_");
+                    string extension = Path.GetExtension(AvatarFile.FileName);
+                    string fileName = $"usuario_{u.Email}_{Path.GetFileName(AvatarFile.FileName)}";
+                    string filePath = Path.Combine(uploadsFolder, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        AvatarFile.CopyTo(stream);
+                    }
+
+                    u.Avatar = $"/imagenes/usuarios/{fileName}";
+                }
+                else
+                {
+                    u.Avatar = "/imagenes/usuarios/default-avatar.png";
+                }
                 string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
                         password: u.Contrasena,
                         salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
@@ -57,6 +121,8 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
             {
                 return View();
             }
+
+
         }
         public IActionResult Update(int IdUsuario)
         {
