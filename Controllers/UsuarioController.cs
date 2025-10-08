@@ -21,50 +21,13 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
             this.config = config;
              this.env = env;
         }
-        [Authorize(Policy = "Administrador")]
+       [Authorize(Policy = "Administrador")]
         public IActionResult Index()
         {
             var usuarios = repositorio.ListarUsuarios();
             return View(usuarios);
         }
 
-        [HttpPost]
-public IActionResult SubirAvatar(int idUsuario, IFormFile avatar)
-{
-    try
-    {
-        if (avatar != null && avatar.Length > 0)
-        {
-            string wwwPath = env.WebRootPath;
-            string path = Path.Combine(wwwPath, "imagenes/usuarios");
-
-            if (!Directory.Exists(path))
-                Directory.CreateDirectory(path);
-
-            string fileName = $"usuario_{idUsuario}_{Path.GetFileName(avatar.FileName)}";
-            string filePath = Path.Combine(path, fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                avatar.CopyTo(stream);
-            }
-
-            string relativePath = $"/imagenes/usuarios/{fileName}";
-
-            // Guardamos la ruta en la BD
-            var usuario = repositorio.UsuarioId(idUsuario);
-            usuario.Avatar = relativePath;
-            repositorio.Modificacion(usuario);
-
-            return Json(new { ok = true, nuevaRuta = relativePath });
-        }
-        return Json(new { ok = false, mensaje = "No se recibió archivo" });
-    }
-    catch (Exception ex)
-    {
-        return Json(new { ok = false, mensaje = ex.Message });
-    }
-}
 
         [Authorize(Policy = "Administrador")]
         public IActionResult Create()
@@ -77,15 +40,18 @@ public IActionResult SubirAvatar(int idUsuario, IFormFile avatar)
         {
             if (ModelState.IsValid)
             {
+                string uploadsFolder = Path.Combine(env.WebRootPath, "imagenes/usuarios");
+
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                // --- Manejo de imagen subida o por defecto ---
                 if (AvatarFile != null && AvatarFile.Length > 0)
                 {
-                    string uploadsFolder = Path.Combine(env.WebRootPath, "imagenes/usuarios");
-                    if (!Directory.Exists(uploadsFolder))
-                        Directory.CreateDirectory(uploadsFolder);
-
+                    // Limpia el email para usarlo en el nombre del archivo
                     string safeEmail = u.Email.Replace("@", "_at_").Replace(".", "_");
                     string extension = Path.GetExtension(AvatarFile.FileName);
-                    string fileName = $"usuario_{u.Email}_{Path.GetFileName(AvatarFile.FileName)}";
+                    string fileName = $"usuario_{safeEmail}_{Guid.NewGuid()}{extension}";
                     string filePath = Path.Combine(uploadsFolder, fileName);
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
@@ -99,13 +65,16 @@ public IActionResult SubirAvatar(int idUsuario, IFormFile avatar)
                 {
                     u.Avatar = "/imagenes/usuarios/default-avatar.png";
                 }
+
                 string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-                        password: u.Contrasena,
-                        salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
-                        prf: KeyDerivationPrf.HMACSHA1,
-                        iterationCount: 1000,
-                        numBytesRequested: 256 / 8));
+                    password: u.Contrasena,
+                    salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
+                    prf: KeyDerivationPrf.HMACSHA1,
+                    iterationCount: 1000,
+                    numBytesRequested: 256 / 8));
+
                 u.Contrasena = hashed;
+
                 int res = repositorio.Alta(u);
                 if (res > 0)
                 {
@@ -114,16 +83,49 @@ public IActionResult SubirAvatar(int idUsuario, IFormFile avatar)
                 else
                 {
                     ViewBag.Error = "No se pudo crear el usuario";
-                    return View();
+                    return View(u);
                 }
             }
             else
             {
-                return View();
+                return View(u);
             }
-
-
         }
+
+
+[HttpPost]
+public IActionResult SubirAvatar(int idUsuario, IFormFile avatar)
+{
+    try
+    {
+        if (avatar == null || avatar.Length == 0)
+            return Json(new { ok = false, mensaje = "No se recibió ningún archivo." });
+
+        string uploadsFolder = Path.Combine(env.WebRootPath, "imagenes/usuarios");
+        if (!Directory.Exists(uploadsFolder))
+            Directory.CreateDirectory(uploadsFolder);
+
+        string fileName = $"usuario_{idUsuario}_{Path.GetFileName(avatar.FileName)}";
+        string filePath = Path.Combine(uploadsFolder, fileName);
+
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            avatar.CopyTo(stream);
+        }
+
+        string rutaWeb = $"/imagenes/usuarios/{fileName}";
+
+        // Actualizar en la base de datos
+        repositorio.subirAvatar(idUsuario, rutaWeb);
+
+        return Json(new { ok = true, nuevaRuta = rutaWeb });
+    }
+    catch (Exception ex)
+    {
+        return Json(new { ok = false, mensaje = "Error al subir la imagen: " + ex.Message });
+    }
+}
+
         public IActionResult Update(int IdUsuario)
         {
             Usuario u = repositorio.UsuarioId(IdUsuario);
@@ -133,27 +135,54 @@ public IActionResult SubirAvatar(int idUsuario, IFormFile avatar)
             }
             return View(u);
         }
-        [HttpPost]
-        public IActionResult Update(Usuario u)
+[HttpPost]
+public IActionResult Update(Usuario u, IFormFile? AvatarFile)
+{
+    if (ModelState.IsValid)
+    {
+        // Si el usuario subió una nueva imagen
+        if (AvatarFile != null && AvatarFile.Length > 0)
         {
-            if (ModelState.IsValid)
+            string uploadsFolder = Path.Combine(env.WebRootPath, "imagenes/usuarios");
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
+
+            string extension = Path.GetExtension(AvatarFile.FileName);
+            string fileName = $"usuario_{u.IdUsuario}_{Path.GetFileName(AvatarFile.FileName)}";
+            string filePath = Path.Combine(uploadsFolder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
             {
-                int res = repositorio.Modificacion(u);
-                if (res > 0)
-                {
-                    return RedirectToAction(nameof(Index));
-                }
-                else
-                {
-                    ViewBag.Error = "No se pudo modificar el Usuario";
-                    return View();
-                }
+                AvatarFile.CopyTo(stream);
             }
-            else
-            {
-                return View();
-            }
+
+            // Guardamos la nueva ruta en el modelo
+            u.Avatar = $"/imagenes/usuarios/{fileName}";
         }
+        else
+        {
+            // Mantenemos la imagen actual (no se toca)
+            var existente = repositorio.UsuarioId(u.IdUsuario);
+            u.Avatar = existente.Avatar;
+        }
+
+        int res = repositorio.Modificacion(u);
+        if (res > 0)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+        else
+        {
+            ViewBag.Error = "No se pudo modificar el usuario";
+            return View(u);
+        }
+    }
+    else
+    {
+        return View(u);
+    }
+}
+
         public IActionResult Details(int IdUsuario)
         {
             Usuario u = repositorio.UsuarioId(IdUsuario);

@@ -28,27 +28,11 @@
 
         <tr>
             <td class="text-center">
-                <div style="position: relative; display: inline-block;">
-                    <img src="@avatarPath"
-                         alt="Avatar de @usuario.Nombre"
-                         id="avatar-img-@usuario.IdUsuario"
-                         class="rounded-circle"
-                         width="50" height="50"
-                         style="object-fit: cover; border: 2px solid #ddd;" />
-
-                    <button type="button"
-                            class="btn btn-sm btn-secondary"
-                            style="position: absolute; bottom: -5px; right: -5px; border-radius: 50%; padding: 2px 6px;"
-                            onclick="document.getElementById('avatar-file-@usuario.IdUsuario').click()">
-                        <i class="bi bi-camera"></i>
-                    </button>
-
-                    <input type="file"
-                           id="avatar-file-@usuario.IdUsuario"
-                           style="display:none"
-                           accept="image/*"
-                           onchange="subirAvatar(@usuario.IdUsuario)" />
-                </div>
+                <img src="@avatarPath"
+                     alt="Avatar de @usuario.Nombre"
+                     class="rounded-circle"
+                     width="50" height="50"
+                     style="object-fit: cover; border: 2px solid #ddd;" />
             </td>
 
             <td>@usuario.IdUsuario</td>
@@ -81,31 +65,3 @@
         </ul>
     </nav>
 </div>
-
-@section Scripts {
-<script>
-function subirAvatar(idUsuario) {
-    const fileInput = document.getElementById(`avatar-file-${idUsuario}`);
-    const file = fileInput.files[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append("idUsuario", idUsuario);
-    formData.append("avatar", file);
-
-    fetch("/Usuario/SubirAvatar", {
-        method: "POST",
-        body: formData
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.ok) {
-            document.getElementById(`avatar-img-${idUsuario}`).src = data.nuevaRuta;
-        } else {
-            alert("Error: " + data.mensaje);
-        }
-    })
-    .catch(err => alert("Error al subir la imagen: " + err));
-}
-</script>
-}

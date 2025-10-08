@@ -133,6 +133,22 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             }
             return res;
         }
+
+        public void subirAvatar(int idUsuario, string avatarRuta)
+{
+    using (var connection = new MySqlConnection(connectionString))
+    {
+        string query = "UPDATE usuario SET Avatar = @Avatar WHERE IdUsuario = @IdUsuario";
+        using (var command = new MySqlCommand(query, connection))
+        {
+            command.Parameters.AddWithValue("@Avatar", avatarRuta);
+            command.Parameters.AddWithValue("@IdUsuario", idUsuario);
+            connection.Open();
+            command.ExecuteNonQuery();
+        }
+    }
+}
+
         public int Baja(int id)
         {
             int res = -1;
@@ -160,7 +176,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                     {nameof(Usuario.Dni)}=@Dni,
                     {nameof(Usuario.Rol)}=@Rol,
                     {nameof(Usuario.Email)}=@Email,
-                    {nameof(Usuario.Contrasena)}=@Contrasena
+                    {nameof(Usuario.Contrasena)}=@Contrasena,
                     {nameof(Usuario.Avatar)}=@Avatar
                     WHERE {nameof(Usuario.IdUsuario)}=@IdUsuario";
 
