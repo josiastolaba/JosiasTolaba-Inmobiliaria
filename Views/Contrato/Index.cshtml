@@ -10,6 +10,20 @@
     <a asp-action="Create" class="btn btn-primary">➕ Nuevo Contrato</a>
 </p>
 
-<div id="tablaInquilinos">
+<div id="tablaContratos">
     @await Html.PartialAsync("_TablaPaginadaContratos", Model)
 </div>
+
+<script>
+ function cargarPagina(numPagina) {
+        $.ajax({
+            url: '/Pago/Index',
+            type: 'GET',
+            data: { pagina: numPagina },
+            success: function (data) {
+                $("#tablaPagos").html(data); // reemplaza la tabla + paginacion
+                $("html, body").animate({ scrollTop: 0 }, "fast"); // vuelve arriba
+            }
+        });
+    }
+</script>d

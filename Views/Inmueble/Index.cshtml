@@ -19,42 +19,10 @@
     <datalist id="opcionesInmueble">
     </datalist>
 </div>
-<table class="table table-striped table-bordered">
-    <thead class="table-dark">
-        <tr>
-            <th>Id</th>
-            <th>Tipo</th>
-            <th>Dirección</th>
-            <th>Uso</th>
-            <th>Longitud</th>
-            <th>Ambiente</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var inmueble in Model)
-        {
-            <tr>
-                <td>@inmueble.IdPropietario</td>
-                <td>@inmueble.IdTipo</td>
-                <td>@inmueble.Direccion</td>
-                <td>@inmueble.Uso</td>
-                <td>@inmueble.Longitud</td>
-                <td>@inmueble.Ambiente</td>
-                <td>
-                    @(inmueble.Estado ? "Activo" : "Inactivo")
-                </td>
-                <td>
-                    <a asp-controller="Inmueble" asp-action="Details" asp-route-IdInmueble="@inmueble.IdInmueble" class="btn btn-info btn-sm">Detalles</a>
-                    <a asp-controller="Inmueble" asp-action="Update" asp-route-IdInmueble="@inmueble.IdInmueble" class="btn btn-warning btn-sm">Editar</a>
-                    <a asp-controller="Inmueble" asp-action="DarDeBaja" asp-route-IdInmueble="@inmueble.IdInmueble" class="btn btn-danger btn-sm">Eliminar</a>
-                    <a asp-controller="Contrato" asp-action="Create" asp-route-IdInmueble="@inmueble.IdInmueble" class="btn btn-danger btn-sm">Hacer Contrato</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<!-- Contenedor que ahora incluye tabla + paginación -->
+<div id="tablaPagos">
+    @await Html.PartialAsync("_TablaPaginadaPagos", Model)
+</div>
 
 <!-- JQuery desde CDN -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -100,4 +68,17 @@
             }
         });
     });
+
+           // 🔹 Nueva función AJAX para paginación
+    function cargarPagina(numPagina) {
+        $.ajax({
+            url: '/Pago/Index',
+            type: 'GET',
+            data: { pagina: numPagina },
+            success: function (data) {
+                $("#tablaPagos").html(data); // reemplaza la tabla + paginacion
+                $("html, body").animate({ scrollTop: 0 }, "fast"); // vuelve arriba
+            }
+        });
+    }
 </script>

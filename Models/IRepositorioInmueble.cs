@@ -7,5 +7,9 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         int DarDeBaja(int IdInmueble);
         IList<Inmueble> ListarInmuebles();
         Inmueble InmuebleId(int IdInmueble);
+
+        IList<Inmueble> obtenerPaginados(int offset, int limit);
+
+        int contar();
     }
 }
