@@ -52,9 +52,9 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             IList<Inmueble> res = new List<Inmueble>();
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = @"SELECT * FROM usuario 
+                string query = @"SELECT * FROM inmueble
                                 WHERE Estado = true
-                                ORDER BY IdUsuario
+                                ORDER BY IdInmueble
                                 LIMIT @limit OFFSET @offset;";
                 using (var command = new MySqlCommand(query, connection))
                 {
@@ -67,7 +67,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                     {
                         Inmueble p = new Inmueble
                         {
-                             IdInmueble = reader.GetInt32(nameof(Inmueble.IdInmueble)),
+                            IdInmueble = reader.GetInt32(nameof(Inmueble.IdInmueble)),
                             Direccion = reader.GetString(nameof(Inmueble.Direccion)),
                             IdTipo = reader.GetInt32(nameof(Inmueble.IdTipo)),
                             IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),

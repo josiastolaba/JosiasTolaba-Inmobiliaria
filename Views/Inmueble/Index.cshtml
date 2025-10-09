@@ -20,8 +20,8 @@
     </datalist>
 </div>
 <!-- Contenedor que ahora incluye tabla + paginación -->
-<div id="tablaPagos">
-    @await Html.PartialAsync("_TablaPaginadaPagos", Model)
+<div id="tablaInmueble">
+    @await Html.PartialAsync("_TablaPaginadaInmueble", Model)
 </div>
 
 <!-- JQuery desde CDN -->
@@ -57,26 +57,14 @@
             }
         });
 
-        // Detectar cuando se selecciona un valor del datalist
-        $("#buscadorInput").on("change", function () {
-            let texto = $(this).val();
-            let opcion = $(`#opcionesInmueble option[value='${texto}']`);
-            let id = opcion.data("id");
-
-            if (id) {
-                window.location.href = '/Inmueble/Details?IdInmueble=' + id;
-            }
-        });
-    });
-
            // 🔹 Nueva función AJAX para paginación
     function cargarPagina(numPagina) {
         $.ajax({
-            url: '/Pago/Index',
+            url: '/Inmueble/Index',
             type: 'GET',
             data: { pagina: numPagina },
             success: function (data) {
-                $("#tablaPagos").html(data); // reemplaza la tabla + paginacion
+                $("#tablaInmueble").html(data); // reemplaza la tabla + paginacion
                 $("html, body").animate({ scrollTop: 0 }, "fast"); // vuelve arriba
             }
         });

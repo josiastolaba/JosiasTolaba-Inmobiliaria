@@ -22,6 +22,16 @@
 </div>
 
 <hr />
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success">@TempData["Mensaje"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
 <!-- Contenedor que ahora incluye tabla + paginación -->
 <div id="tablaPropietarios">
     @await Html.PartialAsync("_TablaPaginadaPropietarios", Model)

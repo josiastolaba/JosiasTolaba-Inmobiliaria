@@ -96,10 +96,17 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             IList<Contrato> res = new List<Contrato>();
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = @"SELECT * FROM contrato
-                WHERE Estado = true
-                ORDER BY IdContrato
-                LIMIT @limit OFFSET @offset;";
+             String query = @"
+            SELECT 
+                c.IdContrato, c.FechaInicio, c.FechaFin, c.MontoMensual, c.Estado,
+                i.IdInquilino, i.Nombre AS InquilinoNombre, i.Apellido AS InquilinoApellido, i.Dni AS InquilinoDni,
+                inm.IdInmueble, inm.Direccion AS InmuebleDireccion, inm.IdTipo AS InmuebleTipo
+            FROM contrato c
+            JOIN inquilino i ON c.IdInquilino = i.IdInquilino
+            JOIN inmueble inm ON c.IdInmueble = inm.IdInmueble
+            WHERE c.Estado = TRUE
+            ORDER BY c.IdContrato
+            LIMIT @limit OFFSET @offset";
 
                 using (var command = new MySqlCommand(query, connection))
                 {
