@@ -121,24 +121,50 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             int res = -1;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = @"
-                    INSERT INTO contrato (FechaInicio, FechaFin, MontoMensual, IdInquilino, IdInmueble, QuienCreo, QuienElimino, Estado)
-                    VALUES (@FechaInicio, @FechaFin, @MontoMensual, @IdInquilino, @IdInmueble, @QuienCreo, @QuienElimino, @Estado);
-                    SELECT LAST_INSERT_ID();";
-
-                using (var command = new MySqlCommand(query, connection))
+                connection.Open();
+                using (var transaction = connection.BeginTransaction())
                 {
-                    c.Estado = true;
-                    command.Parameters.AddWithValue("@FechaInicio", c.FechaInicio);
-                    command.Parameters.AddWithValue("@FechaFin", c.FechaFin);
-                    command.Parameters.AddWithValue("@MontoMensual", c.MontoMensual);
-                    command.Parameters.AddWithValue("@IdInquilino", c.Habitante.IdInquilino);
-                    command.Parameters.AddWithValue("@IdInmueble", c.Propiedad.IdInmueble);
-                    command.Parameters.AddWithValue("@QuienCreo", c.QuienCreo);
-                    command.Parameters.AddWithValue("@QuienElimino", DBNull.Value);
-                    command.Parameters.AddWithValue("@Estado", c.Estado);
-                    connection.Open();
-                    res = Convert.ToInt32(command.ExecuteScalar());
+                    try
+                    {
+                        // Inserta Contrato
+                        string queryContrato = @"
+                            INSERT INTO contrato (FechaInicio, FechaFin, MontoMensual, IdInquilino, IdInmueble, QuienCreo, QuienElimino, Estado)
+                            VALUES (@FechaInicio, @FechaFin, @MontoMensual, @IdInquilino, @IdInmueble, @QuienCreo, @QuienElimino, @Estado);
+                            SELECT LAST_INSERT_ID();";
+                        using (var cmdContrato = new MySqlCommand(queryContrato, connection, transaction))
+                        {
+                            c.Estado = true;
+                            cmdContrato.Parameters.AddWithValue("@FechaInicio", c.FechaInicio);
+                            cmdContrato.Parameters.AddWithValue("@FechaFin", c.FechaFin);
+                            cmdContrato.Parameters.AddWithValue("@MontoMensual", c.MontoMensual);
+                            cmdContrato.Parameters.AddWithValue("@IdInquilino", c.Habitante.IdInquilino);
+                            cmdContrato.Parameters.AddWithValue("@IdInmueble", c.Propiedad.IdInmueble);
+                            cmdContrato.Parameters.AddWithValue("@QuienCreo", c.QuienCreo);
+                            cmdContrato.Parameters.AddWithValue("@QuienElimino", DBNull.Value);
+                            cmdContrato.Parameters.AddWithValue("@Estado", c.Estado);
+                            res = Convert.ToInt32(cmdContrato.ExecuteScalar()); // IdContrato generado
+                        }
+                        // Inserta Reserva usando IdContrato
+                        string queryReserva = @"
+                            INSERT INTO reserva (IdInmueble, IdContrato, FechaDesde, FechaHasta, Estado)
+                            VALUES (@IdInmueble, @IdContrato, @FechaDesde, @FechaHasta, @Estado)";
+                        using (var cmdReserva = new MySqlCommand(queryReserva, connection, transaction))
+                        {
+                            cmdReserva.Parameters.AddWithValue("@IdInmueble", c.Propiedad.IdInmueble);
+                            cmdReserva.Parameters.AddWithValue("@IdContrato", res);
+                            cmdReserva.Parameters.AddWithValue("@FechaDesde", c.FechaInicio);
+                            cmdReserva.Parameters.AddWithValue("@FechaHasta", c.FechaFin);
+                            cmdReserva.Parameters.AddWithValue("@Estado", true);
+                            cmdReserva.ExecuteNonQuery();
+                        }
+                        // Commit de la transacción
+                        transaction.Commit();
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
                 }
             }
             return res;

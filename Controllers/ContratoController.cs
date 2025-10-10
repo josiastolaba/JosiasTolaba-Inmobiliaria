@@ -123,6 +123,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 					}
 					entidad.QuienCreo = idUsuarioLogueado;
 					repositorio.Alta(entidad);
+					
 					TempData["Id"] = entidad.IdContrato;
 					return RedirectToAction(nameof(Index));
 				}
