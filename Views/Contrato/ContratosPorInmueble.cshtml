@@ -1,0 +1,51 @@
+@model IEnumerable<INMOBILIARIA_JosiasTolaba.Models.Contrato>
+
+@{
+    ViewData["Title"] = "Contratos del Inmueble";
+    var IdInmueble = ViewBag.IdInmueble;
+}
+
+<h2>Contratos del Inmueble @IdInmueble</h2>
+<hr />
+
+<table class="table table-striped table-bordered align-middle">
+    <thead class="table-dark text-center">
+        <tr>
+            <th>ID Contrato</th>
+            <th>Inquilino</th>
+            <th>Fecha Inicio</th>
+            <th>Fecha Fin</th>
+            <th>Monto</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var contrato in Model)
+            {
+                <tr>
+                    <td>@contrato.IdContrato</td>
+                    <td>@contrato.Habitante?.Nombre @contrato.Habitante?.Apellido</td>
+                    <td>@contrato.FechaInicio.ToShortDateString()</td>
+                    <td>@contrato.FechaFin.ToShortDateString()</td>
+                    <td>$@contrato.MontoMensual</td>
+                    <td>@contrato.Estado</td>
+                    <td class="text-center">
+                    <a asp-controller="contrato" asp-action="Details" asp-route-IdContrato="@contrato.IdContrato" class="btn btn-info btn-sm">Detalles</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="7" class="text-center text-muted">
+                    No hay contratos registrados para este inmueble.
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+

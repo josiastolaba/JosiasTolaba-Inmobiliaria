@@ -28,11 +28,19 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		}
 
 		public IActionResult contratosPorInquilino(int IdInquilino)
-        {
+		{
 			var lista = repositorio.contratosPorInquilino(IdInquilino);
 			ViewBag.IdInquilino = IdInquilino;
 			return View(lista);
-        }
+		}
+		
+		 public IActionResult ContratosPorInmueble(int IdInmueble)
+{
+    Console.WriteLine($"Buscando contratos del inmueble {IdInmueble}"); 
+    var lista = repositorio.contratoPorInmueble(IdInmueble);
+    ViewBag.IdInmueble = IdInmueble;
+    return View(lista);
+}
 
 		 public IActionResult Index(int pagina = 1) //MODIFICADO, SE LE AGREGO EL PAGINADO
         {

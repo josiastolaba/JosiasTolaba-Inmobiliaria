@@ -9,6 +9,7 @@
 <hr />
 <div>
     <dl class="row">
+    <input type="hidden" id="IdInmueble" value="@Model.IdInmueble" />
         <dt class="col-sm-2">Direccion</dt>
         <dd class="col-sm-10">@Model.Direccion</dd>
 
@@ -41,4 +42,5 @@
 <p>
     <a asp-action="Update" asp-route-IdInmueble="@Model.IdInmueble" class="btn btn-warning">Editar</a> |
     <a asp-action="Index" class="btn btn-secondary">Volver</a>
+    <a asp-controller="Contrato"asp-action="ContratosPorInmueble"asp-route-IdInmueble="@Model.IdInmueble"class="btn btn-primary">Ver contratos de este inmueble</a>
 </p>

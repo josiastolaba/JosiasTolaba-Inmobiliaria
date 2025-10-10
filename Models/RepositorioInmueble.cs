@@ -80,6 +80,8 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                 return lista;
             }
         }
+
+
          public IList<Inmueble> obtenerPaginados(int offset, int limit)
         {
             IList<Inmueble> res = new List<Inmueble>();
