@@ -4,10 +4,12 @@
 }
 <h1>Usuario</h1>
 <hr />
-<p>
-    <a class="btn btn-primary" asp-action="Create"><i class="fa-solid fa-plus"></i>➕ Nuevo Usuario</a>
-</p>
-
+@if (User.IsInRole("Administrador"))
+{
+    <p>
+        <a class="btn btn-primary" asp-action="Create"><i class="fa-solid fa-plus"></i>➕ Nuevo Usuario</a>
+    </p>
+}
 <div class="mb-3">
     <label for="buscadorInput" class="form-label">Buscar usuario por nombre o DNI</label>
     <input type="text" id="buscadorInput" class="form-control mb-2" placeholder="Escribe al menos 3 letras..." list="opcionesUsuario"/>

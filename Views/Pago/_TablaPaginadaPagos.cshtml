@@ -10,8 +10,11 @@
             <th>Id</th>
             <th>Fecha de Pago</th>
             <th>Contrato</th>
+            @if (User.IsInRole("Administrador"))
+            {
             <th>Quien Creo</th>
             <th>Quien Elimino</th>
+            }
             <th>Estado</th>
             <th>Acciones</th>
         </tr>
@@ -23,14 +26,20 @@
                 <td>@pago.IdPago</td>
                 <td>@pago.FechaPago</td>
                 <td>@pago.IdContrato</td>
+                @if (User.IsInRole("Administrador"))
+                {
                 <td>@pago.QuienCreo</td>
                 <td>@pago.QuienElimino</td>
+                }
                 <td>@(pago.Estado ? "Activo" : "Inactivo")
                 </td>
                 <td>
                     <a asp-controller="Pago" asp-action="Details" asp-route-IdPago="@pago.IdPago" class="btn btn-info btn-sm">Detalles</a>
                     <a asp-controller="Pago" asp-action="Update" asp-route-IdPago="@pago.IdPago" class="btn btn-warning btn-sm">Editar</a>
+                    @if (User.IsInRole("Administrador"))
+                    {
                     <a asp-controller="Pago" asp-action="DarDeBaja" asp-route-IdPago="@pago.IdPago" class="btn btn-danger btn-sm">Eliminar</a>
+                    }
                 </td>
             </tr>
         }

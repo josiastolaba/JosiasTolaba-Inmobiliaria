@@ -44,8 +44,11 @@
             <td>@(usuario.Estado ? "Activo" : "Inactivo")</td>
             <td>
                 <a asp-controller="Usuario" asp-action="Details" asp-route-IdUsuario="@usuario.IdUsuario" class="btn btn-info btn-sm">Detalles</a>
+                @if (User.IsInRole("Administrador"))
+                {
                 <a asp-controller="Usuario" asp-action="Update" asp-route-IdUsuario="@usuario.IdUsuario" class="btn btn-warning btn-sm">Editar</a>
                 <a asp-controller="Usuario" asp-action="DarDeBaja" asp-route-IdUsuario="@usuario.IdUsuario" class="btn btn-danger btn-sm">Eliminar</a>
+                }
             </td>
         </tr>
     }

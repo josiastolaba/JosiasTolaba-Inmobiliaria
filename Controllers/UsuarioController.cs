@@ -21,7 +21,6 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
             this.config = config;
              this.env = env;
         }
-       [Authorize(Policy = "Administrador")]
      public IActionResult Index(int pagina = 1) //MODIFICADO, SE LE AGREGO EL PAGINADO
         {
             int paginaTam = 5;
@@ -146,64 +145,92 @@ public IActionResult SubirAvatar(int idUsuario, IFormFile avatar)
         public IActionResult Update(int IdUsuario)
         {
             Usuario u = repositorio.UsuarioId(IdUsuario);
+            u.Contrasena = "";
             if (u == null)
             {
                 return NotFound();
             }
             return View(u);
         }
-[HttpPost]
-public IActionResult Update(Usuario u, IFormFile? AvatarFile)
+        [HttpPost]
+        public IActionResult Update(Usuario u, IFormFile? AvatarFile)
         {
-    
-    if (repositorio.existeOtroDni(u.Dni, u.IdUsuario))
-			{
-				ModelState.AddModelError("Dni", $"El DNI {u.Dni} ya pertence a otro propietario");
-			}
-    if (ModelState.IsValid)
-    {
-        // Si el usuario subió una nueva imagen
-        if (AvatarFile != null && AvatarFile.Length > 0)
-        {
-            string uploadsFolder = Path.Combine(env.WebRootPath, "imagenes/usuarios");
-            if (!Directory.Exists(uploadsFolder))
-                Directory.CreateDirectory(uploadsFolder);
+            var userIdClaim = User.FindFirst("UserId")?.Value;
+            int.TryParse(userIdClaim, out int idUsuarioLogueado);
 
-            string extension = Path.GetExtension(AvatarFile.FileName);
-            string fileName = $"usuario_{u.IdUsuario}_{Path.GetFileName(AvatarFile.FileName)}";
-            string filePath = Path.Combine(uploadsFolder, fileName);
+            var esAdmin = User.IsInRole("Administrador");
 
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            if (!esAdmin && u.IdUsuario != idUsuarioLogueado)
             {
-                AvatarFile.CopyTo(stream);
+                return Forbid();
             }
+            if (repositorio.existeOtroDni(u.Dni, u.IdUsuario))
+            {
+                ModelState.AddModelError("Dni", $"El DNI {u.Dni} ya pertence a otro propietario");
+            }
+            ModelState.Remove("Contrasena");
+            if (ModelState.IsValid)
+            {
+                var existente = repositorio.UsuarioId(u.IdUsuario);
 
-            // Guardamos la nueva ruta en el modelo
-            u.Avatar = $"/imagenes/usuarios/{fileName}";
-        }
-        else
-        {
-            // Mantenemos la imagen actual (no se toca)
-            var existente = repositorio.UsuarioId(u.IdUsuario);
-            u.Avatar = existente.Avatar;
-        }
+                // Si la contraseña está vacía se mantiene la anterior
+                if (string.IsNullOrWhiteSpace(u.Contrasena))
+                {
+                    u.Contrasena = existente.Contrasena;
+                }
+                else
+                {
+                    // Si el usuario escribió una nueva, la cambiamos
+                    string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                        password: u.Contrasena,
+                        salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
+                        prf: KeyDerivationPrf.HMACSHA1,
+                        iterationCount: 1000,
+                        numBytesRequested: 256 / 8
+                    ));
+                    u.Contrasena = hashed;
+                }
 
-        int res = repositorio.Modificacion(u);
-        if (res > 0)
-        {
-            return RedirectToAction(nameof(Index));
+                // Manejo de imagen
+                if (AvatarFile != null && AvatarFile.Length > 0)
+                {
+                    string uploadsFolder = Path.Combine(env.WebRootPath, "imagenes/usuarios");
+                    if (!Directory.Exists(uploadsFolder))
+                        Directory.CreateDirectory(uploadsFolder);
+
+                    string extension = Path.GetExtension(AvatarFile.FileName);
+                    string fileName = $"usuario_{u.IdUsuario}_{Path.GetFileName(AvatarFile.FileName)}";
+                    string filePath = Path.Combine(uploadsFolder, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        AvatarFile.CopyTo(stream);
+                    }
+
+                    u.Avatar = $"/imagenes/usuarios/{fileName}";
+                }
+                else
+                {
+                    // Mantener la imagen actual
+                    u.Avatar = existente.Avatar;
+                }
+
+                int res = repositorio.Modificacion(u);
+                if (res > 0)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    ViewBag.Error = "No se pudo modificar el usuario";
+                    return View(u);
+                }
+            }
+            else
+            {
+                return View(u);
+            }
         }
-        else
-        {
-            ViewBag.Error = "No se pudo modificar el usuario";
-            return View(u);
-        }
-    }
-    else
-    {
-        return View(u);
-    }
-}
 
         public IActionResult Details(int IdUsuario)
         {

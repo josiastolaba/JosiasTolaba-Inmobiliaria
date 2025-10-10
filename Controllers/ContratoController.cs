@@ -190,6 +190,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		// POST: Contratos/Eliminar/5
 		[HttpPost]
 		[ValidateAntiForgeryToken]
+		[Authorize(Policy = "Administrador")]
 		public ActionResult Delete(int IdContrato, Contrato entidad)
 		{
 			try
