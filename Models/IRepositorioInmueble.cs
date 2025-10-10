@@ -7,5 +7,6 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         int DarDeBaja(int IdInmueble);
         IList<Inmueble> ListarInmuebles();
         Inmueble InmuebleId(int IdInmueble);
+        int ModificarPortada(int IdInmueble, string ruta);
     }
 }

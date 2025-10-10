@@ -29,3 +29,63 @@ body {
   border-radius: 10px;
   background-color: #f2f2f2;
 }
+
+.card-portada {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.card-portada h4 {
+    margin-bottom: 15px;
+    font-weight: 600;
+    color: #333;
+}
+
+.card-portada img.img-thumbnail {
+    border-radius: 8px;
+    max-height: 200px;
+    object-fit: cover;
+    margin-bottom: 15px;
+}
+
+.card-portada .form-group label {
+    font-weight: 500;
+}
+
+.card-portada .botones-form {
+    display: flex;
+    gap: 10px;      /* espacio entre botones */
+    margin-top: 15px;
+    justify-content: flex-start; /* si querés, podés poner flex-end para que estén a la derecha */
+}
+
+.card-interior {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.card-interior h4 {
+    margin-bottom: 15px;
+    font-weight: 600;
+    color: #333;
+}
+
+.card-interior img.img-thumbnail {
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.card-interior .form-group label {
+    font-weight: 500;
+}
+
+.card-interior .botones-form {
+    display: flex;
+    gap: 10px;      /* espacio entre botones */
+    margin-top: 15px;
+    justify-content: flex-start; /* los botones a la izquierda */
+}

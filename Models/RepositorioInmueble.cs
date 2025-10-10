@@ -1,3 +1,4 @@
+using System.Data;
 using MySql.Data.MySqlClient;
 
 namespace INMOBILIARIA_JosiasTolaba.Models
@@ -18,31 +19,31 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                                 OR Uso LIKE @dato
                                 OR Precio LIKE @dato
                                 LIMIT 10";
-            using (var command = new MySqlCommand(query, connection))
-            {
-                command.Parameters.AddWithValue("@dato", "%" + dato + "%");
-                connection.Open();
-            using (var reader = command.ExecuteReader())
+                using (var command = new MySqlCommand(query, connection))
                 {
-                    while (reader.Read())
+                    command.Parameters.AddWithValue("@dato", "%" + dato + "%");
+                    connection.Open();
+                    using (var reader = command.ExecuteReader())
                     {
-                        var i = new Inmueble
+                        while (reader.Read())
                         {
-                            IdInmueble = reader.GetInt32(nameof(Inmueble.IdInmueble)),
-                            Direccion = reader.GetString(nameof(Inmueble.Direccion)),
-                            IdTipo = reader.GetInt32(nameof(Inmueble.IdTipo)),
-                            IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
-                            Uso = Enum.Parse<Inmueble.TipoUso>(reader.GetString(nameof(Inmueble.Uso))),
-                            Latitud = reader.GetDecimal(nameof(Inmueble.Latitud)),
-                            Longitud = reader.GetDecimal(nameof(Inmueble.Longitud)),
-                            Ambiente = reader.GetInt32(nameof(Inmueble.Ambiente)),
-                            Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
-                            Estado = reader.GetBoolean(nameof(Inmueble.Estado))
-                        };
-                        lista.Add(i);
+                            var i = new Inmueble
+                            {
+                                IdInmueble = reader.GetInt32(nameof(Inmueble.IdInmueble)),
+                                Direccion = reader.GetString(nameof(Inmueble.Direccion)),
+                                IdTipo = reader.GetInt32(nameof(Inmueble.IdTipo)),
+                                IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
+                                Uso = Enum.Parse<Inmueble.TipoUso>(reader.GetString(nameof(Inmueble.Uso))),
+                                Latitud = reader.GetDecimal(nameof(Inmueble.Latitud)),
+                                Longitud = reader.GetDecimal(nameof(Inmueble.Longitud)),
+                                Ambiente = reader.GetInt32(nameof(Inmueble.Ambiente)),
+                                Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
+                                Estado = reader.GetBoolean(nameof(Inmueble.Estado))
+                            };
+                            lista.Add(i);
+                        }
                     }
                 }
-            }
             }
             return lista;
         }
@@ -157,6 +158,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                             Longitud = reader.GetDecimal(nameof(Inmueble.Longitud)),
                             Ambiente = reader.GetInt32(nameof(Inmueble.Ambiente)),
                             Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
+                            PortadaUrl = reader[nameof(Inmueble.PortadaUrl)] == DBNull.Value ? null : reader.GetString(nameof(Inmueble.PortadaUrl)),
                             Estado = reader.GetBoolean(nameof(Inmueble.Estado))
                         };
                         res.Add(p);
@@ -194,6 +196,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                             Longitud = reader.GetDecimal(nameof(Inmueble.Longitud)),
                             Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
                             Ambiente = reader.GetInt32(nameof(Inmueble.Ambiente)),
+                            PortadaUrl = reader[nameof(Inmueble.PortadaUrl)] == DBNull.Value ? null : reader.GetString(nameof(Inmueble.PortadaUrl)),
                             Estado = reader.GetBoolean(nameof(Inmueble.Estado))
                         };
                     }
@@ -220,5 +223,26 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             }
             return res;
         }
+        public int ModificarPortada(int id, string url)
+		{
+			int res = -1;
+			using (MySqlConnection connection = new MySqlConnection(connectionString))
+			{
+				string query = @"
+					UPDATE inmueble SET
+					PortadaUrl=@portada
+					WHERE IdInmueble = @IdInmueble";
+				using (MySqlCommand command = new MySqlCommand(query, connection))
+				{
+					command.Parameters.AddWithValue("@portada", String.IsNullOrEmpty(url) ? DBNull.Value : url);
+					command.Parameters.AddWithValue("@IdInmueble", id);
+					command.CommandType = CommandType.Text;
+					connection.Open();
+					res = command.ExecuteNonQuery();
+					connection.Close();
+				}
+			}
+			return res;
+		}
     }
 }

@@ -78,7 +78,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
 						{nameof(Imagen.IdImagen)}, 
 						{nameof(Imagen.IdInmueble)}, 
 						{nameof(Imagen.Url)} 
-					FROM imagenes
+					FROM imagen
 					WHERE {nameof(Imagen.IdImagen)}=@IdImagen";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
@@ -107,7 +107,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
 						{nameof(Imagen.IdImagen)}, 
 						{nameof(Imagen.IdInmueble)}, 
 						{nameof(Imagen.Url)} 
-					FROM Imagenes
+					FROM Imagen
 					WHERE {nameof(Imagen.IdInmueble)}=@IdInmueble";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
 				{

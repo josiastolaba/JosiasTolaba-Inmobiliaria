@@ -2,6 +2,7 @@
 
 @{
 	ViewData["Title"] = "Inmueble";
+    var rnd = new Random();
 }
 
 <h1>
@@ -28,6 +29,7 @@
             <th>Uso</th>
             <th>Longitud</th>
             <th>Ambiente</th>
+            <th>Portada</th>
             <th>Estado</th>
             <th>Acciones</th>
         </tr>
@@ -43,6 +45,18 @@
                 <td>@inmueble.Longitud</td>
                 <td>@inmueble.Ambiente</td>
                 <td>
+					@if (!String.IsNullOrEmpty(inmueble?.PortadaUrl))
+					{
+						var x = inmueble.PortadaUrl + "?" + rnd.Next();
+						<img width="32" src="@x" />
+					}
+					else
+					{
+						<span>Sin foto</span>
+					}
+
+				</td>
+                <td>
                     @(inmueble.Estado ? "Activo" : "Inactivo")
                 </td>
                 <td>
@@ -50,6 +64,7 @@
                     <a asp-controller="Inmueble" asp-action="Update" asp-route-IdInmueble="@inmueble.IdInmueble" class="btn btn-warning btn-sm">Editar</a>
                     <a asp-controller="Inmueble" asp-action="DarDeBaja" asp-route-IdInmueble="@inmueble.IdInmueble" class="btn btn-danger btn-sm">Eliminar</a>
                     <a asp-controller="Contrato" asp-action="Create" asp-route-IdInmueble="@inmueble.IdInmueble" class="btn btn-danger btn-sm">Hacer Contrato</a>
+                    <a asp-controller="Inmueble" asp-action="Imagen" asp-route-IdInmueble="@inmueble.IdInmueble" class="btn btn-danger btn-sm">Fotos</a>
                 </td>
             </tr>
         }

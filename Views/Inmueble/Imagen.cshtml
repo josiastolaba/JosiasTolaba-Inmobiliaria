@@ -1,0 +1,171 @@
+@using INMOBILIARIA_JosiasTolaba.Models
+@model INMOBILIARIA_JosiasTolaba.Models.Inmueble
+
+@{
+	ViewData["Title"] = "Inmueble - Imágenes";
+	var Id = Model?.IdInmueble ?? 0;
+}
+<h1>Fotos del Inmueble: @Model?.Direccion</h1>
+<hr />
+<div class="container mt-5">
+	<div class="row">
+		<!-- Formulario tradicional: Foto de portada -->
+		<div class="col-md-6 card-portada">
+			<h4>Foto de Portada</h4>
+			
+			@if (!string.IsNullOrEmpty(Model?.PortadaUrl))
+			{
+				<div class="mb-3">
+					<label>Portada actual:</label><br />
+					<img src="@Model.PortadaUrl" class="img-thumbnail" style="max-width: 100%;" />
+				</div>
+			}
+
+			<form asp-controller="Inmueble" asp-action="PortadaUrl" method="post" enctype="multipart/form-data">
+				<div class="form-group">
+					<label for="portada">Seleccionar imagen</label>
+					<input type="file" class="form-control-file" id="Archivo" name="Archivo" accept="image/*" required>
+					<input type="hidden" name="IdInmueble" value="@Id" />
+				</div>
+
+				<div class="botones-form">
+					@if (!string.IsNullOrEmpty(Model?.PortadaUrl))
+					{
+						<form asp-controller="Inmueble" asp-action="PortadaUrl" method="post" class="d-inline">
+							<input type="hidden" name="IdInmueble" value="@Id" />
+							<button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i> Eliminar</button>
+						</form>
+					}
+					<button type="submit" class="btn btn-primary"><i class="fas fa-upload"></i> Subir</button>
+				</div>
+			</form>
+		</div>
+
+		<!-- Formulario AJAX: Imágenes interiores -->
+		<div class="col-md-6 card-interior">
+			<h4>Imágenes del Interior</h4>
+			<div class="mb-3">
+				<label>Imágenes actuales:</label>
+				<div class="d-flex flex-wrap" id="galeriaActual">
+					@if (Model?.Imagenes?.Count > 0) 
+					{
+						foreach (var imagen in Model.Imagenes)
+						{
+							<div class="m-2 position-relative imagen-con-hover">
+								<img src="@imagen.Url" class="img-thumbnail" style="max-width: 150px; max-height: 150px;" />
+								<button type="button" class="btn btn-danger btn-sm btn-eliminar-imagen" onclick="eliminarImagen(@imagen.IdImagen)">
+									<i class="fas fa-times"></i>
+								Eliminar</button>
+							</div>
+						}
+					} 
+					else 
+					{
+						<p>No hay imágenes interiores disponibles.</p>
+					}
+				</div>
+			</div>
+
+			<form id="formInterior" enctype="multipart/form-data" onsubmit="subirImagenes(event)">
+				<div class="form-group">
+					<label for="imagenes">Seleccionar imágenes</label>
+					<input type="file" class="form-control-file" id="imagenes" name="imagenes" onchange="previsualizar(event)"
+						accept="image/*" multiple required>
+				</div>
+
+				<div class="botones-form">
+					<button type="submit" class="btn btn-success"><i class="fas fa-upload"></i> Subir</button>
+				</div>
+			</form>
+
+			<div class="mt-3">
+				<h6>Previsualización:</h6>
+				<div id="preview" class="d-flex flex-wrap"></div>
+			</div>
+		</div>
+	</div>
+</div>
+@section Scripts 
+{
+	<script>
+		const id = @Id; // Obtener el ID del inmueble desde el modelo
+		function previsualizar(event) {
+			$('#preview').empty();
+			const files = event.target.files;
+			if (!files) return;
+			//Iterar sobre los archivos seleccionados
+			[...files].forEach(file => {
+				const reader = new FileReader();
+				reader.onload = function (e) {
+					$('#preview').append(`
+						<div class="m-2">
+							<img src="${e.target.result}" class="img-thumbnail" style="max-width: 150px; max-height: 150px;" />
+						</div>
+					`);
+				};
+				reader.readAsDataURL(file);
+			});
+		}
+
+		// Función para subir imágenes por AJAX
+		function subirImagenes(event) {
+			event.preventDefault(); // Evitar el envío del formulario por defecto
+			const files = document.querySelector('#imagenes').files;
+			if (files.length === 0) {
+				notyf.error("Selecciona al menos una imagen");
+				return;
+			}
+			const formData = new FormData();
+			for (let i = 0; i < files.length; i++) {
+				formData.append('imagenes', files[i]);
+			}
+
+			$.ajax({
+				url: `@Url.Action("Alta", "Imagen", new {Id=Id})`,
+				//url: `/Imagenes/Alta/${id}`,
+				type: 'POST',
+				data: formData,
+				contentType: false,
+				processData: false,
+			}).done(function (imagenes) {
+				notyf.success('Imágenes subidas con éxito');
+				mostrarImagenes(imagenes);
+			}).fail(function () {
+				notyf.error('Error al subir las imágenes');
+			}).always(function () {
+				// Limpiar el formulario después de la subida
+				document.getElementById('formInterior').reset();
+				$('#preview').empty(); // Limpiar la previsualización
+				$('#imagenes').val("");
+			});
+		}
+		
+		function eliminarImagen(IdImagen) {
+			$.post(`/Imagen/Eliminar/${IdImagen}`).done(function (imagenes) {
+				notyf.success('Imagen eliminada');
+				mostrarImagenes(imagenes);
+			}).fail(function () {
+				notyf.error('Error al eliminar la imagen');
+			});
+		}
+
+		function mostrarImagenes(imagenes) {
+			if (imagenes && imagenes.length > 0) {
+				let html = ``;
+				imagenes.forEach(img => {
+					html += `
+						<div class="m-2 position-relative imagen-con-hover">
+							<img src="${img.url}" class="img-thumbnail" style="max-width: 150px; max-height: 150px;" />
+							<button type="button" class="btn btn-danger btn-sm btn-eliminar-imagen" onclick="eliminarImagen(${img.id})">
+								<i class="fas fa-times"></i>
+							</button>
+						</div>
+					`;
+				});
+				$('#galeriaActual').html(html);
+			} else {
+				$('#galeriaActual').html('<p>No hay imágenes interiores disponibles.</p>');
+			}
+		}
+	</script>
+}

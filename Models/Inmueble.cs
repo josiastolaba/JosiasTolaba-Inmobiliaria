@@ -28,9 +28,9 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         public decimal Precio { get; set; }
         [Required(ErrorMessage = "El Ambiente es obligatorio")]
         public int Ambiente { get; set; }
-        public string? Portada { get; set; }
+        public string? PortadaUrl { get; set; }
         public IFormFile? PortadaFile { get; set; }
-        public IList<Imagen>? Fotos { get; set; } = new List<Imagen>();
+        public IList<Imagen>? Imagenes { get; set; } = new List<Imagen>();
         public bool Estado { get; set; }
         
         public Inmueble() { }
