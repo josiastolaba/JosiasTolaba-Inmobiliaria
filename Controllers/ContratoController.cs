@@ -187,12 +187,12 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			try
 			{
 				var userIdClaim = User.FindFirst("UserId")?.Value;
-					int? idUsuarioLogueado = null;
-					if (int.TryParse(userIdClaim, out int idParsed))
-					{
-						idUsuarioLogueado = idParsed;
-					}
-					int QuienElimino = (int)idUsuarioLogueado;
+				int? idUsuarioLogueado = null;
+				if (int.TryParse(userIdClaim, out int idParsed))
+				{
+					idUsuarioLogueado = idParsed;
+				}
+				int QuienElimino = (int)idUsuarioLogueado;
 				repositorio.DarDeBaja(IdContrato, QuienElimino);
 				TempData["Mensaje"] = "Contrato dado de baja correctamente";
 				return RedirectToAction(nameof(Index));
@@ -202,6 +202,49 @@ namespace Inmobiliaria_.Net_Core.Controllers
 				ViewBag.Error = ex.Message;
 				ViewBag.StackTrace = ex.StackTrace;
 				return View(entidad);
+			}
+		}
+		public IActionResult Renovar(int IdContrato)
+		{
+			ViewBag.Inquilinos = repoInquilino.ListarInquilinos();
+			ViewBag.Inmuebles = repoInmueble.ListarInmuebles();
+			if (IdContrato == 0)
+				return View(nameof(Index));
+			var contratoOriginal = repositorio.IdContrato(IdContrato);
+			int diferenciaDias = (contratoOriginal.FechaFin - contratoOriginal.FechaInicio).Days;
+			var contratoRenovado = new Contrato
+			{
+				FechaInicio = contratoOriginal.FechaFin.AddDays(1),
+				FechaFin = contratoOriginal.FechaFin.AddDays(diferenciaDias + 1),
+				MontoMensual = contratoOriginal.MontoMensual,
+				Propiedad = contratoOriginal.Propiedad,
+				Habitante = contratoOriginal.Habitante,
+				Estado = true
+			};
+			ViewBag.IdInmueble = contratoOriginal.Propiedad?.IdInmueble;
+			return View(contratoRenovado);
+		}
+		[HttpPost]
+		public IActionResult Renovar(Contrato c)
+		{
+			if (ModelState.IsValid)
+			{
+				var userIdClaim = User.FindFirst("UserId")?.Value;
+				int? idUsuarioLogueado = null;
+				if (int.TryParse(userIdClaim, out int idParsed))
+				{
+					idUsuarioLogueado = idParsed;
+				}
+				c.QuienCreo = idUsuarioLogueado;
+				repositorio.Alta(c);
+				TempData["Id"] = c.IdContrato;
+				return RedirectToAction(nameof(Index));
+			}
+			else
+			{
+				ViewBag.Inquilinos = repoInquilino.ListarInquilinos();
+				ViewBag.Inmuebles = repoInmueble.ListarInmuebles();
+				return View(c);
 			}
 		}
 	}

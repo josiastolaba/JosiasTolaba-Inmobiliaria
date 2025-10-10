@@ -1,0 +1,59 @@
+@model INMOBILIARIA_JosiasTolaba.Models.Contrato
+
+@{
+    ViewData["Title"] = "Contratos - Renovar";
+}
+
+<h1>Renovar Contrato</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Renovar">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="IdContrato" />
+
+            <div class="form-group">
+                <label asp-for="FechaInicio" class="control-label"></label>
+                <input asp-for="FechaInicio" class="form-control" type="date" />
+                <span asp-validation-for="FechaInicio" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="FechaFin" class="control-label"></label>
+                <input asp-for="FechaFin" class="form-control" type="date" />
+                <span asp-validation-for="FechaFin" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MontoMensual" class="control-label"></label>
+                <input asp-for="MontoMensual" class="form-control" />
+                <span asp-validation-for="MontoMensual" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Habitante.IdInquilino" class="control-label">Inquilino</label>
+                <select asp-for="Habitante.IdInquilino" class="form-control"
+                        asp-items="@(new SelectList(ViewBag.Inquilinos, "IdInquilino", "Nombre"))">
+                </select>
+                <span asp-validation-for="Habitante.IdInquilino" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Propiedad.IdInmueble" class="control-label">Inmueble</label>
+                <select asp-for="Propiedad.IdInmueble" class="form-control"
+                        asp-items="@(new SelectList(ViewBag.Inmuebles, "IdInmueble", "Direccion"))">
+                </select>
+                <span asp-validation-for="Propiedad.IdInmueble" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-3">
+                <input type="submit" value="Guardar" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

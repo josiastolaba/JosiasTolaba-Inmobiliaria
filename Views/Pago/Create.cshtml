@@ -40,18 +40,21 @@
             <input asp-for="Concepto" class="form-control" />
             <span asp-validation-for="Concepto" class="text-danger"></span>
         </div>
-<br>
         @if (ViewBag.Id != null)
         {
             <input type="hidden" asp-for="IdContrato" value="@ViewBag.Id" />
+            <br>
             <p><strong>Contrato ID @ViewBag.Id</strong></p>
         }
         else
         {
+            <!-- Contrato -->
             <div class="form-group">
-                <label asp-for="IdContrato" class="control-label"></label>
-                <input asp-for="IdContrato" class="form-control" type="number" />
-                <span asp-validation-for="IdContrato" class="text-danger"></span>
+                <label for="IdContrato">Contrato</label>
+                <select asp-for="Contrato.IdContrato" class="form-control"
+                        asp-items="@(new SelectList(ViewBag.Contratos ?? new List<INMOBILIARIA_JosiasTolaba.Models.Contrato>(), "IdContrato", "IdContrato", ViewBag.IdContrato))">
+                    <option value="">-- Seleccione un Contrato --</option>
+                </select>
             </div>
         }
 

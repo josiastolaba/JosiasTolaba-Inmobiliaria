@@ -40,12 +40,12 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
             }
             return View(pagos);
         }
-        public IActionResult Create(int? IdPago)
+        public IActionResult Create(int? IdContrato)
         {
-            ViewBag.Contrato = repoContrato.ListarContratos();
-            if (IdPago != null)
+            ViewBag.Contratos = repoContrato.ListarContratos();
+            if (IdContrato != null)
             {
-                ViewBag.Id = IdPago;
+                ViewBag.Id = IdContrato;
             }
             return View();
         }

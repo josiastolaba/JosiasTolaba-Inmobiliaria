@@ -37,6 +37,8 @@
                 <a asp-controller="Contrato" asp-action="Details" asp-route-IdContrato="@contrato.IdContrato" class="btn btn-info btn-sm">Detalles</a>
                 <a asp-controller="Contrato" asp-action="Update" asp-route-IdContrato="@contrato.IdContrato" class="btn btn-warning btn-sm">Editar</a>
                 <a asp-controller="Contrato" asp-action="Delete" asp-route-IdContrato="@contrato.IdContrato" class="btn btn-danger btn-sm">Eliminar</a>
+                <a asp-controller="Contrato" asp-action="Renovar" asp-route-IdContrato="@contrato.IdContrato" class="btn btn-danger btn-sm">Renovar</a>
+                <a asp-controller="Pago" asp-action="Create" asp-route-IdContrato="@contrato.IdContrato" class="btn btn-danger btn-sm">Hacer Pago</a>
             </td>
         </tr>
     }
