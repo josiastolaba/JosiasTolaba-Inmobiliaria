@@ -13,6 +13,9 @@ namespace INMOBILIARIA_JosiasTolaba.Models
 
         List<Inmueble> inmueblesPorPropietario(int IdPropietario);
 
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
         IList<Inmueble> obtenerPaginados(int offset, int limit);
         int contar();
