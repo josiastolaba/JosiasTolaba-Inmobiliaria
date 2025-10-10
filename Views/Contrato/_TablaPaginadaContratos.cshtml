@@ -14,6 +14,8 @@
             <th>Monto Mensual</th>
             <th>Habitante</th>
             <th>Propiedad</th>
+            <th>Quien Creo</th>
+            <th>Quien Elimino</th>
             <th>Estado</th>
             <th>Acciones</th>
         </tr>
@@ -28,11 +30,13 @@
             <td>@contrato.MontoMensual</td>
             <td>@contrato.Habitante?.IdInquilino</td>
             <td>@contrato.Propiedad?.IdInmueble</td>
+            <td>@contrato.QuienCreo</td>
+            <td>@contrato.QuienElimino</td>
             <td>@(contrato.Estado ? "Activo" : "Inactivo")</td>
             <td>
-                <a asp-controller="contrato" asp-action="Details" asp-route-IdContrato="@contrato.IdContrato" class="btn btn-info btn-sm">Detalles</a>
-                <a asp-controller="contrato" asp-action="Update" asp-route-IdContrato="@contrato.IdContrato" class="btn btn-warning btn-sm">Editar</a>
-                <a asp-controller="contrato" asp-action="DarDeBaja" asp-route-IdContrato="@contrato.IdContrato" class="btn btn-danger btn-sm">Eliminar</a>
+                <a asp-controller="Contrato" asp-action="Details" asp-route-IdContrato="@contrato.IdContrato" class="btn btn-info btn-sm">Detalles</a>
+                <a asp-controller="Contrato" asp-action="Update" asp-route-IdContrato="@contrato.IdContrato" class="btn btn-warning btn-sm">Editar</a>
+                <a asp-controller="Contrato" asp-action="Delete" asp-route-IdContrato="@contrato.IdContrato" class="btn btn-danger btn-sm">Eliminar</a>
             </td>
         </tr>
     }

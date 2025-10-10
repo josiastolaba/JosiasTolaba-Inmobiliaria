@@ -116,7 +116,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             return lista;
         }
 
-        public int Alta(Contrato p)
+        public int Alta(Contrato c)
         {
             int res = -1;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -128,15 +128,15 @@ namespace INMOBILIARIA_JosiasTolaba.Models
 
                 using (var command = new MySqlCommand(query, connection))
                 {
-                    p.Estado = true;
-                    command.Parameters.AddWithValue("@FechaInicio", p.FechaInicio);
-                    command.Parameters.AddWithValue("@FechaFin", p.FechaFin);
-                    command.Parameters.AddWithValue("@MontoMensual", p.MontoMensual);
-                    command.Parameters.AddWithValue("@IdInquilino", p.Habitante.IdInquilino);
-                    command.Parameters.AddWithValue("@IdInmueble", p.Propiedad.IdInmueble);
-                    command.Parameters.AddWithValue("@QuienCreo", DBNull.Value);
+                    c.Estado = true;
+                    command.Parameters.AddWithValue("@FechaInicio", c.FechaInicio);
+                    command.Parameters.AddWithValue("@FechaFin", c.FechaFin);
+                    command.Parameters.AddWithValue("@MontoMensual", c.MontoMensual);
+                    command.Parameters.AddWithValue("@IdInquilino", c.Habitante.IdInquilino);
+                    command.Parameters.AddWithValue("@IdInmueble", c.Propiedad.IdInmueble);
+                    command.Parameters.AddWithValue("@QuienCreo", c.QuienCreo);
                     command.Parameters.AddWithValue("@QuienElimino", DBNull.Value);
-                    command.Parameters.AddWithValue("@Estado", p.Estado);
+                    command.Parameters.AddWithValue("@Estado", c.Estado);
                     connection.Open();
                     res = Convert.ToInt32(command.ExecuteScalar());
                 }
@@ -151,7 +151,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             {
              String query = @"
             SELECT 
-                c.IdContrato, c.FechaInicio, c.FechaFin, c.MontoMensual, c.Estado,
+                c.IdContrato, c.FechaInicio, c.FechaFin, c.MontoMensual, c.Estado,c.QuienCreo,c.QuienElimino,
                 i.IdInquilino, i.Nombre AS InquilinoNombre, i.Apellido AS InquilinoApellido, i.Dni AS InquilinoDni,
                 inm.IdInmueble, inm.Direccion AS InmuebleDireccion, inm.IdTipo AS InmuebleTipo
             FROM contrato c
@@ -176,6 +176,13 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                             FechaInicio = reader.GetDateTime(nameof(Contrato.FechaInicio)),
                             FechaFin = reader.GetDateTime(nameof(Contrato.FechaFin)),
                             MontoMensual = reader.GetInt32(nameof(Contrato.MontoMensual)),
+                            QuienCreo = reader.IsDBNull(reader.GetOrdinal(nameof(Contrato.QuienCreo)))
+                                ? (int?)null
+                                : reader.GetInt32(reader.GetOrdinal(nameof(Contrato.QuienCreo))),
+
+                            QuienElimino = reader.IsDBNull(reader.GetOrdinal(nameof(Contrato.QuienElimino)))
+                                ? (int?)null
+                                : reader.GetInt32(reader.GetOrdinal(nameof(Contrato.QuienElimino))),
                             Habitante = new InquilinoDto
                             {
                                 IdInquilino = reader.GetInt32("IdInquilino"),
@@ -212,18 +219,19 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             }
         }
 
-        public int DarDeBaja(int IdContrato)
+        public int DarDeBaja(int IdContrato, int QuienElimino)
         {
             int res = -1;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
                 string query = $@"UPDATE contrato 
-                    SET Estado = 0 
+                    SET Estado = 0, QuienElimino = @QuienElimino
                     WHERE IdContrato = @IdContrato";
 
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@IdContrato", IdContrato);
+                    command.Parameters.AddWithValue("@QuienElimino", QuienElimino);
                     connection.Open();
                     res = command.ExecuteNonQuery();
                 }
@@ -287,7 +295,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             {
                 string query = @"
                     SELECT 
-                        c.IdContrato, c.FechaInicio, c.FechaFin, c.MontoMensual, c.Estado,
+                        c.IdContrato, c.FechaInicio, c.FechaFin, c.MontoMensual, c.Estado, c.QuienCreo, c.QuienElimino,
                         i.IdInquilino, i.Nombre AS InquilinoNombre, i.Apellido AS InquilinoApellido, i.Dni AS InquilinoDni,
                         m.IdInmueble, m.Direccion AS InmuebleDireccion, m.IdTipo AS InmuebleTipo
                     FROM contrato c
@@ -307,8 +315,13 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                             FechaInicio = reader.GetDateTime("FechaInicio"),
                             FechaFin = reader.GetDateTime("FechaFin"),
                             MontoMensual = reader.GetInt32("MontoMensual"),
-                            //QuienCreo = reader.GetInt32("QuienCreo"),
-                            //QuienElimino = reader.GetInt32("QuienElimino"),
+                            QuienCreo = reader.IsDBNull(reader.GetOrdinal(nameof(Contrato.QuienCreo)))
+                                ? (int?)null
+                                : reader.GetInt32(reader.GetOrdinal(nameof(Contrato.QuienCreo))),
+
+                            QuienElimino = reader.IsDBNull(reader.GetOrdinal(nameof(Contrato.QuienElimino)))
+                                ? (int?)null
+                                : reader.GetInt32(reader.GetOrdinal(nameof(Contrato.QuienElimino))),
                             Estado = reader.GetBoolean("Estado"),
                             Habitante = new InquilinoDto
                             {

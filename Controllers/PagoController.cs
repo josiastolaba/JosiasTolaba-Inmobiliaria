@@ -40,12 +40,12 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
             }
             return View(pagos);
         }
-        public IActionResult Create(int? id)
+        public IActionResult Create(int? IdPago)
         {
             ViewBag.Contrato = repoContrato.ListarContratos();
-            if (id != null)
+            if (IdPago != null)
             {
-                ViewBag.Id = id;
+                ViewBag.Id = IdPago;
             }
             return View();
         }
@@ -124,7 +124,14 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
         public IActionResult DarDeBaja(int IdPago)
         {
             Pago p = repositorio.PagoId(IdPago);
-            int res = repositorio.DarDeBaja(IdPago);
+            var userIdClaim = User.FindFirst("UserId")?.Value;
+					int? idUsuarioLogueado = null;
+					if (int.TryParse(userIdClaim, out int idParsed))
+					{
+						idUsuarioLogueado = idParsed;
+					}
+					int QuienElimino = (int)idUsuarioLogueado;
+            int res = repositorio.DarDeBaja(IdPago,QuienElimino);
             if (res > 0)
             {
                 return RedirectToAction(nameof(Index));

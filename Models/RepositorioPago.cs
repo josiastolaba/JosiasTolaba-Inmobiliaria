@@ -145,7 +145,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                     command.Parameters.AddWithValue("@NumeroPago", p.NumeroPago);
                     command.Parameters.AddWithValue("@Concepto", p.Concepto);
                     command.Parameters.AddWithValue("@IdContrato", p.IdContrato);
-                    command.Parameters.AddWithValue("@QuienCreo", DBNull.Value);//p.QuienCreo);
+                    command.Parameters.AddWithValue("@QuienCreo", p.QuienCreo);
                     command.Parameters.AddWithValue("@QuienElimino", DBNull.Value);//p.QuienElimino);
                     command.Parameters.AddWithValue("@Estado", p.Estado);
                     connection.Open();
@@ -226,8 +226,8 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                             NumeroPago = reader.GetString(nameof(Pago.NumeroPago)),
                             Concepto = reader.GetString(nameof(Pago.Concepto)),
                             IdContrato = reader.GetInt32(nameof(Pago.IdContrato)),
-                            //QuienCreo = reader.GetInt32(nameof(Pago.QuienCreo)),
-                            //QuienElimino = reader.GetInt32(nameof(Pago.QuienElimino)),
+                            QuienCreo = reader.GetInt32(nameof(Pago.QuienCreo)),
+                            QuienElimino = reader.GetInt32(nameof(Pago.QuienElimino)),
                             Estado = reader.GetBoolean(nameof(Pago.Estado))
                         };
                         res.Add(p);
@@ -272,17 +272,18 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             }
             return p;
         }
-        public int DarDeBaja(int IdPago)
+        public int DarDeBaja(int IdPago, int QuienElimino)
         {
             int res = -1;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
                 string query = $@"UPDATE pago 
-                    SET Estado = 0 
+                    SET Estado = 0 , QuienElimino = @QuienElimino
                     WHERE {nameof(IdPago)}=@IdPago";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@IdPago", IdPago);
+                    command.Parameters.AddWithValue("@QuienElimino", QuienElimino);
                     connection.Open();
                     res = command.ExecuteNonQuery();
                 }

@@ -17,11 +17,11 @@
 <script>
  function cargarPagina(numPagina) {
         $.ajax({
-            url: '/Pago/Index',
+            url: '/Contrato/Index',
             type: 'GET',
             data: { pagina: numPagina },
             success: function (data) {
-                $("#tablaPagos").html(data); // reemplaza la tabla + paginacion
+                $("#tablaContratos").html(data); // reemplaza la tabla + paginacion
                 $("html, body").animate({ scrollTop: 0 }, "fast"); // vuelve arriba
             }
         });

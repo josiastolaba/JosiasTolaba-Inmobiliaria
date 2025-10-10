@@ -10,6 +10,8 @@
             <th>Id</th>
             <th>Fecha de Pago</th>
             <th>Contrato</th>
+            <th>Quien Creo</th>
+            <th>Quien Elimino</th>
             <th>Estado</th>
             <th>Acciones</th>
         </tr>
@@ -21,6 +23,8 @@
                 <td>@pago.IdPago</td>
                 <td>@pago.FechaPago</td>
                 <td>@pago.IdContrato</td>
+                <td>@pago.QuienCreo</td>
+                <td>@pago.QuienElimino</td>
                 <td>@(pago.Estado ? "Activo" : "Inactivo")
                 </td>
                 <td>

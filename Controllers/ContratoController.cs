@@ -134,9 +134,9 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		}
 
 		// GET: Contratos/Edit/5
-		public ActionResult Edit(int id)
+		public ActionResult Edit(int IdContrato)
 		{
-			var entidad = repositorio.IdContrato(id);
+			var entidad = repositorio.IdContrato(IdContrato);
 			ViewBag.Inquilinos = repoInquilino.ListarInquilinos();
 			ViewBag.Inmuebles = repoInmueble.ListarInmuebles(); ;
 			if (TempData.ContainsKey("Mensaje"))
@@ -149,11 +149,11 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		// POST: Contratos/Edit/5
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public ActionResult Edit(int id, Contrato entidad)
+		public ActionResult Edit(int IdContrato, Contrato entidad)
 		{
 			try
 			{
-				entidad.IdContrato = id;
+				entidad.IdContrato = IdContrato;
 				repositorio.Modificacion(entidad);
 				TempData["Mensaje"] = "Contrato modificado correctamente";
 				return RedirectToAction(nameof(Index));
@@ -169,9 +169,9 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		}
 		// GET: Contratos/Eliminar/5
 		[Authorize(Policy = "Administrador")]
-		public ActionResult Delete(int id)
+		public ActionResult Delete(int IdContrato)
 		{
-			var entidad = repositorio.IdContrato(id);
+			var entidad = repositorio.IdContrato(IdContrato);
 			if (TempData.ContainsKey("Mensaje"))
 				ViewBag.Mensaje = TempData["Mensaje"];
 			if (TempData.ContainsKey("Error"))
@@ -182,11 +182,18 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		// POST: Contratos/Eliminar/5
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public ActionResult Delete(int id, Contrato entidad)
+		public ActionResult Delete(int IdContrato, Contrato entidad)
 		{
 			try
 			{
-				repositorio.DarDeBaja(id);
+				var userIdClaim = User.FindFirst("UserId")?.Value;
+					int? idUsuarioLogueado = null;
+					if (int.TryParse(userIdClaim, out int idParsed))
+					{
+						idUsuarioLogueado = idParsed;
+					}
+					int QuienElimino = (int)idUsuarioLogueado;
+				repositorio.DarDeBaja(IdContrato, QuienElimino);
 				TempData["Mensaje"] = "Contrato dado de baja correctamente";
 				return RedirectToAction(nameof(Index));
 			}
