@@ -204,6 +204,69 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             return res;
         }
 
+        public List<Pago> pagoPorContrato(int IdContrato)
+{
+    Console.WriteLine($"Buscando pagos del contrato {IdContrato}");
+    var lista = new List<Pago>();
+
+    using (var connection = new MySqlConnection(connectionString))
+    {
+        string query = @"
+            SELECT p.IdPago, p.FechaPago, p.Monto, p.Mes, p.NumeroPago, p.Concepto, p.IdContrato, p.Estado,
+                c.FechaInicio AS ContratoFechaInicio,
+                c.FechaFin AS ContratoFechaFin,
+                c.MontoMensual AS ContratoMonto,
+                i.Nombre AS InquilinoNombre,
+                i.Apellido AS InquilinoApellido
+            FROM pago p
+            INNER JOIN contrato c ON p.IdContrato = c.IdContrato
+            INNER JOIN inquilino i ON c.IdInquilino = i.IdInquilino
+            WHERE p.IdContrato = @IdContrato
+            ORDER BY p.FechaPago ASC;
+        ";
+
+        using (var command = new MySqlCommand(query, connection))
+        {
+            command.Parameters.AddWithValue("@IdContrato", IdContrato);
+            connection.Open();
+
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var pago = new Pago
+                    {
+                        IdPago = reader.GetInt32("IdPago"),
+                        FechaPago = reader.GetDateTime("FechaPago"),
+                        Monto = reader.GetDecimal("Monto"),
+                        Mes = reader.GetDateTime("Mes"),
+                        NumeroPago = reader.GetString("NumeroPago"),
+                        Concepto = reader.GetString("Concepto"),
+                        IdContrato = reader.GetInt32("IdContrato"),
+                        Estado = reader.GetBoolean("Estado"),
+
+                        Contrato = new ContratoDTO
+                        {
+                            IdContrato = reader.GetInt32("IdContrato"),
+
+                            Habitante = new InquilinoDto
+                            {
+                                Nombre = reader.GetString("InquilinoNombre"),
+                                Apellido = reader.GetString("InquilinoApellido")
+                            }
+                        }
+                    };
+
+                    lista.Add(pago);
+                }
+            }
+        }
+    }
+
+    return lista;
+}
+
+
         public IList<Pago> ListarPagos()
         {
             IList<Pago> res = new List<Pago>();

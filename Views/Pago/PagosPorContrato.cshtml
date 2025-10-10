@@ -1,0 +1,51 @@
+@model IEnumerable<INMOBILIARIA_JosiasTolaba.Models.Pago>
+
+@{
+    ViewData["Title"] = "Pagos del Contrato";
+    var idContrato = ViewBag.IdContrato;
+    var inquilinoNombre = ViewBag.InquilinoNombre;
+}
+
+<h2>Pagos del Contrato @idContrato</h2>
+@if (!string.IsNullOrEmpty(inquilinoNombre))
+{
+    <p><strong>Inquilino:</strong> @inquilinoNombre</p>
+}
+<hr />
+
+<table class="table table-striped table-bordered align-middle">
+    <thead class="table-dark text-center">
+        <tr>
+            <th>ID Pago</th>
+            <th>Fecha de Pago</th>
+            <th>Mes Correspondiente</th>
+            <th>Monto</th>
+            <th>Concepto</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var pago in Model)
+            {
+                <tr>
+                    <td>@pago.IdPago</td>
+                    <td>@pago.FechaPago.ToShortDateString()</td>
+                    <td>@pago.Mes.ToString("MMMM yyyy")</td>
+                    <td>$@pago.Monto</td>
+                    <td>@pago.Concepto</td>
+                    <td>@(pago.Estado ? "Activo" : "Anulado")</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="6" class="text-center text-muted">
+                    No hay pagos registrados para este contrato.
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

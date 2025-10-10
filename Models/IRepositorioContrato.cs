@@ -9,6 +9,8 @@ namespace INMOBILIARIA_JosiasTolaba.Models
 
         List<Contrato> contratosPorInquilino(int IdInquilino);
 
+        List<Contrato> contratoPorInmueble(int IdInmueble);
+
         IList<Contrato> obtenerPaginados(int offset, int limit);
 
         int contar();
