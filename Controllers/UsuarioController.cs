@@ -50,6 +50,11 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
         [Authorize(Policy = "Administrador")]
         public IActionResult Create(Usuario u, IFormFile? AvatarFile)
         {
+            if (repositorio.existeDni(u.Dni))
+            {
+                ModelState.AddModelError("Dni", $"El DNI {u.Dni} ya está registrado");
+            }
+            
             if (ModelState.IsValid)
             {
                 string uploadsFolder = Path.Combine(env.WebRootPath, "imagenes/usuarios");
@@ -149,7 +154,12 @@ public IActionResult SubirAvatar(int idUsuario, IFormFile avatar)
         }
 [HttpPost]
 public IActionResult Update(Usuario u, IFormFile? AvatarFile)
-{
+        {
+    
+    if (repositorio.existeOtroDni(u.Dni, u.IdUsuario))
+			{
+				ModelState.AddModelError("Dni", $"El DNI {u.Dni} ya pertence a otro propietario");
+			}
     if (ModelState.IsValid)
     {
         // Si el usuario subió una nueva imagen

@@ -27,6 +27,13 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			return Json(lista);
 		}
 
+		public IActionResult contratosPorInquilino(int IdInquilino)
+        {
+			var lista = repositorio.contratosPorInquilino(IdInquilino);
+			ViewBag.IdInquilino = IdInquilino;
+			return View(lista);
+        }
+
 		 public IActionResult Index(int pagina = 1) //MODIFICADO, SE LE AGREGO EL PAGINADO
         {
             int paginaTam = 5;
@@ -62,11 +69,15 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			return Json(contratos);
 		}
 		// GET: Contratos/Details/5
-		public ActionResult Details(int id)
+		public IActionResult Details(int IdContrato)
 		{
-			var entidad = repositorio.IdContrato(id);
-			return View(entidad);
+    		var contrato = repositorio.IdContrato(IdContrato);
+    		if (contrato == null)
+        	return NotFound();
+
+    		return View(contrato);
 		}
+
 
 		// GET: Contratos/Create
 		public ActionResult Create(int? idInmueble)

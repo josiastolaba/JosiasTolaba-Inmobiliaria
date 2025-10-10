@@ -48,6 +48,38 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             return lista;
         }
 
+        public List<Inmueble> inmueblesPorPropietario(int IdPropietario)
+        {
+
+            var lista = new List<Inmueble>();
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = @"SELECT IdInmueble, Direccion, Precio, IdPropietario 
+                FROM Inmueble
+                WHERE IdPropietario = @IdPropietario";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@IdPropietario", IdPropietario);
+                    connection.Open();
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var i = new Inmueble
+                            {
+                                IdInmueble = reader.GetInt32(nameof(Inmueble.IdInmueble)),
+                                Direccion = reader.GetString(nameof(Inmueble.Direccion)),
+                                Precio = reader.GetDecimal(nameof(Inmueble.Precio))
+                            };
+                            lista.Add(i);
+                        }
+                    }
+                }
+                return lista;
+            }
+        }
          public IList<Inmueble> obtenerPaginados(int offset, int limit)
         {
             IList<Inmueble> res = new List<Inmueble>();
@@ -224,8 +256,10 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             Inmueble res = null;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = $@"SELECT i.*,p.* FROM inmueble i
+                string query = $@"SELECT i.*,p.*, t.Nombre AS TipoNombre 
+                                FROM inmueble i
                                 JOIN propietario p ON i.IdPropietario = p.IdPropietario
+                                JOIN tipo_inmueble t ON i.IdTipo = t.IdTipo
                                 WHERE IdInmueble = @IdInmueble;";
 
                 using (MySqlCommand command = new MySqlCommand(query, connection))
@@ -241,6 +275,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                             IdInmueble = reader.GetInt32(nameof(Inmueble.IdInmueble)),
                             Direccion = reader.GetString(nameof(Inmueble.Direccion)),
                             IdTipo = reader.GetInt32(nameof(Inmueble.IdTipo)),
+                            TipoNombre = reader.IsDBNull(reader.GetOrdinal("TipoNombre")) ? "Sin tipo": reader.GetString("TipoNombre"),
                             IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
                             Uso = Enum.Parse<Inmueble.TipoUso>(reader.GetString(nameof(Inmueble.Uso))),
                             Latitud = reader.GetDecimal(nameof(Inmueble.Latitud)),

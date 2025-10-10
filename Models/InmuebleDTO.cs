@@ -5,5 +5,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         public int IdInmueble { get; set; }
         public string Direccion { get; set; } = "";
         public int IdTipo { get; set; }
+
+        public string? TipoNombre { get; set; }
     }
 }

@@ -1,0 +1,31 @@
+@model IEnumerable<INMOBILIARIA_JosiasTolaba.Models.Contrato>
+
+<h2>Contratos del inquilino @ViewBag.IdInquilino</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id Contrato</th>
+            <th>Fecha Inicio</th>
+            <th>Fecha Fin</th>
+            <th>Monto Mensual</th>
+            <th>Dirección Inmueble</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var contrato in Model)
+        {
+            <tr>
+                <td>@contrato.IdContrato</td>
+                <td>@contrato.FechaInicio.ToShortDateString()</td>
+                <td>@contrato.FechaFin.ToShortDateString()</td>
+                <td>@contrato.MontoMensual.ToString("C")</td>
+                <td>@contrato.Propiedad?.Direccion</td>
+                <td>
+                    <a asp-controller="contrato" asp-action="Details" asp-route-IdContrato="@contrato.IdContrato" class="btn btn-info btn-sm">Detalles</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

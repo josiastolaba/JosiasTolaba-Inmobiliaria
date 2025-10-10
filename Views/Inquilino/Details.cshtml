@@ -9,6 +9,7 @@
 <hr />
 <div>
     <dl class="row">
+    <input type="hidden" id="IdPropietario" value="@Model.IdInquilino" />
         <dt class="col-sm-2">Nombre</dt>
         <dd class="col-sm-10">@Model.Nombre</dd>
 
@@ -30,6 +31,9 @@
 </div>
 
 <p>
+<p>ID del habitante: @Model.IdInquilino</p>
     <a asp-action="Update" asp-route-IdInquilino="@Model.IdInquilino" class="btn btn-warning">Editar</a> |
     <a asp-action="Index" class="btn btn-secondary">Volver</a>
+    <a asp-controller="Contrato"asp-action="ContratosPorInquilino"asp-route-IdInquilino="@Model.IdInquilino"class="btn btn-primary">Ver contratos de este inquilino</a>
+
 </p>

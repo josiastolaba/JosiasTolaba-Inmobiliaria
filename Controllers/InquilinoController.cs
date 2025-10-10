@@ -22,22 +22,23 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
 			return Json(lista);
 		}
 		public IActionResult Index(int pagina = 1) //MODIFICADO, SE LE AGREGO EL PAGINADO
-        {
-            int paginaTam = 5;
-            int totalInquilinos = repositorio.contar();
+		{
+			int paginaTam = 5;
+			int totalInquilinos = repositorio.contar();
 
-            int offset = (pagina - 1) * paginaTam;
-            var inquilinos = repositorio.obtenerPaginados(offset, paginaTam);
+			int offset = (pagina - 1) * paginaTam;
+			var inquilinos = repositorio.obtenerPaginados(offset, paginaTam);
 
-            ViewBag.TotalPaginas = (int)Math.Ceiling((double)totalInquilinos / paginaTam);
-            ViewBag.PaginaActual = pagina;
+			ViewBag.TotalPaginas = (int)Math.Ceiling((double)totalInquilinos / paginaTam);
+			ViewBag.PaginaActual = pagina;
 
-            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-            {
-                return PartialView("_TablaPaginadaInquilinos", inquilinos);
-            }
-            return View(inquilinos);
-        }
+			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				return PartialView("_TablaPaginadaInquilinos", inquilinos);
+			}
+			return View(inquilinos);
+		}
+		
 		public IActionResult Create()
 		{
 			return View();
@@ -45,6 +46,11 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
 		[HttpPost]
 		public IActionResult Create(Inquilino i)
 		{
+
+			 if (repositorio.existeDni(i.Dni))
+            {
+                ModelState.AddModelError("Dni", $"El DNI {i.Dni} ya está registrado");
+            }
 			if (repositorio.existeDni(i.Dni))
 			{
 				ModelState.AddModelError("Dni", $"El DNI {i.Dni} ya está registrado");
