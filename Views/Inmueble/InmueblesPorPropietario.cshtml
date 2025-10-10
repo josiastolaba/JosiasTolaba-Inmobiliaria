@@ -1,0 +1,26 @@
+@model IEnumerable<INMOBILIARIA_JosiasTolaba.Models.Inmueble>
+
+<h2>Inmuebles del propietario @ViewBag.PropietarioId</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Dirección</th>
+            <th>Precio</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <input type="hidden" id="IdInmueble" value="@item.IdInmueble" />
+                <td>@item.Direccion</td>
+                <td>@item.Precio.ToString("C")</td>
+                <td>
+                    <a asp-controller="Inmueble" asp-action="Details" asp-route-IdInmueble="@item.IdInmueble" class="btn btn-info btn-sm">Detalles</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

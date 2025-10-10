@@ -133,7 +133,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                     {nameof(Pago.QuienCreo)},
                     {nameof(Pago.QuienElimino)},
                     {nameof(Pago.Estado)})
-                    VALUES (@FechaPago, @Monto, @Mes @NumeroPago, @Concepto, @IdContrato, @QuienCreo, @QuienElimino, @Estado);
+                    VALUES (@FechaPago, @Monto, @Mes, @NumeroPago, @Concepto, @IdContrato, @QuienCreo, @QuienElimino, @Estado);
                     SELECT LAST_INSERT_ID();";
 
                 using (var command = new MySqlCommand(query, connection))

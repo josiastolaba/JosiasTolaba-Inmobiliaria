@@ -24,6 +24,15 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
             var lista = repositorio.buscar(dato);
             return Json(lista);
         }
+
+       public IActionResult InmueblesPorPropietario(int idPropietario)
+{
+    //Console.WriteLine($"Buscando inmuebles del propietario {idPropietario}"); Para saber que ID carga
+    var lista = repositorio.inmueblesPorPropietario(idPropietario);
+    ViewBag.IdPropietario = idPropietario;
+    return View(lista);
+}
+
        public IActionResult Index(int pagina = 1) //MODIFICADO, SE LE AGREGO EL PAGINADO
         {
             int paginaTam = 5;
