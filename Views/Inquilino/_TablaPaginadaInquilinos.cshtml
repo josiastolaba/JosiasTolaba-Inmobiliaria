@@ -30,9 +30,9 @@
             <td>@inquilino.Email</td>
             <td>@(inquilino.Estado ? "Activo" : "Inactivo")</td>
             <td>
-                <a asp-controller="inquilino" asp-action="Details" asp-route-IdUsuario="@inquilino.IdInquilino" class="btn btn-info btn-sm">Detalles</a>
-                <a asp-controller="inquilino" asp-action="Update" asp-route-IdUsuario="@inquilino.IdInquilino" class="btn btn-warning btn-sm">Editar</a>
-                <a asp-controller="inquilino" asp-action="DarDeBaja" asp-route-IdUsuario="@inquilino.IdInquilino" class="btn btn-danger btn-sm">Eliminar</a>
+                <a asp-controller="inquilino" asp-action="Details" asp-route-IdInquilino="@inquilino.IdInquilino" class="btn btn-info btn-sm">Detalles</a>
+                <a asp-controller="inquilino" asp-action="Update" asp-route-IdInquilino="@inquilino.IdInquilino" class="btn btn-warning btn-sm">Editar</a>
+                <a asp-controller="inquilino" asp-action="DarDeBaja" asp-route-IdInquilino="@inquilino.IdInquilino" class="btn btn-danger btn-sm">Eliminar</a>
             </td>
         </tr>
     }

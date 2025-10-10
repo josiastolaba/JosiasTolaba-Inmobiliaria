@@ -67,6 +67,57 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             }
           return lista;
         }
+
+        public IList<Pago> obtenerPaginados(int offset, int limit)
+        {
+            IList<Pago> res = new List<Pago>();
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = @"SELECT * FROM pago 
+                                WHERE Estado = true
+                                ORDER BY IdPago
+                                LIMIT @limit OFFSET @offset;";
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@limit", limit);
+                    command.Parameters.AddWithValue("@offset", offset);
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                       Pago p = new Pago
+                        {
+                            IdPago = reader.GetInt32(nameof(Pago.IdPago)),
+                            FechaPago = reader.GetDateTime(nameof(Pago.FechaPago)),
+                            Monto = reader.GetDecimal(nameof(Pago.Monto)),
+                            Mes = reader.GetDateTime(nameof(Pago.Mes)),
+                            NumeroPago = reader.GetString(nameof(Pago.NumeroPago)),
+                            Concepto = reader.GetString(nameof(Pago.Concepto)),
+                            IdContrato = reader.GetInt32(nameof(Pago.IdContrato)),
+                            //QuienCreo = reader.GetInt32(nameof(Pago.QuienCreo)),
+                            //QuienElimino = reader.GetInt32(nameof(Pago.QuienElimino)),
+                            Estado = reader.GetBoolean(nameof(Pago.Estado))
+                        };
+                        res.Add(p);
+                    }
+                }
+            }
+            return res;
+        }
+
+        public int contar()
+        {
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = "SELECT COUNT(*) FROM inmueble WHERE Estado = true;";
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    connection.Open();
+                    return Convert.ToInt32(command.ExecuteScalar());
+                }
+            }
+        }
         public int Alta(Pago p)
         {
             int res = -1;

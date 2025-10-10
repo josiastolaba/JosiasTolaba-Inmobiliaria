@@ -273,6 +273,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         }
         public int DarDeBaja(int IdPropietario)
         {
+
             int res = -1;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {

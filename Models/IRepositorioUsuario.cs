@@ -17,5 +17,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                 int contar();
 
                 Usuario? ObtenerPorEmail(string email);
+
+                void subirAvatar(int idUsuario, string avatarRuta);
         }      
 }

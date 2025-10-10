@@ -16,14 +16,28 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
             this.repoContrato = repoContrato;
             this.config = config;
         }
-        /*public JsonResult Buscar(string dato)
+        
+        [HttpGet]
+        public IActionResult BuscarPagos(DateTime? fechaDesde, DateTime? fechaHasta, int? idInquilino)
         {
-            var lista = repositorio.buscar(dato);
-            return Json(lista);
-        }*/
-        public IActionResult Index()
+            var lista = repositorio.buscarAvanzado(fechaDesde, fechaHasta, idInquilino);
+            return PartialView("_TablaPagos", lista);
+        }
+       public IActionResult Index(int pagina = 1) //MODIFICADO, SE LE AGREGO EL PAGINADO
         {
-            var pagos = repositorio.ListarPagos();
+            int paginaTam = 5;
+            int totalPagos = repositorio.contar();
+
+            int offset = (pagina - 1) * paginaTam;
+            var pagos = repositorio.obtenerPaginados(offset, paginaTam);
+
+            ViewBag.TotalPaginas = (int)Math.Ceiling((double)totalPagos/ paginaTam);
+            ViewBag.PaginaActual = pagina;
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_TablaPaginadaPagos", pagos);
+            }
             return View(pagos);
         }
         public IActionResult Create(int? id)

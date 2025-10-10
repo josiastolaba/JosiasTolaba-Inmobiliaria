@@ -112,20 +112,23 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
 			}
 			return View(p);
 		}
-		[Authorize(Policy = "Administrador")]
-		public IActionResult DarDeBaja(int IdPropietario)
-		{
-			Propietario p = repositorio.PropietarioId(IdPropietario);
-			int res = repositorio.DarDeBaja(IdPropietario);
-			if (res > 0)
-			{
-				return RedirectToAction(nameof(Index));
-			}
-			else
-			{
-				ViewBag.Error = "No se pudo eliminar el propietario";
-				return View();
-			}
-		}
+		
+	[Authorize(Policy = "Administrador")]
+public IActionResult DarDeBaja(int IdPropietario)
+{
+    int res = repositorio.DarDeBaja(IdPropietario);
+
+    if (res > 0)
+    {
+        TempData["Mensaje"] = "El propietario fue dado de baja correctamente.";
+    }
+    else
+    {
+        TempData["Error"] = "No se pudo dar de baja al propietario.";
+    }
+
+    return RedirectToAction(nameof(Index));
+}
+
 	}
 }

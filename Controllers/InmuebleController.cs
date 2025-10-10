@@ -24,9 +24,21 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
             var lista = repositorio.buscar(dato);
             return Json(lista);
         }
-        public IActionResult Index()
+       public IActionResult Index(int pagina = 1) //MODIFICADO, SE LE AGREGO EL PAGINADO
         {
-            var inmuebles = repositorio.ListarInmuebles();
+            int paginaTam = 5;
+            int totalInmuebles = repositorio.contar();
+
+            int offset = (pagina - 1) * paginaTam;
+            var inmuebles = repositorio.obtenerPaginados(offset, paginaTam);
+
+            ViewBag.TotalPaginas = (int)Math.Ceiling((double)totalInmuebles / paginaTam);
+            ViewBag.PaginaActual = pagina;
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_TablaPaginadaInmuebles", inmuebles);
+            }
             return View(inmuebles);
         }
         public IActionResult Create()

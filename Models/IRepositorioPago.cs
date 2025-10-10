@@ -8,5 +8,9 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         Pago PagoId(int IdPago);
 
         IList<Pago> buscarAvanzado(DateTime? fechaDesde, DateTime? fechaHasta, int? IdInquilino);
+
+        IList<Pago> obtenerPaginados(int offset, int limit);
+
+        int contar();
     }
 }

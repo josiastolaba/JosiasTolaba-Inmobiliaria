@@ -8,10 +8,15 @@
 <hr />
 <div class="row">
 	<div class = "form-Update">
-		<form asp-action="Update">
+		<form asp-action="Update"  enctype="multipart/form-data" asp-route-IdUsuario="@Model.IdUsuario">
 			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 			<input type="hidden" name="IdUsuario" value="@Model.IdUsuario"/>
 			<div class="form-group">
+
+			<div class="form-group">
+        	<label for="Avatar">Foto de perfil</label>
+        	<input type="file" name="AvatarFile" class="form-control" accept="image/*" />
+    		</div>
 				<label asp-for="Nombre" class="control-label"></label>
 				<input asp-for="Nombre" class="form-control" />
 				<span asp-validation-for="Nombre" class="text-danger"></span>

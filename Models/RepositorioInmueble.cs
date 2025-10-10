@@ -47,6 +47,57 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             }
             return lista;
         }
+
+         public IList<Inmueble> obtenerPaginados(int offset, int limit)
+        {
+            IList<Inmueble> res = new List<Inmueble>();
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = @"SELECT * FROM inmueble
+                                WHERE Estado = true
+                                ORDER BY IdInmueble
+                                LIMIT @limit OFFSET @offset;";
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@limit", limit);
+                    command.Parameters.AddWithValue("@offset", offset);
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        Inmueble p = new Inmueble
+                        {
+                            IdInmueble = reader.GetInt32(nameof(Inmueble.IdInmueble)),
+                            Direccion = reader.GetString(nameof(Inmueble.Direccion)),
+                            IdTipo = reader.GetInt32(nameof(Inmueble.IdTipo)),
+                            IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
+                            Uso = Enum.Parse<Inmueble.TipoUso>(reader.GetString(nameof(Inmueble.Uso))),
+                            Latitud = reader.GetDecimal(nameof(Inmueble.Latitud)),
+                            Longitud = reader.GetDecimal(nameof(Inmueble.Longitud)),
+                            Ambiente = reader.GetInt32(nameof(Inmueble.Ambiente)),
+                            Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
+                            Estado = reader.GetBoolean(nameof(Inmueble.Estado))
+                        };
+                        res.Add(p);
+                    }
+                }
+            }
+            return res;
+        }
+
+        public int contar()
+        {
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                string query = "SELECT COUNT(*) FROM inmueble WHERE Estado = true;";
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    connection.Open();
+                    return Convert.ToInt32(command.ExecuteScalar());
+                }
+            }
+        }
         public int Alta(Inmueble i)
         {
             int res = -1;

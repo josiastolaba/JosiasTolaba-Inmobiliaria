@@ -27,18 +27,23 @@ namespace Inmobiliaria_.Net_Core.Controllers
 			return Json(lista);
 		}
 
-		public ActionResult Index()
-		{
-			var lista = repositorio.ListarContratos()
-								   .Where(c => c.Estado)
-								   .ToList();
-			if (TempData.ContainsKey("Id"))
-				ViewBag.Id = TempData["Id"];
-			if (TempData.ContainsKey("Mensaje"))
-				ViewBag.Mensaje = TempData["Mensaje"];
+		 public IActionResult Index(int pagina = 1) //MODIFICADO, SE LE AGREGO EL PAGINADO
+        {
+            int paginaTam = 5;
+            int totalContratos = repositorio.contar();
 
-			return View(lista);
-		}
+            int offset = (pagina - 1) * paginaTam;
+            var contratos = repositorio.obtenerPaginados(offset, paginaTam);
+
+            ViewBag.TotalPaginas = (int)Math.Ceiling((double)totalContratos/ paginaTam);
+            ViewBag.PaginaActual = pagina;
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_TablaPaginadaUsuarios", contratos);
+            }
+            return View(contratos);
+        }
 		[HttpGet]
 		public JsonResult BuscarContratos(string term)
 		{

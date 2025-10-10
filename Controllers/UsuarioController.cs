@@ -13,17 +13,34 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
     {
         private readonly IRepositorioUsuario repositorio;
         private readonly IConfiguration config;
-        public UsuarioController(IRepositorioUsuario repositorio, IConfiguration config, IWebHostEnvironment environment)
+
+        private readonly IWebHostEnvironment env;
+        public UsuarioController(IRepositorioUsuario repositorio, IConfiguration config, IWebHostEnvironment env)
         {
             this.repositorio = repositorio;
             this.config = config;
+             this.env = env;
         }
-        [Authorize(Policy = "Administrador")]
-        public IActionResult Index()
+       [Authorize(Policy = "Administrador")]
+     public IActionResult Index(int pagina = 1) //MODIFICADO, SE LE AGREGO EL PAGINADO
         {
-            var usuarios = repositorio.ListarUsuarios();
+            int paginaTam = 5;
+            int totalUsuarios = repositorio.contar();
+
+            int offset = (pagina - 1) * paginaTam;
+            var usuarios = repositorio.obtenerPaginados(offset, paginaTam);
+
+            ViewBag.TotalPaginas = (int)Math.Ceiling((double)totalUsuarios / paginaTam);
+            ViewBag.PaginaActual = pagina;
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_TablaPaginadaUsuarios", usuarios);
+            }
             return View(usuarios);
         }
+
+
         [Authorize(Policy = "Administrador")]
         public IActionResult Create()
         {
@@ -31,17 +48,45 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
         }
         [HttpPost]
         [Authorize(Policy = "Administrador")]
-        public IActionResult Create(Usuario u)
+        public IActionResult Create(Usuario u, IFormFile? AvatarFile)
         {
             if (ModelState.IsValid)
             {
+                string uploadsFolder = Path.Combine(env.WebRootPath, "imagenes/usuarios");
+
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                // --- Manejo de imagen subida o por defecto ---
+                if (AvatarFile != null && AvatarFile.Length > 0)
+                {
+                    // Limpia el email para usarlo en el nombre del archivo
+                    string safeEmail = u.Email.Replace("@", "_at_").Replace(".", "_");
+                    string extension = Path.GetExtension(AvatarFile.FileName);
+                    string fileName = $"usuario_{safeEmail}_{Guid.NewGuid()}{extension}";
+                    string filePath = Path.Combine(uploadsFolder, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        AvatarFile.CopyTo(stream);
+                    }
+
+                    u.Avatar = $"/imagenes/usuarios/{fileName}";
+                }
+                else
+                {
+                    u.Avatar = "/imagenes/usuarios/default-avatar.png";
+                }
+
                 string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-                        password: u.Contrasena,
-                        salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
-                        prf: KeyDerivationPrf.HMACSHA1,
-                        iterationCount: 1000,
-                        numBytesRequested: 256 / 8));
+                    password: u.Contrasena,
+                    salt: System.Text.Encoding.ASCII.GetBytes(config["Salt"]),
+                    prf: KeyDerivationPrf.HMACSHA1,
+                    iterationCount: 1000,
+                    numBytesRequested: 256 / 8));
+
                 u.Contrasena = hashed;
+
                 int res = repositorio.Alta(u);
                 if (res > 0)
                 {
@@ -50,14 +95,49 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
                 else
                 {
                     ViewBag.Error = "No se pudo crear el usuario";
-                    return View();
+                    return View(u);
                 }
             }
             else
             {
-                return View();
+                return View(u);
             }
         }
+
+
+[HttpPost]
+public IActionResult SubirAvatar(int idUsuario, IFormFile avatar)
+{
+    try
+    {
+        if (avatar == null || avatar.Length == 0)
+            return Json(new { ok = false, mensaje = "No se recibió ningún archivo." });
+
+        string uploadsFolder = Path.Combine(env.WebRootPath, "imagenes/usuarios");
+        if (!Directory.Exists(uploadsFolder))
+            Directory.CreateDirectory(uploadsFolder);
+
+        string fileName = $"usuario_{idUsuario}_{Path.GetFileName(avatar.FileName)}";
+        string filePath = Path.Combine(uploadsFolder, fileName);
+
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            avatar.CopyTo(stream);
+        }
+
+        string rutaWeb = $"/imagenes/usuarios/{fileName}";
+
+        // Actualizar en la base de datos
+        repositorio.subirAvatar(idUsuario, rutaWeb);
+
+        return Json(new { ok = true, nuevaRuta = rutaWeb });
+    }
+    catch (Exception ex)
+    {
+        return Json(new { ok = false, mensaje = "Error al subir la imagen: " + ex.Message });
+    }
+}
+
         public IActionResult Update(int IdUsuario)
         {
             Usuario u = repositorio.UsuarioId(IdUsuario);
@@ -67,27 +147,54 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
             }
             return View(u);
         }
-        [HttpPost]
-        public IActionResult Update(Usuario u)
+[HttpPost]
+public IActionResult Update(Usuario u, IFormFile? AvatarFile)
+{
+    if (ModelState.IsValid)
+    {
+        // Si el usuario subió una nueva imagen
+        if (AvatarFile != null && AvatarFile.Length > 0)
         {
-            if (ModelState.IsValid)
+            string uploadsFolder = Path.Combine(env.WebRootPath, "imagenes/usuarios");
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
+
+            string extension = Path.GetExtension(AvatarFile.FileName);
+            string fileName = $"usuario_{u.IdUsuario}_{Path.GetFileName(AvatarFile.FileName)}";
+            string filePath = Path.Combine(uploadsFolder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
             {
-                int res = repositorio.Modificacion(u);
-                if (res > 0)
-                {
-                    return RedirectToAction(nameof(Index));
-                }
-                else
-                {
-                    ViewBag.Error = "No se pudo modificar el Usuario";
-                    return View();
-                }
+                AvatarFile.CopyTo(stream);
             }
-            else
-            {
-                return View();
-            }
+
+            // Guardamos la nueva ruta en el modelo
+            u.Avatar = $"/imagenes/usuarios/{fileName}";
         }
+        else
+        {
+            // Mantenemos la imagen actual (no se toca)
+            var existente = repositorio.UsuarioId(u.IdUsuario);
+            u.Avatar = existente.Avatar;
+        }
+
+        int res = repositorio.Modificacion(u);
+        if (res > 0)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+        else
+        {
+            ViewBag.Error = "No se pudo modificar el usuario";
+            return View(u);
+        }
+    }
+    else
+    {
+        return View(u);
+    }
+}
+
         public IActionResult Details(int IdUsuario)
         {
             Usuario u = repositorio.UsuarioId(IdUsuario);

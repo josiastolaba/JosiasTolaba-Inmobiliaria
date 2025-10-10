@@ -8,5 +8,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         IList<Inmueble> ListarInmuebles();
         Inmueble InmuebleId(int IdInmueble);
         int ModificarPortada(int IdInmueble, string ruta);
+        IList<Inmueble> obtenerPaginados(int offset, int limit);
+        int contar();
     }
 }

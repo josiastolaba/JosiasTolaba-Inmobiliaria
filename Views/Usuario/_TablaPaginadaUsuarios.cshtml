@@ -5,9 +5,10 @@
     var paginaActual = ViewBag.PaginaActual;
 }
 
-<table class="table table-striped table-bordered">
+<table class="table table-striped table-bordered align-middle">
     <thead class="table-dark">
         <tr>
+            <th>Foto</th>
             <th>Id</th>
             <th>Nombre</th>
             <th>Apellido</th>
@@ -21,7 +22,19 @@
     <tbody>
     @foreach (var usuario in Model)
     {
+        var avatarPath = string.IsNullOrEmpty(usuario.Avatar) || usuario.Avatar == "/imagenes/usuarios/"
+            ? Url.Content("~/imagenes/usuarios/default-avatar.png")
+            : Url.Content(usuario.Avatar);
+
         <tr>
+            <td class="text-center">
+                <img src="@avatarPath"
+                     alt="Avatar de @usuario.Nombre"
+                     class="rounded-circle"
+                     width="50" height="50"
+                     style="object-fit: cover; border: 2px solid #ddd;" />
+            </td>
+
             <td>@usuario.IdUsuario</td>
             <td>@usuario.Nombre</td>
             <td>@usuario.Apellido</td>
