@@ -83,8 +83,6 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
 			{
 				ModelState.AddModelError("Dni", $"El DNI {p.Dni} ya pertence a otro propietario");
 			}
-
-
 			if (ModelState.IsValid)
 			{
 				int res = repositorio.Modificacion(p);

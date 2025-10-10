@@ -8,7 +8,6 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         {
 
         }
-
         public List<Usuario> buscar(String dato)
         {
             var lista = new List<Usuario>();
