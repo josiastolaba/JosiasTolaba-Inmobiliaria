@@ -69,11 +69,11 @@
 // 🔹 Nueva función AJAX para paginación
     function cargarPagina(numPagina) {
         $.ajax({
-            url: '/Propietario/Index',
+            url: '/Inquilino/Index',
             type: 'GET',
             data: { pagina: numPagina },
             success: function (data) {
-                $("#tablaPropietarios").html(data); // reemplaza la tabla + paginacion
+                $("#tablaInquilinos").html(data); // reemplaza la tabla + paginacion
                 $("html, body").animate({ scrollTop: 0 }, "fast"); // vuelve arriba
             }
         });
