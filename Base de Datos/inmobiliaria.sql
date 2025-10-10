@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 07-10-2025 a las 19:06:40
+-- Tiempo de generación: 10-10-2025 a las 03:51:30
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -58,6 +58,13 @@ CREATE TABLE `imagen` (
   `Url` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `imagen`
+--
+
+INSERT INTO `imagen` (`IdImagen`, `IdInmueble`, `Url`) VALUES
+(1, 1, '/Uploads/Inmuebles/1/9fd4f5cf-6f0d-4360-8a1b-9fd7237def62.jpeg');
+
 -- --------------------------------------------------------
 
 --
@@ -74,6 +81,7 @@ CREATE TABLE `inmueble` (
   `Longitud` decimal(10,0) NOT NULL,
   `Precio` decimal(10,2) NOT NULL,
   `Ambiente` int(11) NOT NULL,
+  `PortadaUrl` varchar(100) NOT NULL,
   `Estado` tinyint(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -81,8 +89,8 @@ CREATE TABLE `inmueble` (
 -- Volcado de datos para la tabla `inmueble`
 --
 
-INSERT INTO `inmueble` (`IdInmueble`, `Direccion`, `IdTipo`, `IdPropietario`, `Uso`, `Latitud`, `Longitud`, `Precio`, `Ambiente`, `Estado`) VALUES
-(1, 'Calle falsa 123', 1, 1, 'Comercial', 4140338, 217403, 1000.00, 1, 1);
+INSERT INTO `inmueble` (`IdInmueble`, `Direccion`, `IdTipo`, `IdPropietario`, `Uso`, `Latitud`, `Longitud`, `Precio`, `Ambiente`, `PortadaUrl`, `Estado`) VALUES
+(1, 'Calle falsa 123', 1, 1, 'Comercial', 4140338, 217403, 1000.00, 1, '/Uploads/Inmuebles/portada_1.jpeg', 1);
 
 -- --------------------------------------------------------
 
@@ -199,16 +207,17 @@ CREATE TABLE `usuario` (
   `Nombre` varchar(100) NOT NULL,
   `Apellido` varchar(100) NOT NULL,
   `Dni` char(8) NOT NULL,
-  `Estado` tinyint(4) NOT NULL
+  `Estado` tinyint(4) NOT NULL,
+  `Avatar` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `usuario`
 --
 
-INSERT INTO `usuario` (`IdUsuario`, `Email`, `Contrasena`, `Rol`, `Nombre`, `Apellido`, `Dni`, `Estado`) VALUES
-(1, 'josiastolaba12@gmail.com', '/D5kC6DBbvyRW3eIzT4HAEq0LvWdQ3T/MqqGnaP/l4U=', 'Administrador', 'Josias', 'Tolaba', '11111111', 1),
-(2, 'abeltolaba@gmail.com', '/D5kC6DBbvyRW3eIzT4HAEq0LvWdQ3T/MqqGnaP/l4U=', 'Empleado', 'Abel', 'Tolaba', '22222222', 1);
+INSERT INTO `usuario` (`IdUsuario`, `Email`, `Contrasena`, `Rol`, `Nombre`, `Apellido`, `Dni`, `Estado`, `Avatar`) VALUES
+(1, 'josiastolaba12@gmail.com', '/D5kC6DBbvyRW3eIzT4HAEq0LvWdQ3T/MqqGnaP/l4U=', 'Administrador', 'Josias', 'Tolaba', '11111111', 1, ''),
+(2, 'abeltolaba@gmail.com', '/D5kC6DBbvyRW3eIzT4HAEq0LvWdQ3T/MqqGnaP/l4U=', 'Empleado', 'Abel', 'Tolaba', '22222222', 1, '');
 
 --
 -- Índices para tablas volcadas
@@ -294,7 +303,7 @@ ALTER TABLE `contrato`
 -- AUTO_INCREMENT de la tabla `imagen`
 --
 ALTER TABLE `imagen`
-  MODIFY `IdImagen` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `IdImagen` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `inmueble`
