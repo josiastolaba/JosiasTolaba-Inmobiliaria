@@ -48,6 +48,7 @@
                 }
                 <a asp-controller="Contrato" asp-action="Renovar" asp-route-IdContrato="@contrato.IdContrato" class="btn btn-danger btn-sm">Renovar</a>
                 <a asp-controller="Pago" asp-action="Create" asp-route-IdContrato="@contrato.IdContrato" class="btn btn-danger btn-sm">Hacer Pago</a>
+                <a asp-controller="Contrato" asp-action="Terminar" asp-route-IdContrato="@contrato.IdContrato" class="btn btn-danger btn-sm">Terminar</a>
             </td>
         </tr>
     }

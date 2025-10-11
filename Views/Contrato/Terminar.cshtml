@@ -1,0 +1,62 @@
+@model INMOBILIARIA_JosiasTolaba.Models.Contrato
+
+@{
+    ViewData["Title"] = "Detalles del Contrato";
+}
+
+<h1>Detalles del Contrato</h1>
+
+@if (Model == null)
+{
+    <p class="text-danger">No se encontró el contrato.</p>
+}
+else
+{
+    <div>
+        <h4>Contrato #@Model.IdContrato</h4>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-2">Inquilino</dt>
+            <dd class="col-sm-10">
+                @Model.Habitante?.Nombre @Model.Habitante?.Apellido (@Model.Habitante?.Dni)
+            </dd>
+            <input type="hidden" id="IdInquilino" value="@Model.IdContrato" />
+            <dt class="col-sm-2">Inmueble</dt>
+            <dd class="col-sm-10">
+                @Model.Propiedad?.Direccion 
+                (@Model.Propiedad?.TipoNombre)
+            </dd>
+
+            <dt class="col-sm-2">Fecha Inicio</dt>
+            <dd class="col-sm-10">
+                @(Model.FechaInicio.ToShortDateString())
+            </dd>
+
+            <dt class="col-sm-2">Fecha Fin</dt>
+            <dd class="col-sm-10">
+                @(Model.FechaFin.ToShortDateString())
+            </dd>
+
+            <dt class="col-sm-2">Monto Mensual</dt>
+            <dd class="col-sm-10">
+                @Model.MontoMensual.ToString("C")
+            </dd>
+
+            <dt class="col-sm-2">Estado</dt>
+            <dd class="col-sm-10">
+                @(Model.Estado ? "Activo" : "Inactivo")
+            </dd>
+        </dl>
+    </div>
+    <p>
+        <a asp-action="Index" class="btn btn-secondary">Volver</a>
+        @if (ViewBag.PasoMasDeLaMitad)
+        {
+        <a asp-controller="Contrato"asp-action="Terminar"asp-route-IdContrato="@Model.IdContrato"class="btn btn-primary">Terminar</a>
+        }
+        else
+        {
+        <a asp-controller="Pago"asp-action="Create"asp-route-IdContrato="@Model.IdContrato"class="btn btn-primary">Multa</a>
+        }
+    </p>
+}

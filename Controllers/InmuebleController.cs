@@ -70,11 +70,14 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
                 {
                     ViewBag.Error = "No se pudo crear el Inmueble";
                     ViewBag.Propietarios = repoPropietario.ListarPropietarios();
+                    ViewBag.Tipos = repoTipoInmueble.ListarTipoInmueble();
                     return View();
                 }
             }
             else
             {
+                ViewBag.Propietarios = repoPropietario.ListarPropietarios();
+                ViewBag.Tipos = repoTipoInmueble.ListarTipoInmueble();
                 return View();
             }
         }

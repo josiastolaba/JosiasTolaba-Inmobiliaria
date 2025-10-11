@@ -123,7 +123,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 					}
 					entidad.QuienCreo = idUsuarioLogueado;
 					repositorio.Alta(entidad);
-					
+
 					TempData["Id"] = entidad.IdContrato;
 					return RedirectToAction(nameof(Index));
 				}
@@ -255,6 +255,40 @@ namespace Inmobiliaria_.Net_Core.Controllers
 				ViewBag.Inquilinos = repoInquilino.ListarInquilinos();
 				ViewBag.Inmuebles = repoInmueble.ListarInmuebles();
 				return View(c);
+			}
+		}
+		public IActionResult Terminar(int IdContrato)
+		{
+			var contrato = repositorio.IdContrato(IdContrato);
+			DateTime hoy = DateTime.Today;
+			int totalDias = (contrato.FechaFin - contrato.FechaInicio).Days;
+			int diasTranscurridos = (hoy - contrato.FechaInicio).Days;
+			ViewBag.PasoMasDeLaMitad = diasTranscurridos > totalDias / 2;
+			if (contrato == null)
+				return NotFound();
+			return View(contrato);
+		}
+		[HttpPost]
+		public IActionResult Terminar(int IdContrato, Contrato entidad)
+		{
+			try
+			{
+				var userIdClaim = User.FindFirst("UserId")?.Value;
+				int? idUsuarioLogueado = null;
+				if (int.TryParse(userIdClaim, out int idParsed))
+				{
+					idUsuarioLogueado = idParsed;
+				}
+				int QuienElimino = (int)idUsuarioLogueado;
+				repositorio.TerminarContrato(IdContrato, QuienElimino);
+				TempData["Mensaje"] = "Contrato terminado correctamente";
+				return RedirectToAction(nameof(Index));
+			}
+			catch (Exception ex)
+			{
+				ViewBag.Error = ex.Message;
+				ViewBag.StackTrace = ex.StackTrace;
+				return View(entidad);
 			}
 		}
 	}

@@ -14,5 +14,6 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         IList<Contrato> obtenerPaginados(int offset, int limit);
 
         int contar();
+        bool TerminarContrato(int idContrato, int quienElimino);
     }
 }

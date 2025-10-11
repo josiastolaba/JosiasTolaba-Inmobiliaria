@@ -536,5 +536,34 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             }
             return res;
         }
+        public bool TerminarContrato(int idContrato, int idUsuario)
+        {
+            bool resultado = false;
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                connection.Open();
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        DarDeBaja(idContrato, idUsuario);
+                        string query = @"UPDATE reserva SET Estado = 0 WHERE IdContrato = @IdContrato";
+                        using (var cmdReserva = new MySqlCommand(query, connection, transaction))
+                        {
+                            cmdReserva.Parameters.AddWithValue("@IdContrato", idContrato);
+                            cmdReserva.ExecuteNonQuery();
+                        }
+                        transaction.Commit();
+                        resultado = true;
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+            return resultado;
+        }
     }
 }
