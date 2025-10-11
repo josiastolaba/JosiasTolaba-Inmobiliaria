@@ -34,7 +34,8 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         public IFormFile? PortadaFile { get; set; }
         public IList<Imagen>? Imagenes { get; set; } = new List<Imagen>();
         public bool Estado { get; set; }
-        
+
+        public Propietario? Propietario { get; set; }
         public Inmueble() { }
     }
 }

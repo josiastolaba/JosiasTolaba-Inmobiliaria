@@ -170,6 +170,56 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             return res;
         }
 
+        public IList<Contrato> buscarAvanzadoContratos(DateTime? fechaDesde, DateTime? fechaHasta, int? idInquilino)
+{
+    var lista = new List<Contrato>();
+    using (var connection = new MySqlConnection(connectionString))
+    {
+        string query = @"
+            SELECT c.IdContrato, c.FechaInicio, c.FechaFin, c.MontoMensual, c.Estado,
+                   i.IdInquilino, i.Nombre, i.Apellido
+            FROM Contrato c
+            JOIN Inquilino i ON c.IdInquilino = i.IdInquilino
+            WHERE (@fechaDesde IS NULL OR c.FechaInicio >= @fechaDesde)
+              AND (@fechaHasta IS NULL OR c.FechaFin <= @fechaHasta)
+              AND (@idInquilino IS NULL OR i.IdInquilino = @idInquilino)
+            ORDER BY c.FechaInicio DESC";
+
+        using (var command = new MySqlCommand(query, connection))
+        {
+            command.Parameters.AddWithValue("@fechaDesde", (object)fechaDesde ?? DBNull.Value);
+            command.Parameters.AddWithValue("@fechaHasta", (object)fechaHasta ?? DBNull.Value);
+            command.Parameters.AddWithValue("@idInquilino", (object)idInquilino ?? DBNull.Value);
+
+            connection.Open();
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var contrato = new Contrato
+                    {
+                        IdContrato = reader.GetInt32("IdContrato"),
+                        FechaInicio = reader.GetDateTime("FechaInicio"),
+                        FechaFin = reader.GetDateTime("FechaFin"),
+                        MontoMensual = reader.GetInt32("MontoMensual"),
+                        Estado = reader.GetBoolean("Estado"),
+                        Habitante = new InquilinoDto
+                        {
+                            IdInquilino = reader.GetInt32("IdInquilino"),
+                            Nombre = reader.GetString("Nombre"),
+                            Apellido = reader.GetString("Apellido")
+                        }
+                    };
+                    lista.Add(contrato);
+                }
+            }
+        }
+    }
+    return lista;
+}
+
+        
+
         public IList<Contrato> obtenerPaginados(int offset, int limit)
         {
             IList<Contrato> res = new List<Contrato>();

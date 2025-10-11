@@ -11,15 +11,9 @@
 <hr />
 <p>
     <a class="btn btn-primary" asp-action="Create" title="Crear"><i class="fa-solid fa-plus"></i>➕ Nuevo Inmueble</a>
+    <a asp-controller="Inmueble" asp-action="BuscarInmueblesAvanzado" class="btn btn-primary">Buscar inmuebles</a>
 </p>
 <hr />
-<div class="mb-3">
-    <label for="buscadorInput" class="form-label">Buscar Contrato por Direccion, Tipo, Uso o Precio </label>
-    <input type="text" id="buscadorInput" class="form-control mb-2" placeholder="Escribe al menos 3 letras..." 
-    list="opcionesInmueble"/>
-    <datalist id="opcionesInmueble">
-    </datalist>
-</div>
 
 <!-- Contenedor que ahora incluye tabla + paginación -->
 <div id="tablaInmueble">

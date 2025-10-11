@@ -1,3 +1,5 @@
+@model IEnumerable<INMOBILIARIA_JosiasTolaba.Models.Pago>
+
 @{
     ViewData["Title"] = "Buscar Pagos";
 }
@@ -13,54 +15,96 @@
     </label>
 </div>
 
-<!-- Filtros -->
+<!-- 🔹 Filtro por fecha -->
 <div id="filtro-fecha">
-    <input type="date" id="fechaInicio" class="form-control mb-2" />
-    <input type="date" id="fechaFin" class="form-control mb-2" />
+    <input type="date" id="fechaInicio" class="form-control mb-2" placeholder="Desde" />
+    <input type="date" id="fechaFin" class="form-control mb-2" placeholder="Hasta" />
 </div>
 
+<!-- 🔹 Filtro por inquilino -->
 <div id="filtro-inquilino" style="display:none;">
-    <input type="text" id="inquilinoFiltro" class="form-control mb-2" placeholder="Nombre, Apellido o DNI" />
+    <input type="text" id="inquilinoFiltro" class="form-control mb-2" placeholder="Nombre, Apellido o DNI" list="opcionesInquilino" />
+    <datalist id="opcionesInquilino"></datalist>
 </div>
 
 <button class="btn btn-success" onclick="buscarPagos()">Buscar</button>
 
 <hr />
 
-<!-- Acá se cargará la tabla -->
+<!-- Contenedor para la tabla -->
 <div id="tablaResultados">
     <p class="text-muted">No se ha realizado ninguna búsqueda.</p>
 </div>
 
 @section Scripts {
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
-    document.querySelectorAll("input[name='filtroTipo']").forEach(radio => {
-        radio.addEventListener("change", function () {
-            if (this.value === "fecha") {
-                document.getElementById("filtro-fecha").style.display = "block";
-                document.getElementById("filtro-inquilino").style.display = "none";
-            } else {
-                document.getElementById("filtro-fecha").style.display = "none";
-                document.getElementById("filtro-inquilino").style.display = "block";
-            }
-        });
+$(document).ready(function () {
+
+    // 🔄 Alternar entre filtros
+    $("input[name='filtroTipo']").change(function () {
+        if (this.value === "fecha") {
+            $("#filtro-fecha").show();
+            $("#filtro-inquilino").hide();
+        } else {
+            $("#filtro-fecha").hide();
+            $("#filtro-inquilino").show();
+        }
     });
 
-    function buscarPagos() {
-        let tipo = document.querySelector("input[name='filtroTipo']:checked").value;
-        let url = '@Url.Action("BuscarPagos", "Pago")';
+    // 🔹 Autocompletar inquilinos usando AJAX
+    $("#inquilinoFiltro").on("keyup", function () {
+        let texto = $(this).val();
+        if (texto.length >= 3) {
+            $.get('/Pago/BuscarInquilino', { dato: texto }, function (data) {
+                let lista = $("#opcionesInquilino");
+                lista.empty();
 
-        let params = {};
-        if (tipo === "fecha") {
-            params.fechaInicio = document.getElementById("fechaInicio").value;
-            params.fechaFin = document.getElementById("fechaFin").value;
-        } else {
-            params.filtro = document.getElementById("inquilinoFiltro").value;
+                if (data.length === 0) {
+                    lista.append('<option value="No se encontraron resultados">');
+                } else {
+                    data.forEach(function (item) {
+                        lista.append(
+                            `<option data-id="${item.idInquilino}" value="${item.nombreCompleto} - DNI: ${item.dni}"></option>`
+                        );
+                    });
+                }
+            });
         }
+    });
 
-        $.get(url, params, function (data) {
-            $("#tablaResultados").html(data);
-        });
+    // 🔹 Guardar el idInquilino cuando se selecciona del datalist
+    $("#inquilinoFiltro").on("change", function () {
+        let texto = $(this).val();
+        let opcion = $(`#opcionesInquilino option[value='${texto}']`);
+        let id = opcion.data("id");
+
+        if (id) {
+            $(this).data("idInquilino", id);
+        } else {
+            $(this).data("idInquilino", null);
+        }
+    });
+
+});
+
+// 🔹 Función AJAX para buscar pagos
+function buscarPagos() {
+    let tipo = $("input[name='filtroTipo']:checked").val();
+    let url = '@Url.Action("BuscarPagos", "Pago")';
+
+    let params = {};
+    if (tipo === "fecha") {
+        params.fechaDesde = $("#fechaInicio").val();
+        params.fechaHasta = $("#fechaFin").val();
+    } else {
+        params.idInquilino = $("#inquilinoFiltro").data("idInquilino") || null;
     }
+
+    $.get(url, params, function (data) {
+        $("#tablaResultados").html(data);
+    });
+}
 </script>
 }

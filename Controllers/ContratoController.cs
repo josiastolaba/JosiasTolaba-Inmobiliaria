@@ -21,11 +21,37 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		}
 
 		[HttpGet]
-		public JsonResult Buscar(string dato)
+		public IActionResult BuscarContratosAvanzado()
 		{
-			var lista = repositorio.buscar(dato);
-			return Json(lista);
+    	return View(); // Carga la vista principal completa
 		}
+
+		[HttpGet]
+		public IActionResult BuscarContratosAvanzadoTabla(DateTime? fechaDesde, DateTime? fechaHasta, int? idInquilino)
+		{
+   		 var lista = repositorio.buscarAvanzadoContratos(fechaDesde, fechaHasta, idInquilino);
+    	return PartialView("_TablaContratos", lista);
+		}
+
+		[HttpGet]
+		public JsonResult BuscarInquilino(string dato) //COMPLEMENTO PARA EL BUSCADOR AVANZADO
+		{
+    	if (string.IsNullOrWhiteSpace(dato) || dato.Length < 3)
+        	return Json(new List<object>());
+
+    	var lista = repoInquilino.buscar(dato)
+        	.Select(i => new
+        	{
+            idInquilino = i.IdInquilino,
+            nombreCompleto = $"{i.Nombre} {i.Apellido}",
+            dni = i.Dni
+        	})
+        	.ToList();
+
+    	return Json(lista);
+		}
+
+
 
 		public IActionResult contratosPorInquilino(int IdInquilino)
 		{

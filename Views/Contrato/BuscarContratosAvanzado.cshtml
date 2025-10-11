@@ -1,0 +1,98 @@
+@{
+    ViewData["Title"] = "Buscar Contratos";
+}
+
+<h2>Buscar Contratos</h2>
+
+<div class="mb-3">
+    <label>
+        <input type="radio" name="filtroTipo" value="fecha" checked> Por Fecha
+    </label>
+    <label class="ms-3">
+        <input type="radio" name="filtroTipo" value="inquilino"> Por Inquilino
+    </label>
+</div>
+
+<!-- 🔹 Filtro por fechas -->
+<div id="filtro-fecha">
+    <label>Desde:</label>
+    <input type="date" id="fechaInicio" class="form-control mb-2" />
+    <label>Hasta:</label>
+    <input type="date" id="fechaFin" class="form-control mb-2" />
+</div>
+
+<!-- 🔹 Filtro por inquilino -->
+<div id="filtro-inquilino" style="display:none;">
+    <input type="text" id="inquilinoFiltro" class="form-control mb-2" placeholder="Nombre, Apellido o DNI del inquilino" list="opcionesInquilino" />
+    <datalist id="opcionesInquilino"></datalist>
+</div>
+
+<button class="btn btn-success" onclick="buscarContratosAvanzado()">Buscar</button>
+
+<hr />
+
+<div id="tablaResultados">
+    <p class="text-muted">No se ha realizado ninguna búsqueda.</p>
+</div>
+
+@section Scripts {
+<script>
+    // 🔄 Alternar entre filtros
+    document.querySelectorAll("input[name='filtroTipo']").forEach(radio => {
+        radio.addEventListener("change", function () {
+            if (this.value === "fecha") {
+                $("#filtro-fecha").show();
+                $("#filtro-inquilino").hide();
+            } else {
+                $("#filtro-fecha").hide();
+                $("#filtro-inquilino").show();
+            }
+        });
+    });
+
+    // 🔹 Buscar contratos
+    function buscarContratosAvanzado() {
+        console.log("Ejecutando búsqueda avanzada de contratos...");
+
+        let tipo = document.querySelector("input[name='filtroTipo']:checked").value;
+        let url = '@Url.Action("BuscarContratosAvanzadoTabla", "Contrato")';
+
+        let params = {};
+        if (tipo === "fecha") {
+            params.fechaDesde = $("#fechaInicio").val();
+            params.fechaHasta = $("#fechaFin").val();
+        } else {
+            // Buscamos el id del inquilino seleccionado en el datalist
+            let texto = $("#inquilinoFiltro").val();
+            let opcion = $(`#opcionesInquilino option[value^='${texto.split(" - ")[0]}']`);
+            let id = opcion.data("id");
+            params.idInquilino = id;
+        }
+
+        $.get(url, params, function (data) {
+            $("#tablaResultados").html(data);
+        });
+    }
+
+    // 🔹 Autocompletar inquilinos
+    $("#inquilinoFiltro").on("keyup", function () {
+        let texto = $(this).val();
+        if (texto.length >= 3) {
+            $.get('/Contrato/BuscarInquilino', { dato: texto }, function (data) {
+                let lista = $("#opcionesInquilino");
+                lista.empty();
+
+                if (data.length === 0) {
+                    lista.append('<option value="No se encontraron resultados">');
+                } else {
+                    data.forEach(function (item) {
+                        lista.append(
+                            `<option data-id="${item.idInquilino}" value="${item.nombreCompleto} - DNI: ${item.dni}"></option>`
+                        );
+                    });
+                }
+            });
+        }
+    });
+</script>
+}

@@ -7,6 +7,8 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         IList<Contrato> ListarContratos();
         Contrato IdContrato(int IdContrato);
 
+        IList<Contrato> buscarAvanzadoContratos(DateTime? fechaDesde, DateTime? fechaHasta, int? idInquilino);
+
         List<Contrato> contratosPorInquilino(int IdInquilino);
 
         List<Contrato> contratoPorInmueble(int IdInmueble);
