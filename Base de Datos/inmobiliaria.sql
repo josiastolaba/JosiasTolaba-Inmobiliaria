@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 10-10-2025 a las 03:51:30
+-- Tiempo de generación: 11-10-2025 a las 04:32:00
 -- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.2.12
+-- Versión de PHP: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -90,7 +90,8 @@ CREATE TABLE `inmueble` (
 --
 
 INSERT INTO `inmueble` (`IdInmueble`, `Direccion`, `IdTipo`, `IdPropietario`, `Uso`, `Latitud`, `Longitud`, `Precio`, `Ambiente`, `PortadaUrl`, `Estado`) VALUES
-(1, 'Calle falsa 123', 1, 1, 'Comercial', 4140338, 217403, 1000.00, 1, '/Uploads/Inmuebles/portada_1.jpeg', 1);
+(1, 'Calle falsa 123', 1, 1, 'Comercial', 4140338, 217403, 1000.00, 1, '/Uploads/Inmuebles/portada_1.jpg', 1),
+(2, 'Calle San Martin 234', 1, 1, 'Residencial', 41222, 43224, 150000.00, 3, '', 1);
 
 -- --------------------------------------------------------
 
@@ -113,7 +114,8 @@ CREATE TABLE `inquilino` (
 --
 
 INSERT INTO `inquilino` (`IdInquilino`, `Nombre`, `Apellido`, `Dni`, `Telefono`, `Email`, `Estado`) VALUES
-(1, 'Josias', 'Tolaba', '11111111', '02282406411', 'josiastolaba12@gmail.com', 1);
+(1, 'Josias', 'Tolaba', '11111111', '02282406411', 'josiastolaba12@gmail.com', 1),
+(2, 'Marcos Antonio', 'Sosa Chirino', '46807958', '02664553401', 'marcosasosa@sanluis.edu.ar', 1);
 
 -- --------------------------------------------------------
 
@@ -133,6 +135,14 @@ CREATE TABLE `pago` (
   `QuienElimino` int(11) DEFAULT NULL,
   `Estado` tinyint(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `pago`
+--
+
+INSERT INTO `pago` (`IdPago`, `FechaPago`, `Monto`, `Mes`, `NumeroPago`, `Concepto`, `IdContrato`, `QuienCreo`, `QuienElimino`, `Estado`) VALUES
+(1, '2025-10-10', 900, '2025-10-10', '1', 'prueba', 1, NULL, NULL, 1),
+(2, '2025-10-17', 1200, '2025-10-17', '2', 'prueba', 1, NULL, NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -171,6 +181,13 @@ CREATE TABLE `reserva` (
   `FechaHasta` date NOT NULL,
   `Estado` tinyint(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `reserva`
+--
+
+INSERT INTO `reserva` (`IdReserva`, `IdInmueble`, `IdContrato`, `FechaDesde`, `FechaHasta`, `Estado`) VALUES
+(1, 1, 1, '2025-10-07', '2025-10-08', 1);
 
 -- --------------------------------------------------------
 
@@ -217,7 +234,10 @@ CREATE TABLE `usuario` (
 
 INSERT INTO `usuario` (`IdUsuario`, `Email`, `Contrasena`, `Rol`, `Nombre`, `Apellido`, `Dni`, `Estado`, `Avatar`) VALUES
 (1, 'josiastolaba12@gmail.com', '/D5kC6DBbvyRW3eIzT4HAEq0LvWdQ3T/MqqGnaP/l4U=', 'Administrador', 'Josias', 'Tolaba', '11111111', 1, ''),
-(2, 'abeltolaba@gmail.com', '/D5kC6DBbvyRW3eIzT4HAEq0LvWdQ3T/MqqGnaP/l4U=', 'Empleado', 'Abel', 'Tolaba', '22222222', 1, '');
+(2, 'abeltolaba@gmail.com', '/D5kC6DBbvyRW3eIzT4HAEq0LvWdQ3T/MqqGnaP/l4U=', 'Empleado', 'Abel', 'Tolaba', '22222222', 1, ''),
+(3, 'admin@local.test', 'rZD4tWeiA20YC5IG+4eYvB7t4AFrToiHejlPWvAHOAo=', 'Administrador', 'Admin', 'Local', '00000000', 1, '/imagenes/usuarios/default-avatar.png'),
+(4, 'marcosasosa@gmail.com', 'ARUH36sJbhMWWhuCvJNqJ631oybN/2yNsq1l8lr1uh8=', 'Administrador', 'Marcos Antonio', 'Sosa Chirino', '11111112', 1, '/imagenes/usuarios/default-avatar.png'),
+(5, 'Empleado@gmail.com', 'viNlp0mz1xbzK0kAWG09Qs1CZvPItigPA47naMqKhHU=', 'Empleado', 'Empleado', 'Uno', '10000009', 1, '/imagenes/usuarios/default-avatar.png');
 
 --
 -- Índices para tablas volcadas
@@ -309,19 +329,19 @@ ALTER TABLE `imagen`
 -- AUTO_INCREMENT de la tabla `inmueble`
 --
 ALTER TABLE `inmueble`
-  MODIFY `IdInmueble` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `IdInmueble` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `inquilino`
 --
 ALTER TABLE `inquilino`
-  MODIFY `IdInquilino` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `IdInquilino` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `pago`
 --
 ALTER TABLE `pago`
-  MODIFY `IdPago` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `IdPago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `propietario`
@@ -333,7 +353,7 @@ ALTER TABLE `propietario`
 -- AUTO_INCREMENT de la tabla `reserva`
 --
 ALTER TABLE `reserva`
-  MODIFY `IdReserva` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `IdReserva` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `tipo_inmueble`
@@ -345,7 +365,7 @@ ALTER TABLE `tipo_inmueble`
 -- AUTO_INCREMENT de la tabla `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `IdUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `IdUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Restricciones para tablas volcadas

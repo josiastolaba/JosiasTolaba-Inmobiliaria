@@ -376,7 +376,7 @@ public IList<Inmueble> Disponibilidad(DateTime fechaDesde, DateTime fechaHasta)
             Inmueble res = null;
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = $@"SELECT i.*,p.*, t.Nombre AS TipoNombre 
+                string query = $@"SELECT i.*,p.*, t.Nombre AS Tipo
                                 FROM inmueble i
                                 JOIN propietario p ON i.IdPropietario = p.IdPropietario
                                 JOIN tipo_inmueble t ON i.IdTipo = t.IdTipo
@@ -395,7 +395,6 @@ public IList<Inmueble> Disponibilidad(DateTime fechaDesde, DateTime fechaHasta)
                             IdInmueble = reader.GetInt32(nameof(Inmueble.IdInmueble)),
                             Direccion = reader.GetString(nameof(Inmueble.Direccion)),
                             IdTipo = reader.GetInt32(nameof(Inmueble.IdTipo)),
-                            TipoNombre = reader.IsDBNull(reader.GetOrdinal("TipoNombre")) ? "Sin tipo" : reader.GetString("TipoNombre"),
                             IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
                             Uso = Enum.Parse<Inmueble.TipoUso>(reader.GetString(nameof(Inmueble.Uso))),
                             Latitud = reader.GetDecimal(nameof(Inmueble.Latitud)),
