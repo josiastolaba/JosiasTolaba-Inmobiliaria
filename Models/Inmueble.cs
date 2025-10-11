@@ -13,7 +13,6 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         [Required(ErrorMessage = "El Tipo es obligatorio")]
         public int IdTipo { get; set; }
 
-        public string TipoNombre { get; set;  }
         public int IdPropietario { get; set; }
         public enum TipoUso
         {
