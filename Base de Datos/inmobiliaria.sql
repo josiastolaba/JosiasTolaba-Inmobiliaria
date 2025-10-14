@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 11-10-2025 a las 04:32:00
+-- Tiempo de generación: 14-10-2025 a las 20:20:43
 -- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.0.30
+-- Versión de PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -44,7 +44,7 @@ CREATE TABLE `contrato` (
 --
 
 INSERT INTO `contrato` (`IdContrato`, `FechaInicio`, `FechaFin`, `MontoMensual`, `IdInmueble`, `IdInquilino`, `QuienCreo`, `QuienElimino`, `Estado`) VALUES
-(1, '2025-10-07', '2025-10-08', 1000, 1, 1, NULL, NULL, 1);
+(1, '2025-10-07', '2025-10-08', 1000, 1, 1, 1, NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -141,8 +141,8 @@ CREATE TABLE `pago` (
 --
 
 INSERT INTO `pago` (`IdPago`, `FechaPago`, `Monto`, `Mes`, `NumeroPago`, `Concepto`, `IdContrato`, `QuienCreo`, `QuienElimino`, `Estado`) VALUES
-(1, '2025-10-10', 900, '2025-10-10', '1', 'prueba', 1, NULL, NULL, 1),
-(2, '2025-10-17', 1200, '2025-10-17', '2', 'prueba', 1, NULL, NULL, 1);
+(1, '2025-10-10', 900, '2025-10-10', '1', 'prueba', 1, 1, NULL, 1),
+(2, '2025-10-17', 1200, '2025-10-17', '2', 'prueba', 1, 2, NULL, 1);
 
 -- --------------------------------------------------------
 
