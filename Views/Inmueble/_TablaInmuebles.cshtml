@@ -1,0 +1,36 @@
+@model IEnumerable<INMOBILIARIA_JosiasTolaba.Models.Inmueble>
+
+@if (Model == null || !Model.Any())
+{
+    <p class="text-danger">No se encontraron resultados.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID Inmueble</th>
+                <th>Dirección</th>
+                <th>Tipo</th>
+                <th>Propietario</th>
+                <th>Teléfono</th>
+                <th>Email</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var inmueble in Model)
+        {
+            <tr>
+                <td>@inmueble.IdInmueble</td>
+                <td>@inmueble.Direccion</td>
+                <td>@inmueble.IdTipo</td>
+                <td>@inmueble.Propietario?.Nombre @inmueble.Propietario?.Apellido</td>
+                <td>@inmueble.Propietario?.Telefono</td>
+                <td>@inmueble.Propietario?.Email</td>
+                <td>@(inmueble.Estado ? "Activo" : "Inactivo")</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

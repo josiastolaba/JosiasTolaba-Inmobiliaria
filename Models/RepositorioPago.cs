@@ -8,14 +8,13 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         {
         }
 
-        public IList<Pago> buscarAvanzado(DateTime? fechaDesde, DateTime? fechaHasta, int? idInquilino)
-        {
-            int res = -1;
-            var lista = new List<Pago>();
-            using (MySqlConnection connection = new MySqlConnection(connectionString))
-            {
-                string query =  @"
-            SELECT p.IdPago, p.FechaPago, p.Monto, p.MesCorrespondiente,
+       public IList<Pago> buscarAvanzado(DateTime? fechaDesde, DateTime? fechaHasta, string filtroInquilino)
+{
+    var lista = new List<Pago>();
+    using (MySqlConnection connection = new MySqlConnection(connectionString))
+    {
+        string query = @"
+            SELECT p.IdPago, p.FechaPago, p.Monto, p.Mes,
                    p.NumeroPago, p.Concepto, p.Estado, p.IdContrato,
                    c.IdContrato, i.IdInquilino, i.Nombre, i.Apellido
             FROM Pago p
@@ -23,50 +22,49 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             JOIN Inquilino i ON c.IdInquilino = i.IdInquilino
             WHERE (@fechaDesde IS NULL OR p.FechaPago >= @fechaDesde)
               AND (@fechaHasta IS NULL OR p.FechaPago <= @fechaHasta)
-              AND (@idInquilino IS NULL OR i.IdInquilino = @idInquilino)
+              AND (@filtroInquilino IS NULL OR i.Nombre LIKE @filtroInquilino OR i.Apellido LIKE @filtroInquilino OR i.Dni LIKE @filtroInquilino)
             ORDER BY p.FechaPago DESC";
 
-                using (var command = new MySqlCommand(query, connection))
+        using (var command = new MySqlCommand(query, connection))
+        {
+            command.Parameters.AddWithValue("@fechaDesde", (object)fechaDesde ?? DBNull.Value);
+            command.Parameters.AddWithValue("@fechaHasta", (object)fechaHasta ?? DBNull.Value);
+            command.Parameters.AddWithValue("@filtroInquilino", string.IsNullOrWhiteSpace(filtroInquilino) ? DBNull.Value : "%" + filtroInquilino + "%");
+
+            connection.Open();
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
                 {
-                    command.Parameters.AddWithValue("@fechaDesde", (object)fechaDesde ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@fechaHasta", (object)fechaHasta ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@idInquilino", (object)idInquilino ?? DBNull.Value);
-
-                    connection.Open();
-                    using (var reader = command.ExecuteReader())
+                    var pago = new Pago
                     {
-                        while (reader.Read())
+                        IdPago = reader.GetInt32("IdPago"),
+                        FechaPago = reader.GetDateTime("FechaPago"),
+                        Monto = reader.GetDecimal("Monto"),
+                        Mes = reader.GetDateTime("Mes"),
+                        NumeroPago = reader.GetString("NumeroPago"),
+                        Concepto = reader.GetString("Concepto"),
+                        Estado = reader.GetBoolean("Estado"),
+                        IdContrato = reader.GetInt32("IdContrato"),
+                        Contrato = new ContratoDTO
                         {
-                            var pago = new Pago
+                            IdContrato = reader.GetInt32("IdContrato"),
+                            Habitante = new InquilinoDto
                             {
-                                IdPago = reader.GetInt32("IdPago"),
-                                FechaPago = reader.GetDateTime("FechaPago"),
-                                Monto = reader.GetDecimal("Monto"),
-                                Mes = reader.GetDateTime("Mes"),
-                                NumeroPago = reader.GetString("NumeroPago"),
-                                Concepto = reader.GetString("Concepto"),
-                                Estado = reader.GetBoolean("Estado"),
-                                IdContrato = reader.GetInt32("IdContrato"),
-
-                                Contrato = new ContratoDTO
-                                {
-                                    IdContrato = reader.GetInt32("IdContrato"),
-                                    Habitante = new InquilinoDto
-                                    {
-                                        IdInquilino = reader.GetInt32("IdInquilino"),
-                                        Nombre = reader.GetString("Nombre"),
-                                        Apellido = reader.GetString("Apellido")
-                                    }
-                                }
-                            };
-                            lista.Add(pago);
+                                IdInquilino = reader.GetInt32("IdInquilino"),
+                                Nombre = reader.GetString("Nombre"),
+                                Apellido = reader.GetString("Apellido")
+                            }
                         }
-                    }
-
+                    };
+                    lista.Add(pago);
                 }
             }
-          return lista;
         }
+    }
+    return lista;
+}
+
 
         public IList<Pago> obtenerPaginados(int offset, int limit)
         {

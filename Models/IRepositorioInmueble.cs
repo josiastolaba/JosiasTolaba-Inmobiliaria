@@ -10,6 +10,10 @@ namespace INMOBILIARIA_JosiasTolaba.Models
 
         int ModificarPortada(int IdInmueble, string ruta);
 
+                IList<Inmueble> buscarAvanzadoInmuebles(int IdPropietario, string direccion);
+
+                List<Inmueble> BuscarPorDireccion(string texto);
+                IList<Inmueble> Disponibilidad(DateTime fechaDesde, DateTime fechaHasta);
 
         List<Inmueble> inmueblesPorPropietario(int IdPropietario);
 

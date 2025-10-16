@@ -1,0 +1,32 @@
+@model IEnumerable<INMOBILIARIA_JosiasTolaba.Models.Contrato>
+
+@if (Model == null || !Model.Any())
+{
+    <p class="text-danger">No se encontraron resultados.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Contrato</th>
+                <th>Inquilino</th>
+                <th>Fecha Inicio</th>
+                <th>Fecha Fin</th>
+                <th>Monto Mensual</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var contrato in Model)
+        {
+            <tr>
+                <td>@contrato.IdContrato</td>
+                <td>@contrato.Habitante?.Nombre @contrato.Habitante?.Apellido</td>
+                <td>@contrato.FechaInicio.ToShortDateString()</td>
+                <td>@contrato.FechaFin.ToShortDateString()</td>
+                <td>$@contrato.MontoMensual</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

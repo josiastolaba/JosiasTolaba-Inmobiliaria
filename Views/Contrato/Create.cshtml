@@ -6,12 +6,13 @@
 
 <h1>Nuevo Contrato</h1>
 
-@if(ViewBag.Error != null)
+@if (ViewBag.Error != null)
 {
-    <div class="alert alert-danger">
-        <strong>Error:</strong> @ViewBag.Error
-    </div>
+	<div class="alert alert-danger" role="alert">
+		@ViewBag.Error
+	</div>
 }
+
 
 <form asp-action="Create" method="post">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>

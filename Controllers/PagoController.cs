@@ -9,18 +9,48 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
     {
         private readonly IRepositorioPago repositorio;
         private readonly IRepositorioContrato repoContrato;
+
+        private readonly IRepositorioInquilino repoInquilino;
         private readonly IConfiguration config;
-        public PagoController(IRepositorioPago repositorio, IRepositorioContrato repoContrato, IConfiguration config)
+        public PagoController(IRepositorioPago repositorio, IRepositorioInquilino repoInquilino, IRepositorioContrato repoContrato, IConfiguration config)
         {
             this.repositorio = repositorio;
             this.repoContrato = repoContrato;
+            this.repoInquilino = repoInquilino;
             this.config = config;
         }
 
+
+
         [HttpGet]
-        public IActionResult BuscarPagos(DateTime? fechaDesde, DateTime? fechaHasta, int? idInquilino)
+        public IActionResult Buscar()
         {
-            var lista = repositorio.buscarAvanzado(fechaDesde, fechaHasta, idInquilino);
+            return View(); // vista "Buscar.cshtml"
+        }
+        
+        [HttpGet]
+public JsonResult BuscarInquilino(string dato)
+{
+    if (string.IsNullOrWhiteSpace(dato) || dato.Length < 3)
+        return Json(new List<object>()); // no buscar si hay menos de 3 letras
+
+    var lista = repoInquilino.buscar(dato)
+        .Select(i => new
+        {
+            idInquilino = i.IdInquilino,
+            nombreCompleto = $"{i.Nombre} {i.Apellido}",
+            dni = i.Dni
+        })
+        .ToList();
+
+    return Json(lista);
+}
+
+
+        [HttpGet]
+        public IActionResult BuscarPagos(DateTime? fechaDesde, DateTime? fechaHasta, String filtroInquilino)
+        {
+            var lista = repositorio.buscarAvanzado(fechaDesde, fechaHasta, filtroInquilino);
             return PartialView("_TablaPagos", lista);
         }
         

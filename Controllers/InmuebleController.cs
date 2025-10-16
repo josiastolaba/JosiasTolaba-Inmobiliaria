@@ -19,19 +19,80 @@ namespace INMOBILIARIA_JosiasTolaba.Controllers
             this.config = config;
         }
         [HttpGet]
-        public JsonResult Buscar(string dato)
+        public JsonResult BuscarPropietario(string dato) //COMPLEMENTO DEL BUSCADOR AVANZADO
         {
-            var lista = repositorio.buscar(dato);
+            if (string.IsNullOrWhiteSpace(dato) || dato.Length < 3)
+                return Json(new List<object>()); // no busca si hay menos de 3 letras
+
+            var lista = repoPropietario.buscar(dato)
+                .Select(p => new
+                {
+                    idPropietario = p.IdPropietario,
+                    nombreCompleto = $"{p.Nombre} {p.Apellido}",
+                    dni = p.Dni
+                })
+                .ToList();
+
             return Json(lista);
         }
 
-       public IActionResult InmueblesPorPropietario(int idPropietario)
+[HttpGet]
+public JsonResult BuscarDireccion(string texto) //COMPLEMENTO DEL BUSCADOR AVANZADO
 {
-    //Console.WriteLine($"Buscando inmuebles del propietario {idPropietario}"); Para saber que ID carga
-    var lista = repositorio.inmueblesPorPropietario(idPropietario);
-    ViewBag.IdPropietario = idPropietario;
-    return View(lista);
+    if (string.IsNullOrWhiteSpace(texto) || texto.Length < 3)
+        return Json(new List<object>());
+
+    var lista = repositorio.BuscarPorDireccion(texto)
+        .Select(i => new
+        {
+            idInmueble = i.IdInmueble,
+            direccion = i.Direccion
+        })
+        .ToList();
+
+    return Json(lista);
 }
+
+
+
+        public IActionResult InmueblesPorPropietario(int idPropietario)
+        {
+            //Console.WriteLine($"Buscando inmuebles del propietario {idPropietario}"); Para saber que ID carga
+            var lista = repositorio.inmueblesPorPropietario(idPropietario);
+            ViewBag.IdPropietario = idPropietario;
+            return View(lista);
+        }
+
+       [HttpGet]
+    public IActionResult BuscarInmueblesAvanzadoTabla(string direccion, int idPropietario)
+    {
+        var lista = repositorio.buscarAvanzadoInmuebles(idPropietario, direccion);
+        return PartialView("_TablaInmuebles", lista);
+    }
+
+    [HttpGet]
+    public IActionResult Disponibilidad(DateTime? fechaDesde, DateTime? fechaHasta)
+    {
+        if (!fechaDesde.HasValue || !fechaHasta.HasValue)
+            return BadRequest("Debes seleccionar ambas fechas.");
+
+        if (fechaDesde.Value > fechaHasta.Value)
+            return BadRequest("La fecha desde no puede ser mayor a la fecha hasta.");
+
+        var lista = repositorio.Disponibilidad(fechaDesde.Value, fechaHasta.Value);
+        return PartialView("_TablaInmuebles", lista);
+    }
+
+
+        [HttpGet]
+        public IActionResult BuscarInmueblesAvanzado()
+        {
+        // Carga la vista principal con los filtros
+        return View();
+        }
+
+
+
 
        public IActionResult Index(int pagina = 1) //MODIFICADO, SE LE AGREGO EL PAGINADO
         {

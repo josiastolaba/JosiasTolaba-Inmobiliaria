@@ -1,0 +1,159 @@
+@{
+    ViewData["Title"] = "Buscar Inmuebles";
+}
+
+<h2>Buscar Inmuebles</h2>
+
+<div class="mb-3">
+    <label>
+        <input type="radio" name="filtroTipo" value="direccion" checked> Por Dirección
+    </label>
+    <label class="ms-3">
+        <input type="radio" name="filtroTipo" value="propietario"> Por Propietario
+    </label>
+    <label class="ms-3">
+        <input type="radio" name="filtroTipo" value="disponibilidad"> Disponibilidad
+    </label>
+</div>
+
+<!-- Filtro por dirección -->
+<div id="filtro-direccion">
+    <label for="direccionFiltro" class="form-label">Buscar por dirección</label>
+    <input type="text" id="direccionFiltro" class="form-control mb-2"
+           placeholder="Escribe al menos 3 letras..."
+           list="opcionesDireccion" />
+    <datalist id="opcionesDireccion"></datalist>
+</div>
+
+<!-- Filtro por propietario -->
+<div id="filtro-propietario" style="display:none;">
+    <label for="propietarioFiltro" class="form-label">Buscar propietario (nombre o DNI)</label>
+    <input type="text" id="propietarioFiltro" class="form-control mb-2"
+           placeholder="Escribe al menos 3 letras..."
+           list="opcionesPropietario" />
+    <datalist id="opcionesPropietario"></datalist>
+</div>
+
+<!-- Filtro por disponibilidad -->
+<div id="filtro-disponibilidad" style="display:none;">
+    <label class="form-label">Selecciona el rango de fechas</label>
+    <input type="date" id="fechaDesde" class="form-control mb-2" placeholder="Desde" />
+    <input type="date" id="fechaHasta" class="form-control mb-2" placeholder="Hasta" />
+</div>
+
+<button class="btn btn-success" onclick="BuscarInmueblesAvanzado()">Buscar</button>
+
+<hr />
+
+<div id="tablaResultados">
+    <p class="text-muted">No se ha realizado ninguna búsqueda.</p>
+</div>
+
+@section Scripts {
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+$(document).ready(function () {
+
+    // 🔄 Alternar entre filtros
+    $("input[name='filtroTipo']").change(function () {
+        $("#filtro-direccion").hide();
+        $("#filtro-propietario").hide();
+        $("#filtro-disponibilidad").hide();
+
+        if (this.value === "direccion") {
+            $("#filtro-direccion").show();
+        } else if (this.value === "propietario") {
+            $("#filtro-propietario").show();
+        } else if (this.value === "disponibilidad") {
+            $("#filtro-disponibilidad").show();
+        }
+    });
+
+    // 🔹 Autocompletar direcciones
+    $("#direccionFiltro").on("keyup", function () {
+        let texto = $(this).val();
+        if (texto.length >= 3) {
+            $.get('/Inmueble/BuscarDireccion', { texto: texto }, function (data) {
+                let lista = $("#opcionesDireccion");
+                lista.empty();
+                if (data.length === 0) {
+                    lista.append('<option value="No se encontraron resultados">');
+                } else {
+                    data.forEach(function (item) {
+                        lista.append(`<option data-id="${item.idInmueble}" value="${item.direccion}"></option>`);
+                    });
+                }
+            });
+        }
+    });
+
+    // 🔹 Autocompletar propietarios
+    $("#propietarioFiltro").on("keyup", function () {
+        let texto = $(this).val();
+        if (texto.length >= 3) {
+            $.get('/Inmueble/BuscarPropietario', { dato: texto }, function (data) {
+                let lista = $("#opcionesPropietario");
+                lista.empty();
+                if (data.length === 0) {
+                    lista.append('<option value="No se encontraron resultados">');
+                } else {
+                    data.forEach(function (item) {
+                        lista.append(
+                            `<option data-id="${item.idPropietario}" value="${item.nombreCompleto} - DNI: ${item.dni}"></option>`
+                        );
+                    });
+                }
+            });
+        }
+    });
+
+    // 🔹 Guardar idPropietario al seleccionar del datalist
+    $("#propietarioFiltro").on("change", function () {
+        let texto = $(this).val();
+        let opcion = $(`#opcionesPropietario option[value='${texto}']`);
+        let id = opcion.data("id");
+        if (id) {
+            $(this).data("idPropietario", id);
+        }
+    });
+
+});
+
+// 🔹 Búsqueda final
+function BuscarInmueblesAvanzado() {
+    let tipo = $("input[name='filtroTipo']:checked").val();
+    let params = {};
+    let url = '';
+
+    if (tipo === "direccion") {
+        url = '@Url.Action("BuscarInmueblesAvanzadoTabla", "Inmueble")';
+        params.direccion = $("#direccionFiltro").val();
+    } else if (tipo === "propietario") {
+        let idPropietario = $("#propietarioFiltro").data("idPropietario") || null;
+        if (!idPropietario) {
+            alert("Selecciona un propietario válido del listado.");
+            return;
+        }
+        url = '@Url.Action("BuscarInmueblesAvanzadoTabla", "Inmueble")';
+        params.idPropietario = idPropietario;
+    } else if (tipo === "disponibilidad") {
+        let fechaDesde = $("#fechaDesde").val();
+        let fechaHasta = $("#fechaHasta").val();
+        if (!fechaDesde || !fechaHasta) {
+            alert("Debes seleccionar ambas fechas para disponibilidad.");
+            return;
+        }
+        url = '@Url.Action("Disponibilidad", "Inmueble")';
+        params.fechaDesde = fechaDesde;
+        params.fechaHasta = fechaHasta;
+    }
+
+    $.get(url, params, function (data) {
+        $("#tablaResultados").html(data);
+    }).fail(function(xhr) {
+        alert("Error en la búsqueda: " + xhr.responseText);
+    });
+}
+</script>
+}
