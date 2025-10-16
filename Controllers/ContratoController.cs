@@ -141,7 +141,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 	{
 		if (ModelState.IsValid)
 		{
-			// 🧾 Auditoría: obtiene el ID del usuario logueado
+			//Auditoría: obtiene el ID del usuario logueado
 			var userIdClaim = User.FindFirst("UserId")?.Value;
 			int? idUsuarioLogueado = null;
 			if (int.TryParse(userIdClaim, out int idParsed))
@@ -159,13 +159,13 @@ namespace Inmobiliaria_.Net_Core.Controllers
 		{
 			ViewBag.Inquilinos = repoInquilino.ListarInquilinos();
 			ViewBag.Inmuebles = repoInmueble.ListarInmuebles();
-			ViewBag.Error = "❌ Los datos ingresados no son válidos.";
+			ViewBag.Error = "Los datos ingresados no son válidos.";
 			return View(entidad);
 		}
 	}
 	catch (InvalidOperationException ex)
 	{
-		// ⚠️ Caso específico: superposición de fechas
+		//Caso específico: superposición de fechas
 		ViewBag.Error = ex.Message;
 		ViewBag.Inquilinos = repoInquilino.ListarInquilinos();
 		ViewBag.Inmuebles = repoInmueble.ListarInmuebles();
@@ -173,7 +173,7 @@ namespace Inmobiliaria_.Net_Core.Controllers
 	}
 	catch (Exception ex)
 	{
-		// 🧨 Otros errores
+		//Otros errores
 		ViewBag.Error = "Ocurrió un error al crear el contrato: " + ex.Message;
 		ViewBag.StackTrace = ex.StackTrace;
 		ViewBag.Inquilinos = repoInquilino.ListarInquilinos();
@@ -204,7 +204,7 @@ public ActionResult Edit(int IdContrato, Contrato entidad)
     {
         if (ModelState.IsValid)
         {
-            // 🧾 Auditoría: usuario que modifica
+            //Auditoría: usuario que modifica
             var userIdClaim = User.FindFirst("UserId")?.Value;
             int? idUsuarioLogueado = null;
             if (int.TryParse(userIdClaim, out int idParsed))
@@ -215,7 +215,7 @@ public ActionResult Edit(int IdContrato, Contrato entidad)
             entidad.IdContrato = IdContrato;
             entidad.QuienCreo = idUsuarioLogueado;
 
-            // 🧠 Intentar modificación
+            //Intentar modificación
             repositorio.Modificacion(entidad);
             return RedirectToAction(nameof(Index));
         }
@@ -228,7 +228,7 @@ public ActionResult Edit(int IdContrato, Contrato entidad)
     }
     catch (InvalidOperationException ex)
     {
-        // ⚠️ Error controlado desde el repositorio (superposición de fechas)
+        //Error controlado desde el repositorio (superposición de fechas)
         ViewBag.Error = ex.Message;
         ViewBag.Inquilinos = repoInquilino.ListarInquilinos();
         ViewBag.Inmuebles = repoInmueble.ListarInmuebles();
@@ -236,7 +236,7 @@ public ActionResult Edit(int IdContrato, Contrato entidad)
     }
     catch (Exception ex)
     {
-        // ❌ Otros errores inesperados
+        //Otros errores inesperados
         ViewBag.Error = "Ocurrió un error al modificar el contrato.";
         ViewBag.StackTrace = ex.StackTrace;
         ViewBag.Inquilinos = repoInquilino.ListarInquilinos();
