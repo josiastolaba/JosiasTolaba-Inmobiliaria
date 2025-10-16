@@ -398,7 +398,6 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                             QuienCreo = reader.IsDBNull(reader.GetOrdinal(nameof(Contrato.QuienCreo)))
                                 ? (int?)null
                                 : reader.GetInt32(reader.GetOrdinal(nameof(Contrato.QuienCreo))),
-
                             QuienElimino = reader.IsDBNull(reader.GetOrdinal(nameof(Contrato.QuienElimino)))
                                 ? (int?)null
                                 : reader.GetInt32(reader.GetOrdinal(nameof(Contrato.QuienElimino))),

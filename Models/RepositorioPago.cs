@@ -73,7 +73,8 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             IList<Pago> res = new List<Pago>();
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = @"SELECT * FROM pago 
+                string query = @"SELECT p.IdPago, p.FechaPago, p.Monto, p.Mes, p.NumeroPago, p.Concepto, p.IdContrato, p.QuienCreo, p.QuienElimino, p.Estado 
+                                FROM pago AS p
                                 WHERE Estado = true
                                 ORDER BY IdPago
                                 LIMIT @limit OFFSET @offset;";
@@ -86,7 +87,7 @@ namespace INMOBILIARIA_JosiasTolaba.Models
 
                     while (reader.Read())
                     {
-                       Pago p = new Pago
+                        Pago p = new Pago
                         {
                             IdPago = reader.GetInt32(nameof(Pago.IdPago)),
                             FechaPago = reader.GetDateTime(nameof(Pago.FechaPago)),
@@ -95,8 +96,13 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                             NumeroPago = reader.GetString(nameof(Pago.NumeroPago)),
                             Concepto = reader.GetString(nameof(Pago.Concepto)),
                             IdContrato = reader.GetInt32(nameof(Pago.IdContrato)),
-                            //QuienCreo = reader.GetInt32(nameof(Pago.QuienCreo)),
-                            //QuienElimino = reader.GetInt32(nameof(Pago.QuienElimino)),
+                            QuienCreo = reader.IsDBNull(reader.GetOrdinal(nameof(Pago.QuienCreo))) 
+                                ? null 
+                                : reader.GetInt32(nameof(Pago.QuienCreo)),
+
+                            QuienElimino = reader.IsDBNull(reader.GetOrdinal(nameof(Pago.QuienElimino))) 
+                                ? null 
+                                : reader.GetInt32(nameof(Pago.QuienElimino)),
                             Estado = reader.GetBoolean(nameof(Pago.Estado))
                         };
                         res.Add(p);
@@ -324,8 +330,8 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                                 NumeroPago = reader.GetString(nameof(Pago.NumeroPago)),
                                 Concepto = reader.GetString(nameof(Pago.Concepto)),
                                 IdContrato = reader.GetInt32(nameof(Pago.IdContrato)),
-                                //QuienCreo = reader.GetInt32(nameof(Pago.QuienCreo)),
-                                //QuienElimino = reader.GetInt32(nameof(Pago.QuienElimino)),
+                                QuienCreo = reader.GetInt32(nameof(Pago.QuienCreo)),
+                                QuienElimino = reader.GetInt32(nameof(Pago.QuienElimino)),
                                 Estado = reader.GetBoolean(nameof(Pago.Estado))
                             };
                         }

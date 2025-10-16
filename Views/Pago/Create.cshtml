@@ -51,7 +51,7 @@
             <!-- Contrato -->
             <div class="form-group">
                 <label for="IdContrato">Contrato</label>
-                <select asp-for="Contrato.IdContrato" class="form-control"
+                <select asp-for="IdContrato" class="form-control"
                         asp-items="@(new SelectList(ViewBag.Contratos ?? new List<INMOBILIARIA_JosiasTolaba.Models.Contrato>(), "IdContrato", "IdContrato", ViewBag.IdContrato))">
                     <option value="">-- Seleccione un Contrato --</option>
                 </select>
