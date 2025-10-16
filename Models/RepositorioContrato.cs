@@ -116,59 +116,92 @@ namespace INMOBILIARIA_JosiasTolaba.Models
             return lista;
         }
 
-        public int Alta(Contrato c)
+     public int Alta(Contrato c)
+{
+    int res = -1;
+    using (MySqlConnection connection = new MySqlConnection(connectionString))
+    {
+        connection.Open();
+        using (var transaction = connection.BeginTransaction())
         {
-            int res = -1;
-            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            try
             {
-                connection.Open();
-                using (var transaction = connection.BeginTransaction())
+                // 🟡 Verificar si hay superposición de fechas en reservas activas
+                string queryVerificar = @"
+                    SELECT COUNT(*) 
+                    FROM reserva 
+                    WHERE IdInmueble = @IdInmueble
+                      AND Estado = 1
+                      AND (
+                          (FechaDesde <= @FechaHasta AND FechaHasta >= @FechaDesde)
+                      );";
+
+                using (var cmdVerificar = new MySqlCommand(queryVerificar, connection, transaction))
                 {
-                    try
+                    cmdVerificar.Parameters.AddWithValue("@IdInmueble", c.Propiedad.IdInmueble);
+                    cmdVerificar.Parameters.AddWithValue("@FechaDesde", c.FechaInicio);
+                    cmdVerificar.Parameters.AddWithValue("@FechaHasta", c.FechaFin);
+
+                    int existeSuperposicion = Convert.ToInt32(cmdVerificar.ExecuteScalar());
+                    if (existeSuperposicion > 0)
                     {
-                        // Inserta Contrato
-                        string queryContrato = @"
-                            INSERT INTO contrato (FechaInicio, FechaFin, MontoMensual, IdInquilino, IdInmueble, QuienCreo, QuienElimino, Estado)
-                            VALUES (@FechaInicio, @FechaFin, @MontoMensual, @IdInquilino, @IdInmueble, @QuienCreo, @QuienElimino, @Estado);
-                            SELECT LAST_INSERT_ID();";
-                        using (var cmdContrato = new MySqlCommand(queryContrato, connection, transaction))
-                        {
-                            c.Estado = true;
-                            cmdContrato.Parameters.AddWithValue("@FechaInicio", c.FechaInicio);
-                            cmdContrato.Parameters.AddWithValue("@FechaFin", c.FechaFin);
-                            cmdContrato.Parameters.AddWithValue("@MontoMensual", c.MontoMensual);
-                            cmdContrato.Parameters.AddWithValue("@IdInquilino", c.Habitante.IdInquilino);
-                            cmdContrato.Parameters.AddWithValue("@IdInmueble", c.Propiedad.IdInmueble);
-                            cmdContrato.Parameters.AddWithValue("@QuienCreo", c.QuienCreo);
-                            cmdContrato.Parameters.AddWithValue("@QuienElimino", DBNull.Value);
-                            cmdContrato.Parameters.AddWithValue("@Estado", c.Estado);
-                            res = Convert.ToInt32(cmdContrato.ExecuteScalar()); // IdContrato generado
-                        }
-                        // Inserta Reserva usando IdContrato
-                        string queryReserva = @"
-                            INSERT INTO reserva (IdInmueble, IdContrato, FechaDesde, FechaHasta, Estado)
-                            VALUES (@IdInmueble, @IdContrato, @FechaDesde, @FechaHasta, @Estado)";
-                        using (var cmdReserva = new MySqlCommand(queryReserva, connection, transaction))
-                        {
-                            cmdReserva.Parameters.AddWithValue("@IdInmueble", c.Propiedad.IdInmueble);
-                            cmdReserva.Parameters.AddWithValue("@IdContrato", res);
-                            cmdReserva.Parameters.AddWithValue("@FechaDesde", c.FechaInicio);
-                            cmdReserva.Parameters.AddWithValue("@FechaHasta", c.FechaFin);
-                            cmdReserva.Parameters.AddWithValue("@Estado", true);
-                            cmdReserva.ExecuteNonQuery();
-                        }
-                        // Commit de la transacción
-                        transaction.Commit();
-                    }
-                    catch
-                    {
-                        transaction.Rollback();
-                        throw;
+                        // ❌ No continuar con la transacción
+                        throw new InvalidOperationException("El inmueble tiene una reserva activa que se superpone con las fechas del contrato.");
                     }
                 }
+
+                // 🧾 Insertar Contrato
+                string queryContrato = @"
+                    INSERT INTO contrato (FechaInicio, FechaFin, MontoMensual, IdInquilino, IdInmueble, QuienCreo, QuienElimino, Estado)
+                    VALUES (@FechaInicio, @FechaFin, @MontoMensual, @IdInquilino, @IdInmueble, @QuienCreo, @QuienElimino, @Estado);
+                    SELECT LAST_INSERT_ID();";
+
+                using (var cmdContrato = new MySqlCommand(queryContrato, connection, transaction))
+                {
+                    c.Estado = true;
+                    cmdContrato.Parameters.AddWithValue("@FechaInicio", c.FechaInicio);
+                    cmdContrato.Parameters.AddWithValue("@FechaFin", c.FechaFin);
+                    cmdContrato.Parameters.AddWithValue("@MontoMensual", c.MontoMensual);
+                    cmdContrato.Parameters.AddWithValue("@IdInquilino", c.Habitante.IdInquilino);
+                    cmdContrato.Parameters.AddWithValue("@IdInmueble", c.Propiedad.IdInmueble);
+                    cmdContrato.Parameters.AddWithValue("@QuienCreo", c.QuienCreo);
+                    cmdContrato.Parameters.AddWithValue("@QuienElimino", DBNull.Value);
+                    cmdContrato.Parameters.AddWithValue("@Estado", c.Estado);
+                    res = Convert.ToInt32(cmdContrato.ExecuteScalar());
+                }
+
+                // 🏠 Insertar Reserva
+                string queryReserva = @"
+                    INSERT INTO reserva (IdInmueble, IdContrato, FechaDesde, FechaHasta, Estado)
+                    VALUES (@IdInmueble, @IdContrato, @FechaDesde, @FechaHasta, @Estado)";
+                using (var cmdReserva = new MySqlCommand(queryReserva, connection, transaction))
+                {
+                    cmdReserva.Parameters.AddWithValue("@IdInmueble", c.Propiedad.IdInmueble);
+                    cmdReserva.Parameters.AddWithValue("@IdContrato", res);
+                    cmdReserva.Parameters.AddWithValue("@FechaDesde", c.FechaInicio);
+                    cmdReserva.Parameters.AddWithValue("@FechaHasta", c.FechaFin);
+                    cmdReserva.Parameters.AddWithValue("@Estado", true);
+                    cmdReserva.ExecuteNonQuery();
+                }
+
+                transaction.Commit();
             }
-            return res;
+            catch (InvalidOperationException ex)
+            {
+                // ⚠️ No hacer rollback manual — solo dejar que el throw suba al controlador
+                throw ex;
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
         }
+    }
+    return res;
+}
+
+
 
         public IList<Contrato> buscarAvanzadoContratos(DateTime? fechaDesde, DateTime? fechaHasta, int? idInquilino)
 {
@@ -333,11 +366,43 @@ namespace INMOBILIARIA_JosiasTolaba.Models
         }
 
         public int Modificacion(Contrato c)
+{
+    int res = -1;
+
+    using (MySqlConnection connection = new MySqlConnection(connectionString))
+    {
+        connection.Open();
+        using (var transaction = connection.BeginTransaction())
         {
-            int res = -1;
-            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            try
             {
-                string query = @"
+                // Verificar si hay superposición de fechas con otras reservas activas
+                string queryVerificar = @"
+                    SELECT COUNT(*) 
+                    FROM reserva 
+                    WHERE IdInmueble = @IdInmueble
+                      AND Estado = 1
+                      AND IdContrato != @IdContrato
+                      AND (
+                          (FechaDesde <= @FechaHasta AND FechaHasta >= @FechaDesde)
+                      );";
+
+                using (var cmdVerificar = new MySqlCommand(queryVerificar, connection, transaction))
+                {
+                    cmdVerificar.Parameters.AddWithValue("@IdInmueble", c.Propiedad.IdInmueble);
+                    cmdVerificar.Parameters.AddWithValue("@FechaDesde", c.FechaInicio);
+                    cmdVerificar.Parameters.AddWithValue("@FechaHasta", c.FechaFin);
+                    cmdVerificar.Parameters.AddWithValue("@IdContrato", c.IdContrato);
+
+                    int existeSuperposicion = Convert.ToInt32(cmdVerificar.ExecuteScalar());
+                    if (existeSuperposicion > 0)
+                    {
+                        throw new InvalidOperationException("No se puede modificar el contrato: las fechas se superponen con una reserva activa de este inmueble.");
+                    }
+                }
+
+                // Actualizar contrato
+                string queryContrato = @"
                     UPDATE contrato SET
                         FechaInicio = @FechaInicio,
                         FechaFin = @FechaFin,
@@ -346,23 +411,50 @@ namespace INMOBILIARIA_JosiasTolaba.Models
                         IdInmueble = @IdInmueble
                     WHERE IdContrato = @IdContrato";
 
-                using (MySqlCommand command = new MySqlCommand(query, connection))
+                using (MySqlCommand command = new MySqlCommand(queryContrato, connection, transaction))
                 {
                     command.Parameters.AddWithValue("@FechaInicio", c.FechaInicio);
                     command.Parameters.AddWithValue("@FechaFin", c.FechaFin);
                     command.Parameters.AddWithValue("@MontoMensual", c.MontoMensual);
                     command.Parameters.AddWithValue("@IdInquilino", c.Habitante.IdInquilino);
                     command.Parameters.AddWithValue("@IdInmueble", c.Propiedad.IdInmueble);
-                    //command.Parameters.AddWithValue("@QuienCreo", c.QuienCreo);
-                    //command.Parameters.AddWithValue("@QuienElimino", c.QuienElimino);
                     command.Parameters.AddWithValue("@IdContrato", c.IdContrato);
 
-                    connection.Open();
                     res = command.ExecuteNonQuery();
                 }
+
+                // Actualizar la reserva asociada (si existe)
+                string queryReserva = @"
+                    UPDATE reserva
+                    SET FechaDesde = @FechaDesde,
+                        FechaHasta = @FechaHasta
+                    WHERE IdContrato = @IdContrato";
+
+                using (var cmdReserva = new MySqlCommand(queryReserva, connection, transaction))
+                {
+                    cmdReserva.Parameters.AddWithValue("@FechaDesde", c.FechaInicio);
+                    cmdReserva.Parameters.AddWithValue("@FechaHasta", c.FechaFin);
+                    cmdReserva.Parameters.AddWithValue("@IdContrato", c.IdContrato);
+                    cmdReserva.ExecuteNonQuery();
+                }
+
+                transaction.Commit();
             }
-            return res;
+            catch (InvalidOperationException ex)
+            {
+                //Dejar que el controlador maneje la excepción
+                throw ex;
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
         }
+    }
+
+    return res;
+}
 
         public List<Contrato> contratoPorInmueble(int IdInmueble)
         {

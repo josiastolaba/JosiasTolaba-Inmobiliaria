@@ -7,6 +7,11 @@
 <h1>Editar Contrato</h1>
 
 <h4>Contrato</h4>
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-warning">@ViewBag.Error</div>
+}
 <hr />
 
 <div class="row">
